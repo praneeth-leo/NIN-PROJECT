@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Profile Summary</title>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+body {
+    background: linear-gradient(135deg, #0b0f1a 0%, #1a1f3a 100%);
+    color: #e5e7eb;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.success-card {
+    background: rgba(2, 6, 23, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    border-radius: 16px;
+    padding: 40px;
+    text-align: center;
+    max-width: 500px;
+    width: 100%;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 25px;
+    font-size: 36px;
+    color: white;
+}
+
+.profile-id {
+    background: rgba(34, 197, 94, 0.1);
+    border: 1px solid rgba(34, 197, 94, 0.3);
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin: 20px 0;
+    display: inline-block;
+}
+
+.barcode-container {
+    background: white;
+    padding: 25px;
+    border-radius: 12px;
+    margin: 30px 0;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+}
+
+.barcode-container img {
+    width: 100%;
+    max-width: 300px;
+    height: auto;
+    display: block;
+    margin: 0 auto;
+}
+
+.btn-success-custom {
+    background: linear-gradient(135deg, #22c55e, #16a34a);
+    border: none;
+    padding: 14px 24px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 16px;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    width: 100%;
+}
+
+.btn-success-custom:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
+}
+
+.btn-outline-custom {
+    background: transparent;
+    border: 2px solid #4b5563;
+    color: #e5e7eb;
+    padding: 12px 24px;
+    border-radius: 10px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
+
+.btn-outline-custom:hover {
+    border-color: #22c55e;
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+h4 {
+    color: #22c55e;
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+p {
+    color: #9ca3af;
+    margin-bottom: 10px;
+}
+
+@media (max-width: 576px) {
+    .success-card {
+        padding: 25px;
+    }
+    
+    .barcode-container {
+        padding: 15px;
+    }
+}
+</style>
+</head>
+
+<body>
+    <div class="success-card">
+        <!-- Success Icon -->
+        <div class="success-icon">
+            <i class="fas fa-check"></i>
+        </div>
+        
+        <!-- Title -->
+        <h4>Profile Created Successfully</h4>
+        <p>Your profile has been registered in the system</p>
+        
+        <!-- Profile ID -->
+        <div class="profile-id">
+            <i class="fas fa-id-card"></i> PROFILE-{{ profile_id }}
+        </div>
+        
+        <!-- Barcode -->
+        {% if barcode_path %}
+        <div class="barcode-container">
+            <img src="/static/{{ barcode_path }}" alt="Profile Barcode">
+        </div>
+        {% endif %}
+        
+        <!-- Download Button -->
+        {% if barcode_path %}
+        <a href="/static/{{ barcode_path }}" download class="btn-success-custom">
+            <i class="fas fa-download"></i> Download Barcode
+        </a>
+        {% endif %}
+        
+        <!-- Navigation -->
+        <a href="/" class="btn-outline-custom mt-3">
+            <i class="fas fa-home"></i> Go to Dashboard
+        </a>
+        
+        <!-- Additional Info -->
+        <div class="mt-4 pt-3 border-top border-secondary">
+            <small class="text-muted">
+                <i class="fas fa-info-circle"></i>
+                Keep your barcode safe for future reference
+            </small>
+        </div>
+    </div>
+</body>
+</html>
