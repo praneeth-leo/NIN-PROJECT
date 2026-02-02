@@ -172,6 +172,21 @@ def profile_view():
     )
 
 # --------------------------------------------------
+# MACHINE STATIC PAGES
+# --------------------------------------------------
+@app.route("/machine1")
+def machine1():
+    return render_template("machine1.html")
+
+@app.route("/machine2")
+def machine2():
+    return render_template("machine2.html")
+
+@app.route("/machine3")
+def machine3():
+    return render_template("machine3.html")
+
+# --------------------------------------------------
 # RUN APP
 # --------------------------------------------------
 if __name__ == "__main__":
