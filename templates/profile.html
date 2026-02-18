@@ -1,362 +1,594 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>User Profile</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-* {
-    font-family: 'Segoe UI', system-ui, sans-serif;
-}
-
-body {
-    background: linear-gradient(135deg, #0b0f1a 0%, #1a1f3a 100%);
-    color: #e5e7eb;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    margin: 0;
-}
-
-.profile-container {
-    max-width: 500px;
-    width: 100%;
-}
-
-.profile-card {
-    background: rgba(2, 6, 23, 0.85);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(34, 197, 94, 0.2);
-    border-radius: 16px;
-    padding: 40px;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-.profile-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 5px;
-    background: linear-gradient(90deg, #22c55e, #3b82f6);
-}
-
-.profile-header {
-    text-align: center;
-    margin-bottom: 30px;
-}
-
-.profile-icon {
-    width: 70px;
-    height: 70px;
-    background: linear-gradient(135deg, #22c55e, #3b82f6);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 20px;
-    font-size: 28px;
-    color: white;
-    box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-}
-
-.profile-header h4 {
-    color: #22c55e;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
-
-.profile-header p {
-    color: #9ca3af;
-    font-size: 14px;
-}
-
-.form-group {
-    margin-bottom: 25px;
-    position: relative;
-}
-
-.form-label {
-    display: block;
-    color: #cbd5e1;
-    font-weight: 500;
-    margin-bottom: 10px;
-    font-size: 14px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}
-
-.form-control {
-    background: rgba(15, 23, 42, 0.8);
-    border: 2px solid #334155;
-    color: #e5e7eb;
-    padding: 14px 18px;
-    border-radius: 10px;
-    font-size: 15px;
-    transition: all 0.3s ease;
-    width: 100%;
-}
-
-.form-control:focus {
-    background: rgba(15, 23, 42, 0.9);
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.15);
-    color: #e5e7eb;
-    outline: none;
-}
-
-.form-control:hover {
-    border-color: #475569;
-}
-
-.select-wrapper {
-    position: relative;
-}
-
-.select-wrapper::after {
-    content: '\f078';
-    font-family: 'Font Awesome 6 Free';
-    font-weight: 900;
-    position: absolute;
-    right: 18px;
-    top: 50%;
-    transform: translateY(-50%);
-    color: #9ca3af;
-    pointer-events: none;
-}
-
-.select-wrapper select {
-    appearance: none;
-    cursor: pointer;
-    padding-right: 45px;
-}
-
-.btn-submit {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: white;
-    border: none;
-    padding: 16px;
-    font-size: 16px;
-    font-weight: 600;
-    border-radius: 10px;
-    cursor: pointer;
-    transition: all 0.3s ease;
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-top: 10px;
-}
-
-.btn-submit:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 25px rgba(34, 197, 94, 0.4);
-}
-
-.input-icon {
-    position: absolute;
-    right: 18px;
-    top: 42px;
-    color: #22c55e;
-    font-size: 16px;
-}
-
-.form-row {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 25px;
-}
-
-.form-row .form-group {
-    flex: 1;
-    margin-bottom: 0;
-}
-
-@media (max-width: 576px) {
-    .profile-card {
-        padding: 25px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurveyPro · create profile</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    
-    .form-row {
-        flex-direction: column;
-        gap: 0;
-    }
-    
-    .form-row .form-group {
-        margin-bottom: 25px;
-    }
-    
-    .form-row .form-group:last-child {
-        margin-bottom: 0;
-    }
-}
 
-.required::after {
-    content: " *";
-    color: #ef4444;
-}
+    :root {
+      --bg-deep: #070b14;
+      --surface: rgba(18, 24, 38, 0.9);
+      --surface-card: rgba(15, 21, 34, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-active: rgba(99, 102, 241, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #b1c3ff;
+      --text-muted: #7e8bb6;
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --success: #22c55e;
+      --success-dark: #1f7a33;
+      --gradient-header: linear-gradient(145deg, #22c55e, #16a34a);
+      --gradient-btn: linear-gradient(145deg, #22c55e, #16a34a);
+      --gradient-btn-hover: linear-gradient(145deg, #16a34a, #15803d);
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 32px;
+      --radius-input: 18px;
+    }
 
-.form-control::placeholder {
-    color: #64748b;
-}
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text-primary);
+      position: relative;
+      overflow-x: hidden;
+    }
 
-input:-webkit-autofill,
-input:-webkit-autofill:hover,
-input:-webkit-autofill:focus,
-input:-webkit-autofill:active {
-    -webkit-box-shadow: 0 0 0 30px #0f172a inset !important;
-    -webkit-text-fill-color: #e5e7eb !important;
-}
-</style>
+    /* animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(34, 197, 94, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(99, 102, 241, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 30% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 18px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(8, 12, 22, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 30px -20px rgba(0, 0, 0, 0.8);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    /* NIN Logo Area */
+    .nin-logo {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      background: rgba(255, 255, 255, 0.03);
+      padding: 8px 18px 8px 16px;
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(4px);
+    }
+
+    .nin-text {
+      font-size: 1.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #a5b4fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      line-height: 1.2;
+    }
+
+    .nin-sub {
+      font-size: 0.7rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.5px;
+      font-weight: 500;
+      text-transform: uppercase;
+      margin-top: -2px;
+    }
+
+    .brand-divider {
+      width: 1px;
+      height: 30px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 0 4px;
+    }
+
+    .surveypro-text {
+      font-weight: 700;
+      font-size: 1.4rem;
+      letter-spacing: -0.3px;
+      background: linear-gradient(to right, #ffffff, #d6ddff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(8px);
+      color: var(--text-secondary);
+      padding: 12px 24px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .btn-back i {
+      font-size: 0.9rem;
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: rgba(255, 255, 255, 0.1);
+      transform: translateX(-2px);
+    }
+
+    /* main container */
+    .container {
+      max-width: 900px;
+      margin: 30px auto;
+      padding: 20px 28px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* page title */
+    .page-header {
+      margin-bottom: 32px;
+      text-align: left;
+    }
+
+    .page-header h1 {
+      font-size: 2.4rem;
+      font-weight: 700;
+      letter-spacing: -0.8px;
+      background: linear-gradient(to right, #ffffff, #bdc7ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+
+    .page-header p {
+      color: var(--text-muted);
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .page-header p i {
+      color: #22c55e;
+    }
+
+    /* card */
+    .card {
+      background: rgba(15, 21, 34, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 40px 38px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at 0% 20%, rgba(34, 197, 94, 0.08), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* form */
+    form {
+      position: relative;
+      z-index: 2;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+
+    .full {
+      grid-column: span 2;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      letter-spacing: -0.2px;
+    }
+
+    label i {
+      color: var(--accent-primary);
+      font-size: 0.9rem;
+      width: 18px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 16px 20px;
+      background: rgba(0, 0, 0, 0.25);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: 20px;
+      font-size: 0.95rem;
+      font-family: "Inter", sans-serif;
+      color: white;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 8px rgba(0,0,0,0.4);
+      background: rgba(20, 28, 45, 0.7);
+    }
+
+    input[readonly] {
+      background: rgba(0, 0, 0, 0.35);
+      color: #a9b5d9;
+      cursor: default;
+      border-color: rgba(255, 255, 255, 0.02);
+    }
+
+    select option {
+      background: #1a1f2e;
+      color: white;
+    }
+
+    /* note style */
+    .note {
+      margin-top: 12px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 16px;
+      border-radius: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .note i {
+      color: #f59e0b;
+    }
+
+    /* live age display */
+    .age-display-group {
+      background: rgba(99, 102, 241, 0.05);
+      border-radius: 28px;
+      padding: 4px;
+      border: 1px solid rgba(99, 102, 241, 0.1);
+    }
+
+    /* button */
+    button {
+      width: 100%;
+      margin-top: 36px;
+      padding: 20px 24px;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--gradient-btn);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 22px 30px -16px rgba(34, 197, 94, 0.4), 0 0 0 1px rgba(255,255,255,0.03);
+      transition: all 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+    }
+
+    button i {
+      font-size: 1.2rem;
+      transition: transform 0.2s;
+    }
+
+    button:hover {
+      background: var(--gradient-btn-hover);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #16a34a;
+    }
+
+    button:hover i {
+      transform: translateX(4px);
+    }
+
+    /* mobile */
+    @media (max-width: 640px) {
+      header {
+        padding: 14px 18px;
+      }
+      .brand {
+        gap: 10px;
+      }
+      .nin-text {
+        font-size: 1.2rem;
+      }
+      .nin-sub {
+        font-size: 0.6rem;
+      }
+      .surveypro-text {
+        font-size: 1rem;
+      }
+      .container {
+        padding: 20px 16px;
+      }
+      .card {
+        padding: 28px 22px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 16px;
+      }
+      .full {
+        grid-column: span 1;
+      }
+      .page-header h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
 </head>
-
 <body>
-    <div class="profile-container">
-        <div class="profile-card">
-            <!-- Header -->
-            <div class="profile-header">
-                <div class="profile-icon">
-                    <i class="fas fa-user-circle"></i>
-                </div>
-                <h4>Complete Your Profile</h4>
-                <p>Fill in your details to get started</p>
-            </div>
 
-            <!-- Form -->
-            <form method="POST">
-                <!-- Name -->
-                <div class="form-group">
-                    <label class="form-label required">Full Name</label>
-                    <div class="position-relative">
-                        <input type="text" name="name" class="form-control" placeholder="Enter your full name" required>
-                        <i class="fas fa-user input-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Age & Gender Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">Age</label>
-                        <div class="position-relative">
-                            <input type="number" name="age" class="form-control" placeholder="Age" min="1" max="100" required>
-                            <i class="fas fa-birthday-cake input-icon"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Gender</label>
-                        <div class="select-wrapper position-relative">
-                            <select name="gender" class="form-control" required>
-                                <option value="">Select Gender</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
-                                <option value="Other">Other</option>
-                                <option value="Prefer not to say">Prefer not to say</option>
-                            </select>
-                            <i class="fas fa-venus-mars input-icon"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- School -->
-                <div class="form-group">
-                    <label class="form-label required">School</label>
-                    <div class="position-relative">
-                        <input type="text" name="school" class="form-control" placeholder="School name" required>
-                        <i class="fas fa-school input-icon"></i>
-                    </div>
-                </div>
-
-                <!-- Class & Section Row -->
-                <div class="form-row">
-                    <div class="form-group">
-                        <label class="form-label required">Class</label>
-                        <div class="position-relative">
-                            <input type="text" name="class" class="form-control" placeholder="e.g., 10th, 12th" required>
-                            <i class="fas fa-graduation-cap input-icon"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label class="form-label required">Section</label>
-                        <div class="position-relative">
-                            <input type="text" name="section" class="form-control" placeholder="e.g., A, B, C" required>
-                            <i class="fas fa-users input-icon"></i>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="btn-submit">
-                    <i class="fas fa-save"></i> Save Profile
-                </button>
-            </form>
-
-            <!-- Footer Note -->
-            <div class="mt-4 pt-3 border-top border-secondary text-center">
-                <small class="text-muted">
-                    <i class="fas fa-shield-alt"></i>
-                    Your information is secure and confidential
-                </small>
-            </div>
-        </div>
+<header>
+  <div class="brand">
+    <!-- NIN Logo Area -->
+    <div class="nin-logo">
+      <div class="nin-text">NIN</div>
+      <div class="nin-sub">National Institute</div>
     </div>
+    <div class="brand-divider"></div>
+    <div class="surveypro-text">SurveyPro</div>
+  </div>
+  <a class="btn-back" href="/dashboard">
+    <i class="fas fa-arrow-left"></i> <span>Back</span>
+  </a>
+</header>
 
-    <script>
-        // Form validation and enhancement
-        document.addEventListener('DOMContentLoaded', function() {
-            const form = document.querySelector('form');
-            
-            form.addEventListener('submit', function(e) {
-                let valid = true;
-                const requiredFields = form.querySelectorAll('[required]');
-                
-                requiredFields.forEach(field => {
-                    if (!field.value.trim()) {
-                        field.style.borderColor = '#ef4444';
-                        valid = false;
-                    } else {
-                        field.style.borderColor = '#22c55e';
-                    }
-                });
-                
-                if (!valid) {
-                    e.preventDefault();
-                    alert('Please fill in all required fields marked with *');
-                } else {
-                    // Show loading state
-                    const submitBtn = form.querySelector('.btn-submit');
-                    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
-                    submitBtn.disabled = true;
-                }
-            });
-            
-            // Real-time validation
-            const inputs = form.querySelectorAll('input, select');
-            inputs.forEach(input => {
-                input.addEventListener('input', function() {
-                    if (this.value.trim()) {
-                        this.style.borderColor = '#22c55e';
-                    } else {
-                        this.style.borderColor = '#334155';
-                    }
-                });
-                
-                input.addEventListener('blur', function() {
-                    if (this.hasAttribute('required') && !this.value.trim()) {
-                        this.style.borderColor = '#ef4444';
-                    }
-                });
-            });
-        });
-    </script>
+<div class="container">
+  <div class="page-header">
+    <h1>Create your profile</h1>
+    <p>
+      <i class="fas fa-barcode"></i> 
+      After submission, you'll receive a unique barcode ID
+    </p>
+  </div>
+
+  <div class="card">
+    <!-- IMPORTANT: method and action unchanged -->
+    <form method="POST" action="/profile">
+
+      <div class="grid">
+
+        <!-- full name -->
+        <div class="full">
+          <label><i class="fas fa-user"></i> Full name</label>
+          <input type="text" name="name" placeholder="e.g. John Smith" required />
+        </div>
+
+        <!-- dob -->
+        <div>
+          <label><i class="fas fa-calendar"></i> Date of birth</label>
+          <input type="date" name="dob" id="dob" required />
+        </div>
+
+        <!-- age years (readonly) -->
+        <div>
+          <label><i class="fas fa-cake-candles"></i> Age (years)</label>
+          <input type="number" name="age" id="age_years" readonly required />
+        </div>
+
+        <!-- age full live display (enhanced) -->
+        <div class="full">
+          <label><i class="fas fa-hourglass-half"></i> Precise age (live)</label>
+          <div class="age-display-group">
+            <input type="text" id="age_display" readonly placeholder="--y --m --d --:--:--" />
+          </div>
+          <div class="note">
+            <i class="fas fa-sync fa-spin" style="--fa-animation-duration: 3s;"></i>
+            Updates every second · exact age since birth
+          </div>
+        </div>
+
+        <!-- hidden field for full age -->
+        <input type="hidden" name="age_full" id="age_full" />
+
+        <!-- gender -->
+        <div>
+          <label><i class="fas fa-venus-mars"></i> Gender</label>
+          <select name="gender" required>
+            <option value="" disabled selected>— select —</option>
+            <option>Male</option>
+            <option>Female</option>
+            <option>Other</option>
+          </select>
+        </div>
+
+        <!-- school -->
+        <div>
+          <label><i class="fas fa-school"></i> School</label>
+          <input type="text" name="school" placeholder="e.g. Westside High" required />
+        </div>
+
+        <!-- class -->
+        <div>
+          <label><i class="fas fa-graduation-cap"></i> Class</label>
+          <input type="text" name="class" placeholder="e.g. 10th grade" required />
+        </div>
+
+        <!-- section -->
+        <div>
+          <label><i class="fas fa-layer-group"></i> Section</label>
+          <input type="text" name="section" placeholder="e.g. A" required />
+        </div>
+
+      </div>
+
+      <!-- submit button with enhanced icon -->
+      <button type="submit">
+        <span>Create profile & generate barcode</span>
+        <i class="fas fa-qrcode"></i>
+      </button>
+
+    </form>
+
+  </div>
+</div>
+
+<!-- JavaScript (EXACT same logic) -->
+<script>
+  const dobInput = document.getElementById("dob");
+  const ageDisplay = document.getElementById("age_display");
+  const ageYears = document.getElementById("age_years");
+  const ageFullHidden = document.getElementById("age_full");
+
+  let liveTimer = null;
+
+  function pad2(n) {
+    return String(n).padStart(2, "0");
+  }
+
+  function calculateAccurateAge(dobDate, nowDate) {
+    let years = nowDate.getFullYear() - dobDate.getFullYear();
+    let months = nowDate.getMonth() - dobDate.getMonth();
+    let days = nowDate.getDate() - dobDate.getDate();
+
+    // Fix days by borrowing from previous month
+    if (days < 0) {
+      const prevMonth = new Date(nowDate.getFullYear(), nowDate.getMonth(), 0);
+      days += prevMonth.getDate();
+      months--;
+    }
+
+    // Fix months by borrowing from years
+    if (months < 0) {
+      months += 12;
+      years--;
+    }
+
+    // Base date after removing Y/M/D difference
+    const baseDate = new Date(
+      dobDate.getFullYear() + years,
+      dobDate.getMonth() + months,
+      dobDate.getDate()
+    );
+
+    let diffMs = nowDate - baseDate;
+    let totalSeconds = Math.floor(diffMs / 1000);
+
+    const seconds = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+
+    const minutes = totalSeconds % 60;
+    totalSeconds = Math.floor(totalSeconds / 60);
+
+    const hours = totalSeconds % 24;
+
+    return { years, months, days, hours, minutes, seconds };
+  }
+
+  function updateAge() {
+    const dobValue = dobInput.value;
+
+    if (!dobValue) {
+      ageDisplay.value = "";
+      ageYears.value = "";
+      ageFullHidden.value = "";
+      return;
+    }
+
+    // Fix timezone issue
+    const dob = new Date(dobValue + "T00:00:00");
+    const now = new Date();
+
+    if (now < dob) {
+      ageDisplay.value = "❌ invalid date";
+      ageYears.value = "";
+      ageFullHidden.value = "";
+      return;
+    }
+
+    const { years, months, days, hours, minutes, seconds } =
+      calculateAccurateAge(dob, now);
+
+    // Format: 4y 2m 10d 05:12:33
+    const formatted =
+      `${years}y ${months}m ${days}d ` +
+      `${pad2(hours)}:${pad2(minutes)}:${pad2(seconds)}`;
+
+    ageDisplay.value = formatted;
+    ageYears.value = years;
+    ageFullHidden.value = formatted;
+  }
+
+  dobInput.addEventListener("change", () => {
+    updateAge();
+
+    if (liveTimer) clearInterval(liveTimer);
+    liveTimer = setInterval(updateAge, 1000);
+  });
+
+  // If browser autofill already filled DOB
+  if (dobInput.value) {
+    updateAge();
+    liveTimer = setInterval(updateAge, 1000);
+  }
+</script>
+
 </body>
 </html>

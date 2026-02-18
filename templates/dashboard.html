@@ -1,185 +1,622 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Survey Application</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurveyPro · intelligent surveys</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
-        rel="stylesheet">
+    :root {
+      --bg-dark: #0a0c12;
+      --bg-deep: #05070a;
+      --surface: rgba(18, 22, 32, 0.85);
+      --surface-hover: rgba(26, 32, 46, 0.95);
+      --border-glow: rgba(255, 255, 255, 0.05);
+      --border-active: rgba(99, 102, 241, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #a9b5d9;
+      --text-muted: #6b7c9e;
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --accent-glow: rgba(99, 102, 241, 0.4);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.3);
+      --gradient-1: linear-gradient(145deg, #6366f1, #a855f7);
+      --gradient-2: linear-gradient(145deg, #3b82f6, #8b5cf6);
+      --shadow-elevation: 0 25px 50px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 32px;
+      --radius-button: 40px;
+    }
 
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    body {
+      background: var(--bg-deep);
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      color: var(--text-primary);
+      line-height: 1.5;
+      min-height: 100vh;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* animated survey-themed background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: radial-gradient(circle at 20% 20%, rgba(99, 102, 241, 0.15) 0%, transparent 35%),
+                  radial-gradient(circle at 80% 70%, rgba(168, 85, 247, 0.12) 0%, transparent 40%),
+                  radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 45%),
+                  repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 15px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* glass header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 18px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(8, 10, 18, 0.75);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 30px -20px rgba(0, 0, 0, 0.8);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-1);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 24px -8px var(--accent-glow);
+    }
+
+    .brand-icon i {
+      font-size: 24px;
+      color: white;
+      filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));
+    }
+
+    .brand h2 {
+      font-weight: 700;
+      font-size: 1.5rem;
+      letter-spacing: -0.5px;
+      background: linear-gradient(to right, #ffffff, #d6ddff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    /* logout button */
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fecaca;
+      padding: 12px 22px;
+      border-radius: 40px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      transition: all 0.25s ease;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      letter-spacing: -0.2px;
+      box-shadow: 0 10px 18px -12px rgba(239, 68, 68, 0.4);
+    }
+
+    .logout-btn i {
+      font-size: 1rem;
+    }
+
+    .logout-btn:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.5);
+      transform: translateY(-2px);
+      box-shadow: 0 18px 24px -12px #ef4444;
+    }
+
+    /* main container */
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 28px 80px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* hero section with survey focus */
+    .hero-section {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      margin-bottom: 56px;
+    }
+
+    .badge-container {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+      margin-bottom: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      padding: 10px 22px;
+      border-radius: 60px;
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 0.9rem;
+      letter-spacing: -0.2px;
+      box-shadow: 0 8px 20px -12px #000;
+    }
+
+    .badge i {
+      color: #22c55e;
+      font-size: 1rem;
+    }
+
+    .badge.survey i {
+      color: #f59e0b;
+    }
+
+    .hero-section h1 {
+      font-size: clamp(3rem, 8vw, 5rem);
+      font-weight: 800;
+      letter-spacing: -2px;
+      line-height: 1;
+      margin-bottom: 20px;
+      background: linear-gradient(135deg, #ffffff, #bdc7ff, #a78bfa);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-shadow: 0 20px 30px -20px rgba(99,102,241,0.5);
+    }
+
+    .hero-description {
+      max-width: 720px;
+      margin: 0 auto;
+      font-size: 1.2rem;
+      color: var(--text-secondary);
+      background: rgba(255,255,255,0.01);
+      padding: 16px 30px;
+      border-radius: 80px;
+      border: 1px solid rgba(255,255,255,0.02);
+      backdrop-filter: blur(6px);
+    }
+
+    .hero-description i {
+      color: var(--accent-primary);
+      margin-right: 8px;
+    }
+
+    /* survey stats bar */
+    .survey-stats {
+      display: flex;
+      gap: 24px;
+      justify-content: center;
+      margin: 30px 0 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat-pill {
+      background: rgba(99, 102, 241, 0.08);
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      border-radius: 60px;
+      padding: 12px 28px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-secondary);
+      font-size: 1rem;
+    }
+
+    .stat-pill i {
+      color: #f59e0b;
+      font-size: 1.2rem;
+    }
+
+    .stat-pill strong {
+      color: white;
+      font-weight: 700;
+      margin-right: 4px;
+    }
+
+    /* cards grid */
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+      gap: 28px;
+      margin: 40px 0 40px;
+    }
+
+    /* main survey card */
+    .card {
+      background: rgba(12, 16, 24, 0.65);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-elevation);
+      transition: all 0.3s cubic-bezier(0.2, 0, 0, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px circle at 0% 20%, rgba(99, 102, 241, 0.12), transparent 60%);
+      pointer-events: none;
+      opacity: 0.5;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      border-color: rgba(99, 102, 241, 0.25);
+      box-shadow: 0 40px 70px -20px #13182b, 0 0 0 1px rgba(168, 85, 247, 0.2);
+    }
+
+    .card-icon {
+      width: 68px;
+      height: 68px;
+      background: linear-gradient(135deg, #1e2438, #13192b);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 28px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 18px 28px -18px #000;
+    }
+
+    .card-icon i {
+      font-size: 34px;
+      background: var(--gradient-1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .card h3 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 14px;
+      color: #f0f4ff;
+    }
+
+    .card p {
+      color: var(--text-secondary);
+      font-size: 1.05rem;
+      margin-bottom: 32px;
+      line-height: 1.6;
+    }
+
+    /* survey features list */
+    .survey-features {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin: 24px 0 28px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      color: var(--text-secondary);
+      font-size: 0.98rem;
+    }
+
+    .feature-item i {
+      color: #22c55e;
+      width: 22px;
+      font-size: 1.1rem;
+    }
+
+    .feature-item span {
+      color: #d1d9f0;
+    }
+
+    /* persistence pill */
+    .persistence-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(34, 197, 94, 0.1);
+      border: 1px solid rgba(34, 197, 94, 0.2);
+      padding: 10px 18px;
+      border-radius: 60px;
+      margin-bottom: 28px;
+      font-size: 0.9rem;
+      color: #86efac;
+      font-weight: 500;
+    }
+
+    .persistence-pill i {
+      color: #22c55e;
+      font-size: 1rem;
+    }
+
+    /* enhanced button */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      width: 100%;
+      padding: 18px 20px;
+      border-radius: 60px;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.2rem;
+      letter-spacing: -0.3px;
+      background: var(--gradient-1);
+      color: white;
+      border: none;
+      box-shadow: 0 22px 30px -16px var(--accent-glow), 0 0 0 1px rgba(255,255,255,0.05);
+      transition: all 0.25s ease;
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn i {
+      font-size: 1.2rem;
+      transition: transform 0.2s ease;
+    }
+
+    .btn:hover {
+      filter: brightness(1.1);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #8b5cf6;
+    }
+
+    .btn:hover i {
+      transform: translateX(6px);
+    }
+
+    /* quick survey info grid */
+    .info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin: 50px 0 30px;
+    }
+
+    .info-card {
+      background: rgba(255, 255, 255, 0.02);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 28px;
+      padding: 22px 16px;
+      text-align: center;
+      transition: 0.2s;
+    }
+
+    .info-card:hover {
+      border-color: rgba(99, 102, 241, 0.2);
+      background: rgba(20, 25, 40, 0.6);
+    }
+
+    .info-card i {
+      font-size: 28px;
+      background: var(--gradient-2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .info-card h4 {
+      font-size: 1.1rem;
+      margin-bottom: 6px;
+      color: white;
+    }
+
+    .info-card p {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+    }
+
+    /* footer note */
+    .footer-note {
+      margin-top: 70px;
+      padding: 18px 28px;
+      background: rgba(0, 0, 0, 0.25);
+      backdrop-filter: blur(8px);
+      border: 1px solid rgba(255, 255, 255, 0.02);
+      border-radius: 100px;
+      display: inline-flex;
+      align-items: center;
+      gap: 18px;
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      width: auto;
+      margin-left: auto;
+      margin-right: auto;
+      justify-content: center;
+    }
+
+    .footer-note i {
+      color: #f87171;
+    }
+
+    /* mobile */
+    @media (max-width: 640px) {
+      header {
+        padding: 14px 18px;
+      }
+      .brand h2 {
+        font-size: 1.2rem;
+      }
+      .hero-section h1 {
+        font-size: 3.2rem;
+      }
+      .card {
+        padding: 28px 22px;
+      }
+      .info-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .footer-note {
+        flex-direction: column;
+        gap: 8px;
+        border-radius: 48px;
+        padding: 18px;
+      }
+    }
+  </style>
 </head>
-
 <body>
 
-    <!-- 🔷 ENHANCED TOP BAR -->
-    <div class="top-bar">
-        <div class="logo">
-            <i class="fas fa-chart-line"></i>
-            SURVEYPRO
-        </div>
-
-        <div class="ms-auto">
-            <button class="nav-btn active" onclick="location.href='/'">
-                <i class="fas fa-home"></i> Dashboard
-            </button>
-            <button class="nav-btn" onclick="location.href='/profile'">
-                <i class="fas fa-user-circle"></i> Profile
-            </button>
-            <button class="nav-btn" onclick="location.href='/form'">
-                <i class="fas fa-question-circle"></i> Questions
-            </button>
-        </div>
+<header>
+  <div class="brand">
+    <div class="brand-icon">
+      <i class="fas fa-chart-simple"></i>
     </div>
+    <h2>SurveyPro</h2>
+  </div>
+  <a class="logout-btn" href="/logout">
+    <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+  </a>
+</header>
 
-    <!-- 🔷 MAIN CONTAINER -->
-    <div class="container">
-        <!-- Sidebar -->
-        <div class="sidebar">
-            <div class="sidebar-header">
-                <h3>Survey Progress</h3>
-                <p>Complete all steps to finish</p>
-            </div>
-
-            <div class="progress-container">
-                <div class="progress-label">
-                    <span>Completion</span>
-                    <span>30%</span>
-                </div>
-                <div class="progress-bar">
-                    <div class="progress-fill"></div>
-                </div>
-            </div>
-
-            <div class="steps">
-                <div class="step active">
-                    <div class="step-icon">1</div>
-                    <div class="step-info">
-                        <h4>Welcome & Instructions</h4>
-                        <p>Get started with the survey</p>
-                    </div>
-                </div>
-
-                <div class="step">
-                    <div class="step-icon">2</div>
-                    <div class="step-info">
-                        <h4>Profile Setup</h4>
-                        <p>Tell us about yourself</p>
-                    </div>
-                </div>
-
-                <div class="step">
-                    <div class="step-icon">3</div>
-                    <div class="step-info">
-                        <h4>Survey Questions</h4>
-                        <p>Answer all questions</p>
-                    </div>
-                </div>
-
-                <div class="step">
-                    <div class="step-icon">4</div>
-                    <div class="step-info">
-                        <h4>Review & Submit</h4>
-                        <p>Finalize your responses</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Decorative floating elements -->
-            <div class="floating-element"></div>
-            <div class="floating-element"></div>
-
-            <div class="welcome-card">
-                <div class="welcome-icon">
-                    <i class="fas fa-clipboard-list"></i>
-                </div>
-
-                <h1>Welcome to the Survey</h1>
-
-                <p>
-                    Thank you for participating in our research survey. Your insights are invaluable
-                    to us. Please complete your profile and answer all questions to help us
-                    better understand your perspectives and needs.
-                </p>
-
-                <button class="cta-button" onclick="location.href='/profile'">
-                    <i class="fas fa-rocket"></i> Get Started
-                </button>
-                <button class="cta-button" onclick="location.href='/machine1'"
-                    style="margin-left: 15px; background: linear-gradient(135deg, #3b82f6, #8b5cf6);">
-                    <i class="fas fa-server"></i> View Machines
-                </button>
-
-                <div class="stats">
-                    <div class="stat-item">
-                        <div class="stat-number">5-10</div>
-                        <div class="stat-label">Minutes</div>
-                    </div>
-
-                    <div class="stat-item">
-                        <div class="stat-number">100%</div>
-                        <div class="stat-label">Confidential</div>
-                    </div>
-
-                    <div class="stat-item">
-                        <div class="stat-number">24/7</div>
-                        <div class="stat-label">Available</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+<main class="container">
+  <!-- hero with survey context -->
+  <div class="hero-section">
+    <div class="badge-container">
+      <span class="badge"><i class="fas fa-shield-alt"></i> barcode · 7832</span>
+      <span class="badge survey"><i class="fas fa-pen-to-square"></i> 5 min survey</span>
     </div>
+    <h1>SurveyPro</h1>
+    <div class="hero-description">
+      <i class="fas fa-circle-check"></i> intelligent surveys with auto-resume & barcode security
+    </div>
+  </div>
 
-    <script>
-        // Add interactive effects
-        document.addEventListener('DOMContentLoaded', function () {
-            const navButtons = document.querySelectorAll('.nav-btn');
-            const steps = document.querySelectorAll('.step');
+  <!-- survey stats -->
+  <div class="survey-stats">
+    <div class="stat-pill">
+      <i class="fas fa-clock"></i> <span><strong>5-7 min</strong> average completion</span>
+    </div>
+    <div class="stat-pill">
+      <i class="fas fa-layer-group"></i> <span><strong>12</strong> core questions</span>
+    </div>
+    <div class="stat-pill">
+      <i class="fas fa-rotate"></i> <span><strong>100%</strong> resume anytime</span>
+    </div>
+  </div>
 
-            // Navigation button active state
-            navButtons.forEach(button => {
-                button.addEventListener('click', function () {
-                    navButtons.forEach(btn => btn.classList.remove('active'));
-                    this.classList.add('active');
-                });
-            });
+  <!-- main survey card -->
+  <div class="cards">
+    <div class="card">
+      <!-- persistence indicator -->
+      <div class="persistence-pill">
+        <i class="fas fa-cloud-arrow-up"></i> <span>progress auto‑saved · continue from anywhere</span>
+      </div>
+      
+      <div class="card-icon">
+        <i class="fas  fa-clipboard-question"></i>
+      </div>
+      <h3>Survey</h3>
+      <p>Help us improve by sharing your experience. Your barcode keeps everything secure and lets you resume anytime.</p>
 
-            // Step hover and click effects
-            steps.forEach(step => {
-                step.addEventListener('click', function () {
-                    // In a real app, this would navigate to the corresponding section
-                    steps.forEach(s => s.classList.remove('active'));
-                    this.classList.add('active');
+      <!-- survey-specific feature list -->
+      <div class="survey-features">
+        <div class="feature-item">
+          <i class="fas fa-check-circle"></i>
+          <span>12 targeted questions · multiple choice + rating</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-floppy-disk"></i>
+          <span>Auto-save after every answer</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-arrow-rotate-left"></i>
+          <span>If you quit, just log in again — pick up exactly where you left</span>
+        </div>
+        <div class="feature-item">
+          <i class="fas fa-barcode"></i>
+          <span>Barcode-linked · encrypted response storage</span>
+        </div>
+      </div>
 
-                    // Update progress bar
-                    const progressFill = document.querySelector('.progress-fill');
-                    let progress = 0;
+      <!-- main CTA (no change to href) -->
+      <a class="btn" href="/form">
+        <span>Start survey</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
 
-                    if (this.querySelector('.step-icon').textContent === '1') progress = 30;
-                    if (this.querySelector('.step-icon').textContent === '2') progress = 50;
-                    if (this.querySelector('.step-icon').textContent === '3') progress = 80;
-                    if (this.querySelector('.step-icon').textContent === '4') progress = 100;
+      <!-- micro draft info (ui only) -->
+      <div style="margin-top: 22px; color: #7e8bb6; font-size: 0.85rem; display: flex; gap: 18px; align-items: center; justify-content: flex-start;">
+        <span><i class="far fa-clock" style="color: #6c8aff;"></i> last draft: ready to start</span>
+        <span><i class="fas fa-circle" style="color: #10b981; font-size: 6px;"></i> persistence active</span>
+      </div>
+    </div>
+  </div>
 
-                    progressFill.style.width = `${progress}%`;
-                    document.querySelector('.progress-label span:last-child').textContent = `${progress}%`;
-                });
-            });
+  <!-- survey highlights grid -->
+  <div class="info-grid">
+    <div class="info-card">
+      <i class="fas fa-bolt"></i>
+      <h4>Quick & focused</h4>
+      <p>Designed to respect your time — clear, concise questions</p>
+    </div>
+    <div class="info-card">
+      <i class="fas fa-lock"></i>
+      <h4>Barcode protected</h4>
+      <p>Your responses are securely linked to your unique ID</p>
+    </div>
+    <div class="info-card">
+      <i class="fas fa-rotate-left"></i>
+      <h4>Unlimited resumes</h4>
+      <p>Quit anytime; come back later — progress never lost</p>
+    </div>
+  </div>
 
-            // Animate progress bar on load
-            setTimeout(() => {
-                const progressFill = document.querySelector('.progress-fill');
-                progressFill.style.transition = 'width 1.5s ease';
-            }, 500);
-        });
-    </script>
+  <!-- footer with survey emphasis -->
+  <div class="footer-note">
+    <i class="fas fa-barcode"></i> Barcode‑linked survey · your responses are saved instantly — you can quit and resume anytime
+  </div>
+</main>
 
+<!-- all functionality unchanged: /logout and /form remain exactly same -->
 </body>
-
 </html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Profiles</title>
+</head>
+
+<body style="font-family: Arial; background:#f4f6f9;">
+
+  <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;">Profiles (Barcode Login IDs)</h2>
+      <a href="/admin-dashboard"
+         style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+        Back
+      </a>
+    </div>
+
+    <hr>
+
+    <!-- SEARCH -->
+    <form method="GET" action="/admin/profiles" style="margin-bottom:15px;">
+      <input type="text" name="q" placeholder="Search Barcode ID (example: SENA0004)"
+             value="{{ q }}"
+             style="width:320px;padding:10px;border:1px solid #ccc;border-radius:10px;">
+
+      <button type="submit"
+              style="padding:10px 14px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+        Search
+      </button>
+
+      <a href="/admin/profiles"
+         style="padding:10px 14px;background:#6c757d;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+        Reset
+      </a>
+    </form>
+
+    {% if data|length == 0 %}
+      <p style="color:#555;">No profiles found.</p>
+    {% else %}
+
+    <table border="1" cellpadding="10" cellspacing="0"
+           style="width:100%;border-collapse:collapse;font-size:14px;">
+
+      <tr style="background:#007bff;color:white;">
+        <th>Barcode</th>
+        <th>Actions</th>
+        {% for key in data[0].keys() %}
+          <th>{{ key }}</th>
+        {% endfor %}
+      </tr>
+
+      {% for row in data %}
+        <tr>
+
+          <!-- Barcode -->
+          <td style="text-align:center;min-width:260px;">
+            <img
+              src="{{ url_for('static', filename='barcodes/' + row['profile_id'] + '.png') }}"
+              alt="Barcode"
+              style="width:220px;height:auto;background:white;padding:6px;border-radius:6px;"
+            />
+            <div style="font-weight:bold;margin-top:6px;">
+              {{ row['profile_id'] }}
+            </div>
+          </td>
+
+          <!-- Actions -->
+          <td style="min-width:220px;text-align:center;">
+
+            <!-- Edit Profile -->
+            <a href="/admin/edit-profile/{{ row['profile_id'] }}"
+               style="display:block;margin-bottom:8px;padding:10px;background:#ffc107;color:black;text-decoration:none;border-radius:10px;font-weight:bold;">
+              Edit Profile
+            </a>
+
+            <!-- Export -->
+            <a href="/admin/export/{{ row['profile_id'] }}"
+               style="display:block;margin-bottom:8px;padding:10px;background:#17a2b8;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+              Export Excel
+            </a>
+
+            <!-- Delete Profile -->
+            <form method="POST"
+                  action="/admin/delete-profile/{{ row['profile_id'] }}"
+                  onsubmit="return confirm('Are you sure? This will delete profile + barcode + all responses for this ID!');">
+              <button type="submit"
+                      style="width:100%;padding:10px;background:#dc3545;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+                Delete Profile
+              </button>
+            </form>
+
+          </td>
+
+          <!-- Remaining columns -->
+          {% for val in row.values() %}
+            <td>{{ val }}</td>
+          {% endfor %}
+
+        </tr>
+      {% endfor %}
+    </table>
+
+    {% endif %}
+
+  </div>
+
+</body>
+</html>

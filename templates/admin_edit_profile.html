@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Profile</title>
+</head>
+<body style="font-family: Arial; background:#f4f6f9;">
+
+  <div style="width:600px;margin:60px auto;background:white;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+
+    <h2>Edit Profile</h2>
+
+    <p><b>Profile ID:</b> {{ p.profile_id }}</p>
+
+    <form method="POST">
+      <label>Name</label>
+      <input name="name" value="{{ p.name }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <label>Age</label>
+      <input name="age" value="{{ p.age }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <label>Gender</label>
+      <input name="gender" value="{{ p.gender }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <label>School</label>
+      <input name="school" value="{{ p.school }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <label>Class</label>
+      <input name="class" value="{{ p.class }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <label>Section</label>
+      <input name="section" value="{{ p.section }}" style="width:100%;padding:10px;margin-bottom:10px;">
+
+      <button type="submit"
+              style="width:100%;padding:12px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;">
+        Save Changes
+      </button>
+    </form>
+
+    <br>
+    <a href="/admin/profiles"
+       style="display:inline-block;padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;">
+      Back
+    </a>
+
+  </div>
+
+</body>
+</html>

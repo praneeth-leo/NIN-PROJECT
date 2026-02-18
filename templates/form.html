@@ -1,733 +1,605 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Complete Survey Questionnaire</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body {
-    background: #0b0f1a;
-    color: #e5e7eb;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-}
-.container {
-    max-width: 1200px;
-    padding: 20px;
-}
-.section-title {
-    color: #22c55e;
-    font-weight: 600;
-    margin: 30px 0 20px;
-    padding: 15px;
-    background: rgba(34, 197, 94, 0.1);
-    border-left: 4px solid #22c55e;
-    border-radius: 5px;
-}
-.card-dark {
-    background: #111827;
-    border: 1px solid #334155;
-    border-radius: 10px;
-    padding: 25px;
-    margin-bottom: 25px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-.form-control, .form-select, textarea {
-    background: #1e293b;
-    border: 1px solid #475569;
-    color: #e5e7eb;
-    padding: 10px 15px;
-    border-radius: 6px;
-    margin-bottom: 15px;
-}
-.form-control:focus, .form-select:focus, textarea:focus {
-    background: #1e293b;
-    border-color: #22c55e;
-    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.2);
-    color: #e5e7eb;
-}
-.form-label {
-    color: #cbd5e1;
-    font-weight: 500;
-    margin-bottom: 8px;
-    display: block;
-}
-.table-dark-custom {
-    background: #1e293b;
-    color: #e5e7eb;
-    border-radius: 8px;
-    overflow: hidden;
-}
-.table-dark-custom th {
-    background: #0f172a;
-    color: #22c55e;
-    border-color: #334155;
-    padding: 15px;
-}
-.table-dark-custom td {
-    border-color: #334155;
-    padding: 12px;
-    vertical-align: middle;
-}
-.btn-submit {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    color: white;
-    padding: 15px 40px;
-    font-size: 18px;
-    font-weight: 600;
-    border: none;
-    border-radius: 8px;
-    transition: all 0.3s;
-    display: block;
-    margin: 40px auto;
-    width: 300px;
-}
-.btn-submit:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-}
-.back-to-top {
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #22c55e;
-    color: white;
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 1000;
-    border: none;
-    font-size: 20px;
-}
-.back-to-top:hover {
-    background: #16a34a;
-    transform: scale(1.1);
-}
-.sticky-nav {
-    position: sticky;
-    top: 0;
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 15px 0;
-    z-index: 100;
-    border-bottom: 1px solid #334155;
-}
-.section-nav-btn {
-    padding: 8px 15px;
-    margin: 0 5px;
-    background: #1e293b;
-    border: 1px solid #475569;
-    color: #cbd5e1;
-    border-radius: 20px;
-    cursor: pointer;
-    transition: all 0.3s;
-    font-size: 14px;
-}
-.section-nav-btn:hover {
-    background: #334155;
-    transform: translateY(-2px);
-}
-.section-nav-btn.active {
-    background: #22c55e;
-    color: white;
-    border-color: #22c55e;
-}
-.form-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
-    margin-bottom: 20px;
-}
-.form-row > div {
-    flex: 1;
-    min-width: 250px;
-}
-h2 {
-    color: #22c55e;
-    text-align: center;
-    margin-bottom: 30px;
-    padding-bottom: 15px;
-    border-bottom: 2px solid #334155;
-}
-.info-box {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 8px;
-    padding: 15px;
-    margin-bottom: 25px;
-    color: #a7f3d0;
-}
-@media (max-width: 768px) {
-    .form-row > div {
-        min-width: 100%;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurveyPro · field questionnaire</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    .section-nav {
+
+    :root {
+      --bg-deep: #0a0c15;
+      --surface: rgba(18, 24, 38, 0.85);
+      --surface-card: rgba(22, 28, 45, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-active: rgba(255, 136, 0, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent-primary: #ff8800;
+      --accent-secondary: #ffaa33;
+      --accent-glow: rgba(255, 136, 0, 0.25);
+      --danger: #ef4444;
+      --danger-glow: rgba(239, 68, 68, 0.25);
+      --gradient-header: linear-gradient(145deg, #ff8800, #ff5500);
+      --gradient-btn: linear-gradient(145deg, #ff8800, #ff6a00);
+      --gradient-btn-hover: linear-gradient(145deg, #ff6a00, #ff5500);
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 28px;
+      --radius-input: 16px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      margin: 0;
+      padding: 0;
+      color: var(--text-primary);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* animated medical/survey background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 10% 20%, rgba(255, 136, 0, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 30% 80%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      padding: 16px 32px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(10, 14, 23, 0.85);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 30px -20px rgba(0, 0, 0, 0.8);
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .brand-icon {
+      width: 44px;
+      height: 44px;
+      background: var(--gradient-header);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 12px 24px -8px rgba(255, 136, 0, 0.4);
+    }
+
+    .brand-icon i {
+      font-size: 24px;
+      color: white;
+    }
+
+    .brand-text {
+      font-weight: 700;
+      font-size: 1.3rem;
+      letter-spacing: -0.3px;
+      background: linear-gradient(to right, #ffffff, #ffd6a3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .btn-back, .btn-logout {
+      text-decoration: none;
+      padding: 10px 22px;
+      border-radius: 40px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+    }
+
+    .btn-back {
+      background: rgba(255, 255, 255, 0.05);
+      color: var(--text-secondary);
+      backdrop-filter: blur(8px);
+    }
+
+    .btn-back:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(-2px);
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.12);
+      color: #fecaca;
+      border-color: rgba(239, 68, 68, 0.2);
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.4);
+    }
+
+    /* main container */
+    .container {
+      max-width: 1100px;
+      margin: 30px auto;
+      padding: 20px 28px 50px;
+      position: relative;
+      z-index: 5;
+    }
+
+    /* progress header */
+    .survey-progress {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+      background: rgba(255, 136, 0, 0.05);
+      border: 1px solid rgba(255, 136, 0, 0.1);
+      border-radius: 60px;
+      padding: 10px 24px;
+      backdrop-filter: blur(8px);
+    }
+
+    .progress-text {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      color: var(--text-secondary);
+    }
+
+    .progress-text i {
+      color: var(--accent-primary);
+    }
+
+    .auto-save-badge {
+      background: rgba(34, 197, 94, 0.15);
+      color: #86efac;
+      padding: 6px 18px;
+      border-radius: 40px;
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid rgba(34, 197, 94, 0.2);
+    }
+
+    /* cards */
+    .card {
+      background: rgba(18, 24, 38, 0.7);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 28px 30px;
+      margin-bottom: 24px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.2s ease;
+    }
+
+    .card:hover {
+      border-color: rgba(255, 136, 0, 0.15);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(400px circle at 0% 20%, rgba(255, 136, 0, 0.05), transparent 70%);
+      pointer-events: none;
+    }
+
+    h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      letter-spacing: -0.4px;
+      margin: 0 0 8px 0;
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    h3 i {
+      color: var(--accent-primary);
+      font-size: 1.8rem;
+    }
+
+    h4 {
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin: 24px 0 16px 0;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding-bottom: 10px;
+    }
+
+    h4 i {
+      color: var(--accent-secondary);
+      font-size: 1.1rem;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .full {
+      grid-column: span 2;
+    }
+
+    label {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+      font-weight: 500;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    label i {
+      color: var(--accent-primary);
+      width: 18px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 14px 18px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      border-radius: var(--radius-input);
+      font-size: 0.95rem;
+      font-family: "Inter", sans-serif;
+      color: white;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.3);
+      margin-bottom: 12px;
+    }
+
+    input:focus, select:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 8px rgba(0,0,0,0.4);
+      background: rgba(25, 32, 50, 0.8);
+    }
+
+    select option {
+      background: #1a1f2e;
+      color: white;
+    }
+
+    /* measurement groups */
+    .measurement-group {
+      background: rgba(255, 136, 0, 0.03);
+      border-radius: 24px;
+      padding: 18px;
+      margin: 16px 0;
+      border: 1px solid rgba(255, 136, 0, 0.08);
+    }
+
+    /* button */
+    button {
+      width: 100%;
+      padding: 20px 28px;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--gradient-btn);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 16px;
+      box-shadow: 0 22px 30px -16px rgba(255, 136, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.03);
+      transition: all 0.25s ease;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      margin-top: 12px;
+    }
+
+    button i {
+      font-size: 1.3rem;
+    }
+
+    button:hover {
+      background: var(--gradient-btn-hover);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #ff5500;
+    }
+
+    .note {
+      margin-top: 16px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 12px;
+      border-radius: 60px;
+    }
+
+    .note i {
+      color: #22c55e;
+    }
+
+    /* section divider */
+    .section-divider {
+      margin: 20px 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,136,0,0.2), transparent);
+    }
+
+    /* mobile */
+    @media (max-width: 768px) {
+      header {
+        padding: 14px 18px;
         flex-wrap: wrap;
-        justify-content: center;
+      }
+      .brand-text {
+        font-size: 1.1rem;
+      }
+      .container {
+        padding: 16px;
+      }
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+      }
+      .full {
+        grid-column: span 1;
+      }
+      .survey-progress {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+      h3 {
+        font-size: 1.3rem;
+      }
+      .card {
+        padding: 20px;
+      }
     }
-}
-</style>
+  </style>
 </head>
-
 <body>
-<!-- Back to Top Button -->
-<button class="back-to-top" onclick="window.scrollTo({top: 0, behavior: 'smooth'})">
-    <i class="fas fa-arrow-up"></i>
-</button>
 
-<!-- Sticky Navigation -->
-<div class="sticky-nav">
-    <div class="container">
-        <div class="d-flex flex-wrap justify-content-center section-nav">
-            <button class="section-nav-btn active" onclick="scrollToSection('sectionA')">A</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionB')">B</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionC')">C</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionD')">D</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionE')">E</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionF')">F</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionG')">G</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionH')">H</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionI')">I</button>
-            <button class="section-nav-btn" onclick="scrollToSection('sectionJ')">J</button>
-        </div>
+<header>
+  <div class="brand">
+    <div class="brand-icon">
+      <i class="fas fa-clipboard-check"></i>
     </div>
-</div>
+    <div class="brand-text">SurveyPro · field assessment</div>
+  </div>
+  <div class="top-actions">
+    <a class="btn-back" href="/dashboard"><i class="fas fa-arrow-left"></i> Back</a>
+    <a class="btn-logout" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </div>
+</header>
 
 <div class="container">
-    <h2><i class="fas fa-clipboard-check"></i> Complete Health Survey Questionnaire</h2>
-    
-    <div class="info-box">
-        <i class="fas fa-info-circle"></i> Please complete all sections from A to J. All fields marked with * are required.
+  <!-- progress indicator -->
+  <div class="survey-progress">
+    <div class="progress-text">
+      <i class="fas fa-pen-to-square"></i>
+      <span>Field questionnaire · 8 sections</span>
     </div>
+    <div class="auto-save-badge">
+      <i class="fas fa-cloud-arrow-up"></i>
+      <span>Auto-save enabled · progress persisted</span>
+    </div>
+  </div>
 
-    <form method="POST" id="surveyForm">
-
-    <!-- SECTION A -->
-    <div id="sectionA">
-        <h4 class="section-title">SECTION A: Identification Details</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">1. Type of School / Centre *</label>
-                    <select name="A1_school_type" class="form-select" required>
-                        <option value="">Select</option>
-                        <option value="Urban">Urban</option>
-                        <option value="Rural">Rural</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">2. Preschool / Anganwadi / Kindergarten Name *</label>
-                    <input type="text" name="A2_school_name" class="form-control" required>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">3. Child's Full Name *</label>
-                    <input type="text" name="A4_child_name" class="form-control" required>
-                </div>
-                <div>
-                    <label class="form-label">4. Age (Years / Months) *</label>
-                    <input type="text" name="A5_age" class="form-control" placeholder="e.g., 4 years 2 months" required>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">5. Date of Birth *</label>
-                    <input type="date" name="A6_dob" class="form-control" required>
-                </div>
-                <div>
-                    <label class="form-label">6. Sex *</label>
-                    <select name="A7_sex" class="form-select" required>
-                        <option value="">Select</option>
-                        <option value="Male">Male</option>
-                        <option value="Female">Female</option>
-                        <option value="Other">Other</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">7. Mother's Name *</label>
-                    <input type="text" name="A8_mother" class="form-control" required>
-                </div>
-                <div>
-                    <label class="form-label">8. Father's Name *</label>
-                    <input type="text" name="A9_father" class="form-control" required>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">9. Parent / Guardian Mobile Number *</label>
-                    <input type="tel" name="A10_mobile" class="form-control" required>
-                </div>
-                <div>
-                    <label class="form-label">10. Date of Interview *</label>
-                    <input type="date" name="A11_interview_date" class="form-control" required>
-                </div>
-            </div>
+  <form method="POST">
+    <!-- Study Details Card -->
+    <div class="card">
+      <h3><i class="fas fa-microscope"></i> Study Details</h3>
+      <div class="grid">
+        <div><label><i class="fas fa-hashtag"></i> Study ID</label><input type="text" name="study_id" /></div>
+        <div><label><i class="fas fa-calendar"></i> Date</label><input type="date" name="study_date" /></div>
+        <div><label><i class="fas fa-school"></i> School / Anganwadi</label><input type="text" name="school_anganwadi" /></div>
+        <div><label><i class="fas fa-location-dot"></i> Location</label>
+          <select name="location"><option>Urban</option><option>Urban Slum</option></select>
         </div>
+        <div><label><i class="fas fa-map"></i> District</label><input type="text" name="district" /></div>
+        <div><label><i class="fas fa-map"></i> State</label><input type="text" name="state" /></div>
+        <div class="full"><label><i class="fas fa-user-tie"></i> Investigator</label><input type="text" name="investigator_name" /></div>
+      </div>
     </div>
 
-    <!-- SECTION B -->
-    <div id="sectionB">
-        <h4 class="section-title">SECTION B: Household & Socio-Demographic</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">11. Relationship of Respondent to Child</label>
-                    <select name="B13_relation" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Mother">Mother</option>
-                        <option value="Father">Father</option>
-                        <option value="Grandparent">Grandparent</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">12. Religion of Household</label>
-                    <select name="B14_religion" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Hindu">Hindu</option>
-                        <option value="Muslim">Muslim</option>
-                        <option value="Christian">Christian</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">13. Caste / Tribe</label>
-                    <select name="B15_caste" class="form-select">
-                        <option value="">Select</option>
-                        <option value="SC">SC</option>
-                        <option value="ST">ST</option>
-                        <option value="OBC">OBC</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">14. Type of Family</label>
-                    <select name="B16_family_type" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Nuclear">Nuclear</option>
-                        <option value="Joint">Joint</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">15. Type of House</label>
-                    <select name="B17_house_type" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Pucca">Pucca</option>
-                        <option value="Semi-pucca">Semi-pucca</option>
-                        <option value="Kutcha">Kutcha</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">16. Ownership of House</label>
-                    <select name="B18_ownership" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Own">Own</option>
-                        <option value="Rented">Rented</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">17. Household Size</label>
-                    <input type="number" name="B19_size" class="form-control">
-                </div>
-                <div>
-                    <label class="form-label">18. Main Source of Drinking Water</label>
-                    <input type="text" name="B20_water" class="form-control">
-                </div>
-            </div>
+    <!-- Section A -->
+    <div class="card">
+      <h3><i class="fas fa-child"></i> Section A: Participant Identification</h3>
+      <div class="grid">
+        <div><label>Child ID Code</label><input type="text" name="child_id_code" /></div>
+        <div><label>DOB</label><input type="date" name="dob" /></div>
+        <div><label>Age (years)</label><select name="age_completed"><option>3</option><option>4</option><option>5</option></select></div>
+        <div><label>Sex</label><select name="sex"><option>Male</option><option>Female</option><option>Other</option></select></div>
+        <div><label>Birth Order</label><select name="birth_order"><option>1</option><option>2</option><option>3</option><option>≥4</option></select></div>
+        <div><label># siblings</label><input type="number" name="siblings_count" /></div>
+      </div>
+    </div>
+
+    <!-- Section B -->
+    <div class="card">
+      <h3><i class="fas fa-users"></i> Section B: Socio-Demographic & Economic</h3>
+      <h4><i class="fas fa-family"></i> B1. Family Characteristics</h4>
+      <div class="grid">
+        <div class="full"><label>Family type</label><select name="family_type"><option>Nuclear</option><option>Joint</option><option>Extended</option></select></div>
+        <div><label>Total members</label><input type="number" name="family_members_total" /></div>
+        <div><label>Religion</label><select name="religion"><option>Hindu</option><option>Muslim</option><option>Christian</option><option>Other</option></select></div>
+        <div><label>Caste</label><select name="caste_category"><option>SC</option><option>ST</option><option>OBC</option><option>General</option></select></div>
+      </div>
+
+      <div class="section-divider"></div>
+      <h4><i class="fas fa-chart-line"></i> B2. Modified Kuppuswamy Scale</h4>
+      
+      <label><i class="fas fa-graduation-cap"></i> Education (Head)</label>
+      <select name="edu_head_family">
+        <option>Profession / Honours (Score 7)</option><option>Graduate (Score 6)</option><option>Intermediate (Score 5)</option>
+        <option>High School (Score 4)</option><option>Middle School (Score 3)</option><option>Primary (Score 2)</option><option>Illiterate (Score 1)</option>
+      </select>
+      <label>Score</label><input type="number" name="edu_score" />
+
+      <label><i class="fas fa-briefcase"></i> Occupation (Head)</label>
+      <select name="occupation_head_family">
+        <option>Legislators/managers (Score 10)</option><option>Profession (Score 9)</option><option>Technicians (Score 8)</option>
+        <option>Clerks (Score 7)</option><option>Skilled workers (Score 6)</option><option>Agricultural (Score 5)</option>
+        <option>Craft workers (Score 4)</option><option>Machine operators (Score 3)</option><option>Elementary (Score 2)</option><option>Unemployed (Score 1)</option>
+      </select>
+      <label>Score</label><input type="number" name="occupation_score" />
+
+      <label><i class="fas fa-indian-rupee-sign"></i> Monthly Income</label>
+      <select name="monthly_income">
+        <option>₹1,59,586+ (Score 12)</option><option>₹79,756-1,59,585 (Score 10)</option><option>₹59,795-79,755 (Score 6)</option>
+        <option>₹39,830-59,794 (Score 4)</option><option>₹23,870-39,829 (Score 3)</option><option>₹7,989-23,869 (Score 2)</option><option>≤₹7,988 (Score 1)</option>
+      </select>
+      <label>Score</label><input type="number" name="income_score" />
+
+      <h4>Total & SES Class</h4>
+      <div class="grid">
+        <div><label>Total score</label><input type="number" name="kuppuswamy_total_score" /></div>
+        <div><label>SES class</label><select name="ses_class"><option>Upper (26–29)</option><option>Upper Middle (16–25)</option><option>Lower Middle (11–15)</option><option>Upper Lower (5–10)</option><option>Lower (<5)</option></select></div>
+      </div>
+    </div>
+
+    <!-- Section C -->
+    <div class="card">
+      <h3><i class="fas fa-heart-pulse"></i> Section C: Health & Nutrition</h3>
+      <div class="grid">
+        <div class="full"><label>Low birth weight (<2.5kg)?</label><select name="low_birth_weight"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
+        <div><label>Chronic illness?</label><select name="chronic_illness"><option>Yes</option><option>No</option></select></div>
+        <div><label>If yes, specify</label><input type="text" name="chronic_illness_specify" /></div>
+        <div><label>Worm infestation (6m)?</label><select name="worm_infestation"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
+        <div><label>Deworming (6m)?</label><select name="deworming_tablet"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
+        <div class="full"><label>Iron supplementation?</label><select name="iron_supplementation"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
+      </div>
+    </div>
+
+    <!-- Section D -->
+    <div class="card">
+      <h3><i class="fas fa-utensils"></i> Section D: Dietary Practices</h3>
+      <div class="grid">
+        <div><label>Diet type</label><select name="diet_type"><option>Vegetarian</option><option>Mixed</option></select></div>
+        <div><label>Iron-rich food</label><select name="iron_rich_food_frequency"><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option></select></div>
+      </div>
+    </div>
+
+    <!-- Section H (Haemoglobin) -->
+    <div class="card">
+      <h3><i class="fas fa-droplet"></i> Section H: Haemoglobin Results</h3>
+      <div class="grid">
+        <div><label>Date & time</label><input type="text" name="hb_measurement_datetime" /></div>
+        <div><label>Device sequence</label><select name="device_sequence"><option>Masimo Rad-67</option><option>Minimally invasive POC</option><option>ABX Micros ES 60</option></select></div>
+      </div>
+
+      <div class="measurement-group">
+        <h4>Masimo Rad-67 (Non-invasive)</h4>
+        <div class="grid">
+          <div><label>Reading 1</label><input type="number" step="0.01" name="masimo_reading_1" /></div>
+          <div><label>Reading 2</label><input type="number" step="0.01" name="masimo_reading_2" /></div>
+          <div><label>Reading 3</label><input type="number" step="0.01" name="masimo_reading_3" /></div>
+          <div><label>Average SpHb</label><input type="number" step="0.01" name="masimo_avg_sphb" /></div>
         </div>
-    </div>
+      </div>
 
-    <!-- SECTION C -->
-    <div id="sectionC">
-        <h4 class="section-title">SECTION C: Child Demographic & Development History</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">19. Birth Order</label>
-                    <select name="C25_birth_order" class="form-select">
-                        <option value="">Select</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3+">3 or more</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">20. Was the child born preterm?</label>
-                    <select name="C26_preterm" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">21. Birthweight (grams)</label>
-                    <input type="text" name="C27_weight" class="form-control">
-                </div>
-                <div>
-                    <label class="form-label">22. Mode of Delivery</label>
-                    <select name="C28_delivery" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Normal">Normal</option>
-                        <option value="Caesarean">Caesarean</option>
-                    </select>
-                </div>
-            </div>
+      <div class="measurement-group">
+        <h4>Minimally Invasive</h4>
+        <div class="grid">
+          <div class="full"><label>Capillary Hb (g/dL)</label><input type="number" step="0.01" name="capillary_hb_value" /></div>
+          <div><label>Attempts</label><select name="capillary_attempts"><option>1</option><option>2</option><option>≥3</option></select></div>
         </div>
+      </div>
+
+      <div class="measurement-group">
+        <h4>Reference (Laboratory)</h4>
+        <label>Venous Hb (g/dL)</label><input type="number" step="0.01" name="venous_hb_value" />
+      </div>
+
+      <h4>Child Comfort</h4>
+      <select name="child_response_score">
+        <option>0 – Calm and cooperative</option><option>1 – Mild resistance</option><option>2 – Moderate distress</option><option>3 – Severe distress</option>
+      </select>
     </div>
 
-    <!-- SECTION D -->
-    <div id="sectionD">
-        <h4 class="section-title">SECTION D: Medical History & Current Morbidity</h4>
-        <div class="card-dark">
-            <div class="table-responsive">
-                <table class="table table-dark-custom">
-                    <thead>
-                        <tr>
-                            <th>Condition</th>
-                            <th>Yes (1)</th>
-                            <th>No (2)</th>
-                            <th>Days</th>
-                            <th>Treatment</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Fever</strong></td>
-                            <td><input type="radio" name="D33_fever" value="Yes"></td>
-                            <td><input type="radio" name="D33_fever" value="No"></td>
-                            <td><input type="number" name="D33_days" class="form-control" style="margin-bottom: 0;"></td>
-                            <td>
-                                <select name="D33_treat" class="form-select" style="margin-bottom: 0;">
-                                    <option value="">Select</option>
-                                    <option value="1">1</option>
-                                    <option value="2">2</option>
-                                </select>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+    <!-- Section G: Acceptability -->
+    <div class="card">
+      <h3><i class="fas fa-face-smile"></i> Section G: Parental Acceptability</h3>
+      <div class="grid">
+        <div class="full"><label>Comfortable with testing?</label><select name="comfortable_testing_process"><option>Yes</option><option>No</option></select></div>
+        <div><label>Preferred method</label><select name="preferred_method"><option>Non-invasive</option><option>Fingerprick</option><option>Blood test</option><option>No preference</option></select></div>
+        <div><label>Repeat screening?</label><select name="repeat_screening"><option>Yes</option><option>No</option></select></div>
+      </div>
     </div>
 
-    <!-- SECTION E -->
-    <div id="sectionE">
-        <h4 class="section-title">SECTION E: Feeding, Diet & Food Intake</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">23. Poor appetite</label>
-                    <select name="E54_appetite" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">24. Selective eating</label>
-                    <select name="E55_selective" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">25. Swallowing difficulty</label>
-                    <select name="E56_swallow" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">26. Other feeding difficulty (Specify)</label>
-                    <input type="text" name="E57_other" class="form-control">
-                </div>
-            </div>
-        </div>
+    <!-- Section H: Referral -->
+    <div class="card">
+      <h3><i class="fas fa-truck-medical"></i> Section H: Referral & Action</h3>
+      <div class="grid">
+        <div><label>Classification</label><select name="child_classification"><option>Anaemic</option><option>Non-anaemic</option></select></div>
+        <div><label>IFA dose</label><input type="text" name="ifa_dose" /></div>
+        <div><label>Referral advised?</label><select name="referral_advised"><option>Yes</option><option>No</option></select></div>
+        <div><label>Destination</label><select name="referral_destination"><option>PHC</option><option>Anganwadi</option><option>Private clinic</option><option>Other</option></select></div>
+        <div class="full"><label>Other specify</label><input type="text" name="referral_other_specify" /></div>
+        <div><label>Investigator signature</label><input type="text" name="investigator_signature" /></div>
+        <div><label>Date</label><input type="date" name="referral_date" /></div>
+      </div>
     </div>
 
-    <!-- SECTION F -->
-    <div id="sectionF">
-        <h4 class="section-title">SECTION F: Hospitalization & Health Service Use</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">27. Hospitalized in last 12 months?</label>
-                    <select name="F58_hospitalized" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">28. Duration of stay (days)</label>
-                    <input type="number" name="F60_days" class="form-control">
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">29. Hospital type</label>
-                    <select name="F61_type" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Govt">Govt</option>
-                        <option value="Private">Private</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">30. Previous haemoglobin test?</label>
-                    <select name="F63_hb_test" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-            </div>
-        </div>
+    <!-- Submit -->
+    <div class="card">
+      <button type="submit">
+        <i class="fas fa-paper-plane"></i> Submit Questionnaire
+      </button>
+      <div class="note">
+        <i class="fas fa-barcode"></i> Responses linked to your Barcode ID · auto-saved
+      </div>
     </div>
-
-    <!-- SECTION G -->
-    <div id="sectionG">
-        <h4 class="section-title">SECTION G: Anthropometry</h4>
-        <div class="card-dark">
-            <div class="table-responsive">
-                <table class="table table-dark-custom">
-                    <thead>
-                        <tr>
-                            <th>Measurement</th>
-                            <th>Reading 1</th>
-                            <th>Reading 2</th>
-                            <th>Reading 3</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>Weight (kg)</strong></td>
-                            <td><input name="G65_w1" class="form-control" style="margin-bottom: 0;"></td>
-                            <td><input name="G65_w2" class="form-control" style="margin-bottom: 0;"></td>
-                            <td><input name="G65_w3" class="form-control" style="margin-bottom: 0;"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>Height (cm)</strong></td>
-                            <td><input name="G66_h1" class="form-control" style="margin-bottom: 0;"></td>
-                            <td><input name="G66_h2" class="form-control" style="margin-bottom: 0;"></td>
-                            <td><input name="G66_h3" class="form-control" style="margin-bottom: 0;"></td>
-                        </tr>
-                        <tr>
-                            <td><strong>MUAC</strong></td>
-                            <td colspan="3"><input name="G67_muac" class="form-control" style="margin-bottom: 0;"></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION H -->
-    <div id="sectionH">
-        <h4 class="section-title">SECTION H: Device Experience & Feasibility</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">31. Child cooperation</label>
-                    <select name="H70_cooperation" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Calm">Calm</option>
-                        <option value="Mild">Mild movement</option>
-                        <option value="Distressed">Distressed</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">32. Attempts required</label>
-                    <select name="H71_attempts" class="form-select">
-                        <option value="">Select</option>
-                        <option value="1">1</option>
-                        <option value="2">2</option>
-                        <option value="3+">3+</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">33. Device signal issues</label>
-                    <select name="H72_signal" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">34. Parent acceptability</label>
-                    <select name="H74_accept" class="form-select">
-                        <option value="">Select</option>
-                        <option value="High">High</option>
-                        <option value="Moderate">Moderate</option>
-                        <option value="Low">Low</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION I -->
-    <div id="sectionI">
-        <h4 class="section-title">SECTION I: Observer Field Notes</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">35. Environmental conditions</label>
-                    <input type="text" name="I81_env" class="form-control">
-                </div>
-                <div>
-                    <label class="form-label">36. Time taken for each test</label>
-                    <input type="text" name="I84_time" class="form-control">
-                </div>
-            </div>
-            
-            <div>
-                <label class="form-label">37. Child behaviour</label>
-                <textarea name="I82_behaviour" class="form-control" rows="3"></textarea>
-            </div>
-        </div>
-    </div>
-
-    <!-- SECTION J -->
-    <div id="sectionJ">
-        <h4 class="section-title">SECTION J: Final Referral Status</h4>
-        <div class="card-dark">
-            <div class="form-row">
-                <div>
-                    <label class="form-label">38. Hb result indicates anaemia</label>
-                    <select name="J85_anaemia" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-                <div>
-                    <label class="form-label">39. Referred for further evaluation</label>
-                    <select name="J86_referred" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-            </div>
-            
-            <div class="form-row">
-                <div>
-                    <label class="form-label">40. Parent informed & counselled</label>
-                    <select name="J87_counselled" class="form-select">
-                        <option value="">Select</option>
-                        <option value="Yes">Yes</option>
-                        <option value="No">No</option>
-                    </select>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Submit Button -->
-    <button type="submit" class="btn-submit">
-        <i class="fas fa-paper-plane"></i> Submit Complete Survey
-    </button>
-
-    </form>
+  </form>
 </div>
 
-<script>
-// Scroll to section function
-function scrollToSection(sectionId) {
-    const element = document.getElementById(sectionId);
-    if (element) {
-        window.scrollTo({
-            top: element.offsetTop - 80,
-            behavior: 'smooth'
-        });
-        
-        // Update active button
-        document.querySelectorAll('.section-nav-btn').forEach(btn => {
-            btn.classList.remove('active');
-        });
-        document.querySelector(`.section-nav-btn[onclick="scrollToSection('${sectionId}')"]`).classList.add('active');
-    }
-}
-
-// Update active button on scroll
-window.addEventListener('scroll', function() {
-    const sections = ['sectionA', 'sectionB', 'sectionC', 'sectionD', 'sectionE', 'sectionF', 'sectionG', 'sectionH', 'sectionI', 'sectionJ'];
-    let currentSection = 'sectionA';
-    
-    sections.forEach(section => {
-        const element = document.getElementById(section);
-        if (element && window.scrollY >= element.offsetTop - 100) {
-            currentSection = section;
-        }
-    });
-    
-    // Update active button
-    document.querySelectorAll('.section-nav-btn').forEach(btn => {
-        btn.classList.remove('active');
-    });
-    document.querySelector(`.section-nav-btn[onclick="scrollToSection('${currentSection}')"]`).classList.add('active');
-});
-
-// Form submission
-document.getElementById('surveyForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    // Simple validation
-    const requiredFields = document.querySelectorAll('[required]');
-    let valid = true;
-    
-    requiredFields.forEach(field => {
-        if (!field.value.trim()) {
-            field.style.borderColor = '#ef4444';
-            valid = false;
-        } else {
-            field.style.borderColor = '#475569';
-        }
-    });
-    
-    if (valid) {
-        alert('Survey submitted successfully! Thank you for completing all sections.');
-        // In real application, submit to server here
-        console.log('Form submitted successfully');
-    } else {
-        alert('Please fill all required fields marked with *');
-    }
-});
-
-// Initialize first button as active
-document.addEventListener('DOMContentLoaded', function() {
-    document.querySelector('.section-nav-btn').classList.add('active');
-});
-</script>
 </body>
 </html>

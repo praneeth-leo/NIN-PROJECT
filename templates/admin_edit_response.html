@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Edit Response</title>
+</head>
+<body style="font-family: Arial; background:#f4f6f9;">
+
+  <div style="width:90%;margin:40px auto;background:white;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+
+    <h2>Edit Response</h2>
+
+    <p><b>Response ID:</b> {{ r.response_id }}</p>
+    <p><b>Profile ID:</b> {{ r.profile_id }}</p>
+
+    <form method="POST">
+
+      {% for key, val in r.items() %}
+        {% if key != "response_id" %}
+          <label style="font-weight:bold;">{{ key }}</label>
+          <input name="{{ key }}" value="{{ val }}"
+                 style="width:100%;padding:10px;margin-bottom:10px;border:1px solid #ccc;border-radius:8px;">
+        {% endif %}
+      {% endfor %}
+
+      <button type="submit"
+              style="width:100%;padding:12px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;">
+        Save Changes
+      </button>
+    </form>
+
+    <br>
+    <a href="/admin/responses"
+       style="display:inline-block;padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;">
+      Back
+    </a>
+
+  </div>
+
+</body>
+</html>

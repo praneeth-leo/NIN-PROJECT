@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin - Responses</title>
+</head>
+
+<body style="font-family: Arial; background:#f4f6f9;">
+
+  <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+      <h2 style="margin:0;">Questionnaire Responses</h2>
+      <a href="/admin-dashboard"
+         style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+        Back
+      </a>
+    </div>
+
+    <hr>
+
+    <!-- SEARCH -->
+    <form method="GET" action="/admin/responses" style="margin-bottom:15px;">
+      <input type="text" name="q" placeholder="Search Barcode ID (example: SENA0004)"
+             value="{{ q }}"
+             style="width:320px;padding:10px;border:1px solid #ccc;border-radius:10px;">
+
+      <button type="submit"
+              style="padding:10px 14px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
+        Search
+      </button>
+
+      <a href="/admin/responses"
+         style="padding:10px 14px;background:#6c757d;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+        Reset
+      </a>
+    </form>
+
+    {% if data|length == 0 %}
+      <p style="color:#555;">No responses found.</p>
+    {% else %}
+
+    <p style="color:#666;font-size:13px;">
+      Total responses: <b>{{ data|length }}</b>
+    </p>
+
+    <div style="overflow-x:auto;">
+      <table border="1" cellpadding="10" cellspacing="0"
+             style="width:100%;border-collapse:collapse;font-size:13px;">
+
+        <tr style="background:#28a745;color:white;">
+          <th>Actions</th>
+          {% for key in data[0].keys() %}
+            <th>{{ key }}</th>
+          {% endfor %}
+        </tr>
+
+        {% for row in data %}
+          <tr>
+
+            <!-- Actions -->
+            <td style="text-align:center;min-width:190px;">
+
+              <!-- Edit -->
+              <a href="/admin/edit-response/{{ row['response_id'] }}"
+                 style="display:block;margin-bottom:8px;padding:8px 10px;background:#ffc107;color:black;text-decoration:none;border-radius:8px;font-weight:bold;">
+                Edit
+              </a>
+
+              <!-- Delete -->
+              <form method="POST"
+                    action="/admin/delete-response/{{ row['response_id'] }}"
+                    onsubmit="return confirm('Delete this response?');">
+                <button type="submit"
+                        style="width:100%;padding:8px 10px;background:#dc3545;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">
+                  Delete
+                </button>
+              </form>
+
+            </td>
+
+            {% for val in row.values() %}
+              <td>{{ val }}</td>
+            {% endfor %}
+
+          </tr>
+        {% endfor %}
+      </table>
+    </div>
+
+    {% endif %}
+
+  </div>
+
+</body>
+</html>

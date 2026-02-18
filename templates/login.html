@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurveyPro · secure login</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #070b14;
+      --surface: rgba(18, 24, 38, 0.9);
+      --surface-hover: rgba(28, 35, 52, 0.95);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-active: rgba(99, 102, 241, 0.3);
+      --text-primary: #ffffff;
+      --text-secondary: #b1c3ff;
+      --text-muted: #7e8bb6;
+      --accent-primary: #6366f1;
+      --accent-secondary: #8b5cf6;
+      --accent-glow: rgba(99, 102, 241, 0.35);
+      --success: #22c55e;
+      --success-glow: rgba(34, 197, 94, 0.25);
+      --gradient-btn: linear-gradient(145deg, #6366f1, #8b5cf6);
+      --gradient-btn-hover: linear-gradient(145deg, #4f46e5, #7c3aed);
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 36px;
+      --radius-input: 60px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+      color: var(--text-primary);
+    }
+
+    /* animated survey/security background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(99, 102, 241, 0.18) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(139, 92, 246, 0.15) 0%, transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(34, 197, 94, 0.08) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 440px;
+      position: relative;
+      z-index: 10;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* glass card */
+    .box {
+      background: rgba(12, 18, 28, 0.75);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 44px 40px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .box::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(400px circle at 20% 30%, rgba(99, 102, 241, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* brand icon */
+    .brand-icon {
+      width: 64px;
+      height: 64px;
+      background: linear-gradient(145deg, #1e2538, #131b2c);
+      border-radius: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      box-shadow: 0 20px 30px -16px #000;
+    }
+
+    .brand-icon i {
+      font-size: 36px;
+      background: linear-gradient(145deg, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 10px;
+      background: linear-gradient(to right, #ffffff, #cfd9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      text-align: center;
+    }
+
+    .subhead {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .subhead i {
+      color: var(--accent-primary);
+      font-size: 1rem;
+    }
+
+    /* form */
+    form {
+      margin-bottom: 18px;
+    }
+
+    .input-group {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 22px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      z-index: 2;
+    }
+
+    input {
+      width: 100%;
+      padding: 18px 24px 18px 58px;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 60px;
+      font-size: 1rem;
+      font-family: "Inter", sans-serif;
+      color: white;
+      transition: all 0.2s ease;
+      box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    input::placeholder {
+      color: #5b6a8c;
+      font-weight: 400;
+      font-size: 0.95rem;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-primary);
+      box-shadow: 0 0 0 3px var(--accent-glow), inset 0 2px 8px rgba(0,0,0,0.4);
+      background: rgba(10, 16, 28, 0.7);
+    }
+
+    /* login button */
+    .login-btn {
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: var(--gradient-btn);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 22px 30px -16px var(--accent-glow), 0 0 0 1px rgba(255,255,255,0.03);
+      transition: all 0.25s ease;
+      margin-top: 8px;
+    }
+
+    .login-btn i {
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+
+    .login-btn:hover {
+      background: var(--gradient-btn-hover);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #8b5cf6;
+    }
+
+    .login-btn:hover i {
+      transform: translateX(4px);
+    }
+
+    /* divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      margin: 28px 0 22px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: "";
+      flex: 1;
+      height: 1px;
+      background: rgba(255, 255, 255, 0.06);
+    }
+
+    /* profile button */
+    .profile-btn {
+      width: 100%;
+      padding: 18px 24px;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      background: rgba(34, 197, 94, 0.12);
+      color: #86efac;
+      border: 1px solid rgba(34, 197, 94, 0.25);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      margin-bottom: 20px;
+      backdrop-filter: blur(4px);
+    }
+
+    .profile-btn i {
+      font-size: 1.1rem;
+      color: #22c55e;
+    }
+
+    .profile-btn:hover {
+      background: rgba(34, 197, 94, 0.2);
+      border-color: rgba(34, 197, 94, 0.4);
+      transform: translateY(-2px);
+    }
+
+    /* note */
+    .note {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border-top: 1px solid rgba(255,255,255,0.03);
+      padding-top: 22px;
+    }
+
+    .note i {
+      color: var(--accent-primary);
+    }
+
+    /* barcode hint */
+    .barcode-hint {
+      background: rgba(99, 102, 241, 0.08);
+      border-radius: 40px;
+      padding: 12px 20px;
+      margin-top: 28px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border: 1px solid rgba(99, 102, 241, 0.15);
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    .barcode-hint i {
+      color: #f59e0b;
+      font-size: 1.1rem;
+    }
+
+    .barcode-hint strong {
+      color: white;
+      font-weight: 600;
+    }
+
+    /* mobile */
+    @media (max-width: 480px) {
+      .box {
+        padding: 32px 24px;
+      }
+      h2 {
+        font-size: 1.8rem;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="login-container">
+    <div class="box">
+      <!-- brand icon -->
+      <div class="brand-icon">
+        <i class="fas fa-qrcode"></i>
+      </div>
+
+      <h2>Welcome back</h2>
+      <div class="subhead">
+        <i class="fas fa-lock"></i>
+        <span>secure barcode access</span>
+      </div>
+
+      <!-- IMPORTANT: action="/login" unchanged -->
+      <form method="POST" action="/login">
+        <div class="input-group">
+          <i class="fas fa-barcode input-icon"></i>
+          <input type="text" name="profile_id" placeholder="Enter your barcode ID" required />
+        </div>
+
+        <button type="submit" class="login-btn">
+          <span>Login with barcode</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
+
+      <div class="divider">
+        <span>new here?</span>
+      </div>
+
+      <!-- profile button (exact same onclick) -->
+      <button class="profile-btn" onclick="window.location.href='/profile'">
+        <i class="fas fa-user-plus"></i>
+        <span>Create new profile</span>
+      </button>
+
+      <!-- barcode hint / survey integration -->
+      <div class="barcode-hint">
+        <i class="fas fa-circle-info"></i>
+        <span>New users get a unique barcode · all survey responses linked to your ID</span>
+      </div>
+
+      <div class="note">
+        <i class="fas fa-shield"></i>
+        <span>End-to-end encrypted · auto-resume enabled</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- functionality unchanged: /login and /profile exactly as before -->
+</body>
+</html>

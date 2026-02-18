@@ -1,183 +1,595 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Profile Summary</title>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-body {
-    background: linear-gradient(135deg, #0b0f1a 0%, #1a1f3a 100%);
-    color: #e5e7eb;
-    font-family: 'Segoe UI', system-ui, sans-serif;
-    min-height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-}
-
-.success-card {
-    background: rgba(2, 6, 23, 0.8);
-    backdrop-filter: blur(10px);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    border-radius: 16px;
-    padding: 40px;
-    text-align: center;
-    max-width: 500px;
-    width: 100%;
-    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-}
-
-.success-icon {
-    width: 80px;
-    height: 80px;
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    margin: 0 auto 25px;
-    font-size: 36px;
-    color: white;
-}
-
-.profile-id {
-    background: rgba(34, 197, 94, 0.1);
-    border: 1px solid rgba(34, 197, 94, 0.3);
-    padding: 12px 20px;
-    border-radius: 10px;
-    font-size: 18px;
-    font-weight: 600;
-    letter-spacing: 1px;
-    margin: 20px 0;
-    display: inline-block;
-}
-
-.barcode-container {
-    background: white;
-    padding: 25px;
-    border-radius: 12px;
-    margin: 30px 0;
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
-}
-
-.barcode-container img {
-    width: 100%;
-    max-width: 300px;
-    height: auto;
-    display: block;
-    margin: 0 auto;
-}
-
-.btn-success-custom {
-    background: linear-gradient(135deg, #22c55e, #16a34a);
-    border: none;
-    padding: 14px 24px;
-    border-radius: 10px;
-    font-weight: 600;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin-bottom: 15px;
-    width: 100%;
-}
-
-.btn-success-custom:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 10px 20px rgba(34, 197, 94, 0.3);
-}
-
-.btn-outline-custom {
-    background: transparent;
-    border: 2px solid #4b5563;
-    color: #e5e7eb;
-    padding: 12px 24px;
-    border-radius: 10px;
-    font-weight: 500;
-    transition: all 0.3s ease;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    width: 100%;
-}
-
-.btn-outline-custom:hover {
-    border-color: #22c55e;
-    background: rgba(34, 197, 94, 0.1);
-    color: #22c55e;
-}
-
-h4 {
-    color: #22c55e;
-    font-weight: 700;
-    margin-bottom: 10px;
-}
-
-p {
-    color: #9ca3af;
-    margin-bottom: 10px;
-}
-
-@media (max-width: 576px) {
-    .success-card {
-        padding: 25px;
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SurveyPro · profile created</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
-    
-    .barcode-container {
-        padding: 15px;
+
+    :root {
+      --bg-deep: #0a0c15;
+      --surface: rgba(18, 24, 38, 0.9);
+      --surface-card: rgba(22, 28, 45, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.05);
+      --border-active: rgba(40, 167, 69, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      --accent-success: #28a745;
+      --accent-success-glow: rgba(40, 167, 69, 0.3);
+      --accent-primary: #007bff;
+      --accent-primary-glow: rgba(0, 123, 255, 0.3);
+      --gradient-success: linear-gradient(145deg, #28a745, #1e7e34);
+      --gradient-primary: linear-gradient(145deg, #007bff, #0056b3);
+      --gradient-print: linear-gradient(145deg, #6c757d, #495057);
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 36px;
+      --radius-barcode: 24px;
     }
-}
-</style>
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+      overflow-x: hidden;
+      color: var(--text-primary);
+    }
+
+    /* animated celebration background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 20% 30%, rgba(40, 167, 69, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(0, 123, 255, 0.12) 0%, transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(255, 193, 7, 0.08) 0%, transparent 50%),
+        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .success-container {
+      width: 100%;
+      max-width: 560px;
+      position: relative;
+      z-index: 10;
+      animation: fadeUp 0.6s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* main card */
+    .box {
+      background: rgba(18, 24, 38, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 48px 40px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+      text-align: center;
+    }
+
+    .box::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at 50% 20%, rgba(40, 167, 69, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* success icon */
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: var(--gradient-success);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 20px 30px -10px var(--accent-success-glow);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5); }
+      70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    }
+
+    .success-icon i {
+      font-size: 40px;
+      color: white;
+    }
+
+    h2 {
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, #ffffff, #a5d6b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .subtitle i {
+      color: var(--accent-success);
+    }
+
+    /* barcode id display */
+    .id-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .id {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 60px;
+      padding: 16px 24px;
+      margin: 8px 0 24px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 2px;
+      display: inline-block;
+      backdrop-filter: blur(4px);
+      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.3);
+      font-family: monospace;
+    }
+
+    /* barcode image */
+    .barcode-wrapper {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-barcode);
+      padding: 24px;
+      margin: 24px 0 28px;
+      position: relative;
+      backdrop-filter: blur(4px);
+    }
+
+    .barcode-wrapper::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 10%;
+      right: 10%;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.3), transparent);
+    }
+
+    #barcode-img {
+      width: 100%;
+      max-width: 320px;
+      border-radius: 16px;
+      background: white;
+      padding: 16px;
+      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
+      transition: transform 0.3s ease;
+    }
+
+    #barcode-img:hover {
+      transform: scale(1.02);
+    }
+
+    /* action buttons container */
+    .action-buttons {
+      display: flex;
+      gap: 12px;
+      margin: 20px 0 10px;
+    }
+
+    .action-buttons .btn {
+      flex: 1;
+    }
+
+    /* button base */
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 16px 20px;
+      border-radius: 60px;
+      text-decoration: none;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      transition: all 0.25s ease;
+      cursor: pointer;
+    }
+
+    .btn i {
+      font-size: 1.1rem;
+      transition: transform 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      box-shadow: 0 22px 30px -16px var(--accent-primary-glow);
+    }
+
+    .btn-primary:hover {
+      background: linear-gradient(145deg, #0056b3, #004085);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #0056b3;
+    }
+
+    .btn-success {
+      background: var(--gradient-success);
+      box-shadow: 0 22px 30px -16px var(--accent-success-glow);
+    }
+
+    .btn-success:hover {
+      background: linear-gradient(145deg, #1e7e34, #155d27);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #1e7e34;
+    }
+
+    .btn-secondary {
+      background: var(--gradient-print);
+      box-shadow: 0 22px 30px -16px rgba(108, 117, 125, 0.4);
+    }
+
+    .btn-secondary:hover {
+      background: linear-gradient(145deg, #5a6268, #343a40);
+      transform: scale(1.02);
+      box-shadow: 0 28px 40px -14px #495057;
+    }
+
+    .btn:hover i {
+      transform: translateX(4px);
+    }
+
+    .btn-success:hover i, .btn-secondary:hover i {
+      transform: translateY(-2px);
+    }
+
+    /* note */
+    .note {
+      margin-top: 24px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 14px 20px;
+      border-radius: 60px;
+      border: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .note i {
+      color: #ffc107;
+    }
+
+    /* mobile */
+    @media (max-width: 480px) {
+      .box {
+        padding: 32px 24px;
+      }
+      h2 {
+        font-size: 1.8rem;
+      }
+      .id {
+        font-size: 1.2rem;
+        padding: 12px 16px;
+      }
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+
+    /* print styles */
+    @media print {
+      body {
+        background: white;
+        padding: 0;
+      }
+      body::before {
+        display: none;
+      }
+      .success-container {
+        max-width: 100%;
+        animation: none;
+      }
+      .box {
+        background: white;
+        backdrop-filter: none;
+        -webkit-backdrop-filter: none;
+        border: 1px solid #ddd;
+        box-shadow: none;
+        padding: 30px;
+      }
+      .box::after {
+        display: none;
+      }
+      .success-icon, .action-buttons, .note, .subtitle i, .btn, .download-hint {
+        display: none !important;
+      }
+      h2 {
+        color: #28a745;
+        -webkit-text-fill-color: #28a745;
+        background: none;
+      }
+      .id {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+        color: #212529;
+      }
+      .barcode-wrapper {
+        background: #f8f9fa;
+        border: 1px solid #dee2e6;
+      }
+      #barcode-img {
+        box-shadow: none;
+        border: 1px solid #dee2e6;
+      }
+      .id-label {
+        color: #6c757d;
+      }
+    }
+  </style>
 </head>
 
 <body>
-    <div class="success-card">
-        <!-- Success Icon -->
-        <div class="success-icon">
-            <i class="fas fa-check"></i>
-        </div>
-        
-        <!-- Title -->
-        <h4>Profile Created Successfully</h4>
-        <p>Your profile has been registered in the system</p>
-        
-        <!-- Profile ID -->
-        <div class="profile-id">
-            <i class="fas fa-id-card"></i> PROFILE-{{ profile_id }}
-        </div>
-        
-        <!-- Barcode -->
-        {% if barcode_path %}
-        <div class="barcode-container">
-            <img src="/static/{{ barcode_path }}" alt="Profile Barcode">
-        </div>
-        {% endif %}
-        
-        <!-- Download Button -->
-        {% if barcode_path %}
-        <a href="/static/{{ barcode_path }}" download class="btn-success-custom">
-            <i class="fas fa-download"></i> Download Barcode
-        </a>
-        {% endif %}
-        
-        <!-- Navigation -->
-        <a href="/" class="btn-outline-custom mt-3">
-            <i class="fas fa-home"></i> Go to Dashboard
-        </a>
-        
-        <!-- Additional Info -->
-        <div class="mt-4 pt-3 border-top border-secondary">
-            <small class="text-muted">
-                <i class="fas fa-info-circle"></i>
-                Keep your barcode safe for future reference
-            </small>
-        </div>
+  <div class="success-container">
+    <div class="box">
+      <!-- success icon -->
+      <div class="success-icon">
+        <i class="fas fa-check"></i>
+      </div>
+
+      <h2>Profile Created!</h2>
+      <div class="subtitle">
+        <i class="fas fa-barcode"></i>
+        <span>Your unique identifier is ready</span>
+      </div>
+
+      <!-- barcode id display (dynamic) -->
+      <div class="id-label">BARCODE ID</div>
+      <div class="id" id="barcode-id">{{ profile_id }}</div>
+
+      <!-- barcode image -->
+      <div class="barcode-wrapper">
+        <img id="barcode-img" src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode" />
+      </div>
+
+      <!-- action buttons: Download and Print -->
+      <div class="action-buttons">
+        <button class="btn btn-success" id="downloadBtn">
+          <i class="fas fa-download"></i> Download
+        </button>
+        <button class="btn btn-secondary" id="printBtn">
+          <i class="fas fa-print"></i> Print
+        </button>
+      </div>
+
+      <!-- login button -->
+      <a class="btn btn-primary" href="/login">
+        <span>Login with Barcode ID</span>
+        <i class="fas fa-arrow-right"></i>
+      </a>
+
+      <!-- save instruction -->
+      <div class="note">
+        <i class="fas fa-shield-alt"></i>
+        <span>Save this barcode. You'll need it every time to login.</span>
+      </div>
     </div>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Get elements
+      const downloadBtn = document.getElementById('downloadBtn');
+      const printBtn = document.getElementById('printBtn');
+      const barcodeImg = document.getElementById('barcode-img');
+      const barcodeId = document.getElementById('barcode-id')?.textContent || '{{ profile_id }}';
+      
+      // Download functionality
+      downloadBtn.addEventListener('click', function() {
+        // Create a temporary canvas to combine barcode and ID
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas size (A6 proportions for card)
+        canvas.width = 600;
+        canvas.height = 400;
+        
+        // Fill background
+        ctx.fillStyle = '#ffffff';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw border
+        ctx.strokeStyle = '#28a745';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
+        
+        // Add title
+        ctx.fillStyle = '#28a745';
+        ctx.font = 'bold 24px Inter, Arial, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('SurveyPro Barcode ID', canvas.width / 2, 60);
+        
+        // Add barcode ID
+        ctx.fillStyle = '#333333';
+        ctx.font = 'bold 28px monospace';
+        ctx.fillText(barcodeId, canvas.width / 2, 120);
+        
+        // Load and draw the barcode image
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.src = barcodeImg.src;
+        
+        img.onload = function() {
+          // Draw barcode image
+          const imgWidth = 300;
+          const imgHeight = 150;
+          ctx.drawImage(img, (canvas.width - imgWidth) / 2, 150, imgWidth, imgHeight);
+          
+          // Add footer
+          ctx.fillStyle = '#666666';
+          ctx.font = '14px Inter, Arial, sans-serif';
+          ctx.fillText('Save this barcode for future logins', canvas.width / 2, 330);
+          ctx.fillText('Generated on ' + new Date().toLocaleDateString(), canvas.width / 2, 360);
+          
+          // Create download link
+          const link = document.createElement('a');
+          link.download = `barcode-${barcodeId}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+        
+        // Fallback in case image fails to load
+        img.onerror = function() {
+          // Draw placeholder
+          ctx.fillStyle = '#f0f0f0';
+          ctx.fillRect((canvas.width - 300) / 2, 150, 300, 150);
+          ctx.fillStyle = '#999999';
+          ctx.font = '16px Inter, Arial, sans-serif';
+          ctx.fillText('Barcode: ' + barcodeId, canvas.width / 2, 230);
+          
+          const link = document.createElement('a');
+          link.download = `barcode-${barcodeId}.png`;
+          link.href = canvas.toDataURL('image/png');
+          link.click();
+        };
+      });
+      
+      // Print functionality - opens full print dialog
+      printBtn.addEventListener('click', function() {
+        // Create a print-specific content
+        const printWindow = window.open('', '_blank');
+        
+        printWindow.document.write(`
+          <!DOCTYPE html>
+          <html>
+          <head>
+            <title>SurveyPro Barcode - ${barcodeId}</title>
+            <style>
+              body {
+                font-family: Arial, sans-serif;
+                text-align: center;
+                padding: 40px 20px;
+                background: white;
+              }
+              .print-container {
+                max-width: 500px;
+                margin: 0 auto;
+                border: 2px solid #28a745;
+                border-radius: 20px;
+                padding: 30px;
+              }
+              h1 {
+                color: #28a745;
+                font-size: 28px;
+                margin-bottom: 10px;
+              }
+              .barcode-id {
+                font-size: 32px;
+                font-weight: bold;
+                font-family: monospace;
+                background: #f8f9fa;
+                padding: 15px;
+                border-radius: 10px;
+                margin: 20px 0;
+                letter-spacing: 2px;
+              }
+              .barcode-img {
+                max-width: 100%;
+                height: auto;
+                margin: 20px 0;
+                padding: 15px;
+                background: white;
+                border: 1px solid #dee2e6;
+                border-radius: 10px;
+              }
+              .footer {
+                color: #6c757d;
+                font-size: 14px;
+                margin-top: 30px;
+              }
+              .note {
+                color: #28a745;
+                font-size: 16px;
+                margin-top: 20px;
+              }
+              @media print {
+                body { background: white; }
+                .print-container { border: 2px solid #28a745; }
+              }
+            </style>
+          </head>
+          <body>
+            <div class="print-container">
+              <h1>SurveyPro</h1>
+              <h2 style="color: #333;">Profile Barcode</h2>
+              
+              <div class="barcode-id">${barcodeId}</div>
+              
+              <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
+              
+              <div class="note">Save this barcode for future logins</div>
+              <div class="footer">
+                Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
+              </div>
+            </div>
+            
+            <script>
+              // Automatically trigger print dialog when page loads
+              window.onload = function() {
+                window.print();
+              };
+            <\/script>
+          </body>
+          </html>
+        `);
+        
+        printWindow.document.close();
+      });
+    });
+  </script>
 </body>
 </html>

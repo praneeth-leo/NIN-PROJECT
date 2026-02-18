@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Admin Upload</title>
+</head>
+<body style="font-family: Arial; background:#f4f6f9;">
+
+  <div style="width:600px;margin:60px auto;background:white;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+
+    <h2>Upload / Replace File</h2>
+
+    <p style="color:#666;">
+      Allowed files:
+      <b>profiles.csv</b>, <b>responses.csv</b>, <b>profiles.xlsx</b>, <b>responses.xlsx</b>
+    </p>
+
+    <form method="POST" enctype="multipart/form-data">
+      <input type="file" name="file" required
+             style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;">
+      <br><br>
+
+      <button type="submit"
+              style="width:100%;padding:12px;background:#ff8800;color:white;border:none;border-radius:10px;font-weight:bold;">
+        Upload
+      </button>
+    </form>
+
+    <br>
+
+    <a href="/admin-dashboard"
+       style="display:inline-block;padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;">
+      Back
+    </a>
+
+  </div>
+
+</body>
+</html>
