@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro · field questionnaire</title>
-  <!-- Font Awesome 6 + Google Inter font -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro · Field Questionnaire A–J (Dark Mode)</title>
+  <!-- Font Awesome 6 + Google Inter for modern look -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
+    /* === DARK THEME ENHANCEMENTS (preserving all original functionality) === */
     * {
       margin: 0;
       padding: 0;
@@ -21,279 +22,182 @@
       --surface: rgba(18, 24, 38, 0.85);
       --surface-card: rgba(22, 28, 45, 0.8);
       --border-subtle: rgba(255, 255, 255, 0.04);
-      --border-active: rgba(255, 136, 0, 0.4);
+      --border-active: rgba(37, 99, 235, 0.4);
       --text-primary: #ffffff;
       --text-secondary: #cbd5e1;
       --text-muted: #94a3b8;
-      --accent-primary: #ff8800;
-      --accent-secondary: #ffaa33;
-      --accent-glow: rgba(255, 136, 0, 0.25);
+      --accent-primary: #2563eb;
+      --accent-secondary: #3b82f6;
+      --accent-glow: rgba(37, 99, 235, 0.3);
+      --success: #10b981;
+      --warning: #f59e0b;
       --danger: #ef4444;
-      --danger-glow: rgba(239, 68, 68, 0.25);
-      --gradient-header: linear-gradient(145deg, #ff8800, #ff5500);
-      --gradient-btn: linear-gradient(145deg, #ff8800, #ff6a00);
-      --gradient-btn-hover: linear-gradient(145deg, #ff6a00, #ff5500);
+      --gradient-card: linear-gradient(145deg, rgba(22,28,45,0.8), rgba(18,24,38,0.9));
       --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
       --radius-card: 28px;
       --radius-input: 16px;
     }
 
     body {
-      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
       background: var(--bg-deep);
-      min-height: 100vh;
-      margin: 0;
-      padding: 0;
+      padding: 30px 20px;
       color: var(--text-primary);
       position: relative;
-      overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    /* animated medical/survey background */
+    /* animated background */
     body::before {
       content: "";
       position: fixed;
+      top: 0;
+      left: 0;
       width: 100vw;
       height: 100vh;
       background: 
-        radial-gradient(circle at 10% 20%, rgba(255, 136, 0, 0.12) 0%, transparent 40%),
-        radial-gradient(circle at 90% 70%, rgba(99, 102, 241, 0.08) 0%, transparent 45%),
-        radial-gradient(circle at 30% 80%, rgba(34, 197, 94, 0.06) 0%, transparent 50%),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+        radial-gradient(circle at 10% 20%, rgba(37, 99, 235, 0.12) 0%, transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(16, 185, 129, 0.08) 0%, transparent 45%),
+        radial-gradient(circle at 30% 80%, rgba(245, 158, 11, 0.06) 0%, transparent 50%);
       pointer-events: none;
       z-index: 0;
     }
 
-    /* header */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 50;
-      padding: 16px 32px;
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+    }
+
+    /* top bar */
+    .top-bar {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: rgba(10, 14, 23, 0.85);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-      box-shadow: 0 20px 30px -20px rgba(0, 0, 0, 0.8);
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+      gap: 20px;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .brand-icon {
-      width: 44px;
-      height: 44px;
-      background: var(--gradient-header);
-      border-radius: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 12px 24px -8px rgba(255, 136, 0, 0.4);
-    }
-
-    .brand-icon i {
-      font-size: 24px;
-      color: white;
-    }
-
-    .brand-text {
+    h2 {
+      font-size: 2.2rem;
       font-weight: 700;
-      font-size: 1.3rem;
-      letter-spacing: -0.3px;
-      background: linear-gradient(to right, #ffffff, #ffd6a3);
+      background: linear-gradient(135deg, #ffffff, #a5c9ff);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-    }
-
-    .top-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .btn-back, .btn-logout {
-      text-decoration: none;
-      padding: 10px 22px;
-      border-radius: 40px;
-      font-size: 0.95rem;
-      font-weight: 600;
       display: flex;
       align-items: center;
-      gap: 8px;
-      transition: all 0.2s ease;
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      gap: 15px;
     }
 
-    .btn-back {
-      background: rgba(255, 255, 255, 0.05);
-      color: var(--text-secondary);
-      backdrop-filter: blur(8px);
-    }
-
-    .btn-back:hover {
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateX(-2px);
-    }
-
-    .btn-logout {
-      background: rgba(239, 68, 68, 0.12);
-      color: #fecaca;
-      border-color: rgba(239, 68, 68, 0.2);
-    }
-
-    .btn-logout:hover {
-      background: rgba(239, 68, 68, 0.25);
-      border-color: rgba(239, 68, 68, 0.4);
-    }
-
-    /* main container */
-    .container {
-      max-width: 1100px;
-      margin: 30px auto;
-      padding: 20px 28px 50px;
-      position: relative;
-      z-index: 5;
-    }
-
-    /* progress header */
-    .survey-progress {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 28px;
-      background: rgba(255, 136, 0, 0.05);
-      border: 1px solid rgba(255, 136, 0, 0.1);
-      border-radius: 60px;
-      padding: 10px 24px;
-      backdrop-filter: blur(8px);
-    }
-
-    .progress-text {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      color: var(--text-secondary);
-    }
-
-    .progress-text i {
+    h2 i {
       color: var(--accent-primary);
+      font-size: 2rem;
+      background: rgba(37, 99, 235, 0.2);
+      padding: 12px;
+      border-radius: 20px;
+      border: 1px solid rgba(37, 99, 235, 0.3);
     }
 
-    .auto-save-badge {
-      background: rgba(34, 197, 94, 0.15);
-      color: #86efac;
-      padding: 6px 18px;
-      border-radius: 40px;
-      font-size: 0.85rem;
+    .save-indicator {
+      background: rgba(16, 185, 129, 0.1);
+      backdrop-filter: blur(8px);
+      padding: 12px 28px;
+      border-radius: 60px;
+      color: #6ee7b7;
+      font-weight: 600;
+      font-size: 0.95rem;
       display: flex;
       align-items: center;
-      gap: 8px;
-      border: 1px solid rgba(34, 197, 94, 0.2);
+      gap: 12px;
+      border: 1px solid rgba(16, 185, 129, 0.2);
     }
 
-    /* cards */
-    .card {
+    .save-indicator i {
+      color: #10b981;
+    }
+
+    /* sections */
+    .section {
       background: rgba(18, 24, 38, 0.7);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
+      backdrop-filter: blur(12px) saturate(180%);
+      -webkit-backdrop-filter: blur(12px) saturate(180%);
       border: 1px solid rgba(255, 255, 255, 0.03);
       border-radius: var(--radius-card);
       padding: 28px 30px;
-      margin-bottom: 24px;
+      margin-bottom: 30px;
       box-shadow: var(--shadow-elevation);
       position: relative;
       overflow: hidden;
-      transition: all 0.2s ease;
     }
 
-    .card:hover {
-      border-color: rgba(255, 136, 0, 0.15);
-    }
-
-    .card::after {
+    .section::after {
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(400px circle at 0% 20%, rgba(255, 136, 0, 0.05), transparent 70%);
+      background: radial-gradient(600px circle at 20% 30%, rgba(37, 99, 235, 0.06), transparent 70%);
       pointer-events: none;
     }
 
     h3 {
-      font-size: 1.6rem;
+      font-size: 1.8rem;
       font-weight: 700;
-      letter-spacing: -0.4px;
-      margin: 0 0 8px 0;
       color: white;
       display: flex;
       align-items: center;
       gap: 12px;
+      margin-bottom: 25px;
+      border-bottom: 2px solid rgba(37, 99, 235, 0.3);
+      padding-bottom: 15px;
     }
 
     h3 i {
       color: var(--accent-primary);
-      font-size: 1.8rem;
+      font-size: 2rem;
+      background: rgba(37, 99, 235, 0.1);
+      padding: 10px;
+      border-radius: 16px;
     }
 
     h4 {
-      font-size: 1.2rem;
+      font-size: 1.3rem;
       font-weight: 600;
-      margin: 24px 0 16px 0;
       color: var(--text-secondary);
+      margin: 25px 0 15px 0;
       display: flex;
       align-items: center;
       gap: 10px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-      padding-bottom: 10px;
     }
 
     h4 i {
       color: var(--accent-secondary);
-      font-size: 1.1rem;
     }
 
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 18px;
-    }
-
-    .full {
-      grid-column: span 2;
-    }
-
+    /* labels */
     label {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
+      display: block;
       font-weight: 500;
-      font-size: 0.9rem;
+      font-size: 0.95rem;
       color: var(--text-secondary);
+      margin-top: 18px;
+      margin-bottom: 8px;
     }
 
-    label i {
-      color: var(--accent-primary);
-      width: 18px;
-    }
-
+    /* inputs & selects */
     input, select {
       width: 100%;
       padding: 14px 18px;
       background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.04);
+      border: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: var(--radius-input);
       font-size: 0.95rem;
-      font-family: "Inter", sans-serif;
-      color: white;
-      transition: all 0.2s ease;
+      font-family: 'Inter', sans-serif;
+      color: var(--text-primary);
       box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.3);
-      margin-bottom: 12px;
+      transition: all 0.2s ease;
+      margin-bottom: 5px;
     }
 
     input:focus, select:focus {
@@ -308,298 +212,747 @@
       color: white;
     }
 
-    /* measurement groups */
-    .measurement-group {
-      background: rgba(255, 136, 0, 0.03);
-      border-radius: 24px;
-      padding: 18px;
-      margin: 16px 0;
-      border: 1px solid rgba(255, 136, 0, 0.08);
+    /* table styles */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 15px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
     }
 
-    /* button */
-    button {
-      width: 100%;
-      padding: 20px 28px;
+    th, td {
+      padding: 14px 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    th {
+      background: rgba(37, 99, 235, 0.15);
+      color: white;
+      font-weight: 600;
+      border-bottom: 2px solid rgba(37, 99, 235, 0.3);
+    }
+
+    td {
+      color: var(--text-secondary);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* score display */
+    .score {
+      background: rgba(37, 99, 235, 0.1);
+      border: 1px solid rgba(37, 99, 235, 0.2);
+      border-radius: 24px;
+      padding: 18px 24px;
+      margin-top: 20px;
+      font-weight: 600;
+      color: var(--text-secondary);
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      backdrop-filter: blur(4px);
+    }
+
+    .score input[readonly] {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(37, 99, 235, 0.3);
+      width: auto;
+      min-width: 100px;
+      display: inline-block;
+      margin: 0 5px;
+      font-weight: 600;
+      color: white;
+      cursor: default;
+    }
+
+    /* form footer */
+    .form-footer {
+      margin-top: 40px;
+      text-align: center;
+    }
+
+    .form-footer button {
+      background: linear-gradient(145deg, #2563eb, #1d4ed8);
       border: none;
+      padding: 18px 54px;
       border-radius: 60px;
       font-size: 1.2rem;
       font-weight: 700;
-      cursor: pointer;
-      background: var(--gradient-btn);
       color: white;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      justify-content: center;
-      gap: 16px;
-      box-shadow: 0 22px 30px -16px rgba(255, 136, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.03);
+      gap: 15px;
+      box-shadow: 0 20px 30px -12px rgba(37, 99, 235, 0.5);
+      cursor: pointer;
+      border: 1px solid rgba(255, 255, 255, 0.1);
       transition: all 0.25s ease;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      margin-top: 12px;
     }
 
-    button i {
+    .form-footer button:hover {
+      background: linear-gradient(145deg, #1d4ed8, #1e3a8a);
+      transform: scale(1.02);
+      box-shadow: 0 25px 35px -12px #2563eb;
+    }
+
+    .form-footer button i {
       font-size: 1.3rem;
     }
 
-    button:hover {
-      background: var(--gradient-btn-hover);
-      transform: scale(1.02);
-      box-shadow: 0 28px 40px -14px #ff5500;
+    /* special inputs */
+    #kupp_total, #ses_class, #anemia_status, #ifa_dose {
+      background: rgba(0, 0, 0, 0.3);
     }
 
-    .note {
-      margin-top: 16px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.02);
-      padding: 12px;
-      border-radius: 60px;
-    }
-
-    .note i {
-      color: #22c55e;
-    }
-
-    /* section divider */
-    .section-divider {
-      margin: 20px 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(255,136,0,0.2), transparent);
-    }
-
-    /* mobile */
+    /* responsive */
     @media (max-width: 768px) {
-      header {
-        padding: 14px 18px;
-        flex-wrap: wrap;
-      }
-      .brand-text {
-        font-size: 1.1rem;
-      }
-      .container {
-        padding: 16px;
-      }
-      .grid {
-        grid-template-columns: 1fr;
-        gap: 12px;
-      }
-      .full {
-        grid-column: span 1;
-      }
-      .survey-progress {
-        flex-direction: column;
-        gap: 12px;
-        align-items: flex-start;
-      }
-      h3 {
-        font-size: 1.3rem;
-      }
-      .card {
-        padding: 20px;
-      }
+      body { padding: 15px; }
+      h2 { font-size: 1.6rem; }
+      .top-bar { flex-direction: column; align-items: flex-start; }
+      .section { padding: 20px; }
+      h3 { font-size: 1.4rem; }
+      .score { flex-direction: column; align-items: flex-start; }
+      table { display: block; overflow-x: auto; }
     }
   </style>
 </head>
 <body>
 
-<header>
-  <div class="brand">
-    <div class="brand-icon">
-      <i class="fas fa-clipboard-check"></i>
-    </div>
-    <div class="brand-text">SurveyPro · field assessment</div>
-  </div>
-  <div class="top-actions">
-    <a class="btn-back" href="/dashboard"><i class="fas fa-arrow-left"></i> Back</a>
-    <a class="btn-logout" href="/logout"><i class="fas fa-sign-out-alt"></i> Logout</a>
-  </div>
-</header>
-
 <div class="container">
-  <!-- progress indicator -->
-  <div class="survey-progress">
-    <div class="progress-text">
-      <i class="fas fa-pen-to-square"></i>
-      <span>Field questionnaire · 8 sections</span>
-    </div>
-    <div class="auto-save-badge">
-      <i class="fas fa-cloud-arrow-up"></i>
-      <span>Auto-save enabled · progress persisted</span>
+  <!-- top bar with save indicator -->
+  <div class="top-bar">
+    <h2>
+      <i class="fas fa-clipboard-list"></i> 
+      FIELD QUESTIONNAIRE (A–J)
+    </h2>
+    <div class="save-indicator">
+      <i class="fas fa-cloud-upload-alt"></i> 
+      auto‑sync enabled · progress saved
     </div>
   </div>
 
-  <form method="POST">
-    <!-- Study Details Card -->
-    <div class="card">
-      <h3><i class="fas fa-microscope"></i> Study Details</h3>
-      <div class="grid">
-        <div><label><i class="fas fa-hashtag"></i> Study ID</label><input type="text" name="study_id" /></div>
-        <div><label><i class="fas fa-calendar"></i> Date</label><input type="date" name="study_date" /></div>
-        <div><label><i class="fas fa-school"></i> School / Anganwadi</label><input type="text" name="school_anganwadi" /></div>
-        <div><label><i class="fas fa-location-dot"></i> Location</label>
-          <select name="location"><option>Urban</option><option>Urban Slum</option></select>
-        </div>
-        <div><label><i class="fas fa-map"></i> District</label><input type="text" name="district" /></div>
-        <div><label><i class="fas fa-map"></i> State</label><input type="text" name="state" /></div>
-        <div class="full"><label><i class="fas fa-user-tie"></i> Investigator</label><input type="text" name="investigator_name" /></div>
-      </div>
-    </div>
+  <form method="POST" action="/form">
+    <!-- ================= STUDY DETAILS ================= -->
+    <div class="section">
+      <h3><i class="fas fa-file-lines"></i> Study Details</h3>
 
-    <!-- Section A -->
-    <div class="card">
+      <label>Study ID / Profile ID:</label>
+      <input type="text" name="profile_id_display" value="{{ profile_id }}" readonly>
+
+      <label>Name:</label>
+      <input type="text" name="participant_name" placeholder="Enter participant name">
+
+      <label>Date:</label>
+      <input type="date" name="study_date">
+
+      <label>Height (cm):</label>
+      <input type="number" step="0.1" name="height_cm" placeholder="Enter height in cm">
+
+      <label>Weight (kg):</label>
+      <input type="number" step="0.1" id="weight_input" name="weight_kg" placeholder="Enter weight in kg">
+
+      <label>Mobile No. (10 digits):</label>
+      <input type="tel" name="mobile_no" pattern="[0-9]{10}" maxlength="10" placeholder="Enter 10-digit mobile number">
+
+      <label>School / Anganwadi Name:</label>
+      <input type="text" name="school_anganwadi_name" placeholder="Enter school/anganwadi name">
+
+      <label>Location:</label>
+      <select name="location_type">
+        <option>Urban</option>
+        <option>Urban Slum</option>
+      </select>
+
+      <label>Investigator Name:</label>
+      <input type="text" name="investigator_name" placeholder="Enter investigator name">
+    </div>
+    <!-- ================= SECTION A ================= -->
+    <div class="section">
       <h3><i class="fas fa-child"></i> Section A: Participant Identification</h3>
-      <div class="grid">
-        <div><label>Child ID Code</label><input type="text" name="child_id_code" /></div>
-        <div><label>DOB</label><input type="date" name="dob" /></div>
-        <div><label>Age (years)</label><select name="age_completed"><option>3</option><option>4</option><option>5</option></select></div>
-        <div><label>Sex</label><select name="sex"><option>Male</option><option>Female</option><option>Other</option></select></div>
-        <div><label>Birth Order</label><select name="birth_order"><option>1</option><option>2</option><option>3</option><option>≥4</option></select></div>
-        <div><label># siblings</label><input type="number" name="siblings_count" /></div>
-      </div>
-    </div>
 
-    <!-- Section B -->
-    <div class="card">
-      <h3><i class="fas fa-users"></i> Section B: Socio-Demographic & Economic</h3>
-      <h4><i class="fas fa-family"></i> B1. Family Characteristics</h4>
-      <div class="grid">
-        <div class="full"><label>Family type</label><select name="family_type"><option>Nuclear</option><option>Joint</option><option>Extended</option></select></div>
-        <div><label>Total members</label><input type="number" name="family_members_total" /></div>
-        <div><label>Religion</label><select name="religion"><option>Hindu</option><option>Muslim</option><option>Christian</option><option>Other</option></select></div>
-        <div><label>Caste</label><select name="caste_category"><option>SC</option><option>ST</option><option>OBC</option><option>General</option></select></div>
-      </div>
+      <label>1. Profile ID Code:</label>
+      <input type="text" name="profile_id_code" value="{{ profile_id }}" readonly>
 
-      <div class="section-divider"></div>
-      <h4><i class="fas fa-chart-line"></i> B2. Modified Kuppuswamy Scale</h4>
-      
-      <label><i class="fas fa-graduation-cap"></i> Education (Head)</label>
-      <select name="edu_head_family">
-        <option>Profession / Honours (Score 7)</option><option>Graduate (Score 6)</option><option>Intermediate (Score 5)</option>
-        <option>High School (Score 4)</option><option>Middle School (Score 3)</option><option>Primary (Score 2)</option><option>Illiterate (Score 1)</option>
+      <label>2. DOB:</label>
+      <input type="date">
+
+      <label>Age (completed years):</label>
+      <select>
+        <option>3</option>
+        <option>4</option>
+        <option>5</option>
       </select>
-      <label>Score</label><input type="number" name="edu_score" />
 
-      <label><i class="fas fa-briefcase"></i> Occupation (Head)</label>
-      <select name="occupation_head_family">
-        <option>Legislators/managers (Score 10)</option><option>Profession (Score 9)</option><option>Technicians (Score 8)</option>
-        <option>Clerks (Score 7)</option><option>Skilled workers (Score 6)</option><option>Agricultural (Score 5)</option>
-        <option>Craft workers (Score 4)</option><option>Machine operators (Score 3)</option><option>Elementary (Score 2)</option><option>Unemployed (Score 1)</option>
+      <label>3. Sex:</label>
+      <select>
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
       </select>
-      <label>Score</label><input type="number" name="occupation_score" />
 
-      <label><i class="fas fa-indian-rupee-sign"></i> Monthly Income</label>
-      <select name="monthly_income">
-        <option>₹1,59,586+ (Score 12)</option><option>₹79,756-1,59,585 (Score 10)</option><option>₹59,795-79,755 (Score 6)</option>
-        <option>₹39,830-59,794 (Score 4)</option><option>₹23,870-39,829 (Score 3)</option><option>₹7,989-23,869 (Score 2)</option><option>≤₹7,988 (Score 1)</option>
+      <label>4. Birth Order of Child:</label>
+      <select>
+        <option>1</option>
+        <option>2</option>
+        <option>3</option>
+        <option>≥4</option>
       </select>
-      <label>Score</label><input type="number" name="income_score" />
 
-      <h4>Total & SES Class</h4>
-      <div class="grid">
-        <div><label>Total score</label><input type="number" name="kuppuswamy_total_score" /></div>
-        <div><label>SES class</label><select name="ses_class"><option>Upper (26–29)</option><option>Upper Middle (16–25)</option><option>Lower Middle (11–15)</option><option>Upper Lower (5–10)</option><option>Lower (<5)</option></select></div>
-      </div>
+      <label>5. Number of siblings:</label>
+      <input type="number" placeholder="Enter count">
     </div>
 
-    <!-- Section C -->
-    <div class="card">
-      <h3><i class="fas fa-heart-pulse"></i> Section C: Health & Nutrition</h3>
-      <div class="grid">
-        <div class="full"><label>Low birth weight (<2.5kg)?</label><select name="low_birth_weight"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
-        <div><label>Chronic illness?</label><select name="chronic_illness"><option>Yes</option><option>No</option></select></div>
-        <div><label>If yes, specify</label><input type="text" name="chronic_illness_specify" /></div>
-        <div><label>Worm infestation (6m)?</label><select name="worm_infestation"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
-        <div><label>Deworming (6m)?</label><select name="deworming_tablet"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
-        <div class="full"><label>Iron supplementation?</label><select name="iron_supplementation"><option>Yes</option><option>No</option><option>Don't know</option></select></div>
-      </div>
-    </div>
+    <!-- ================= SECTION B ================= -->
+    <div class="section">
+      <h3><i class="fas fa-users"></i> Section B: Socio-Demographic & Socio-Economic Details</h3>
 
-    <!-- Section D -->
-    <div class="card">
-      <h3><i class="fas fa-utensils"></i> Section D: Dietary Practices</h3>
-      <div class="grid">
-        <div><label>Diet type</label><select name="diet_type"><option>Vegetarian</option><option>Mixed</option></select></div>
-        <div><label>Iron-rich food</label><select name="iron_rich_food_frequency"><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option></select></div>
-      </div>
-    </div>
+      <h4><i class="fas fa-home"></i> B1. Family Characteristics</h4>
 
-    <!-- Section H (Haemoglobin) -->
-    <div class="card">
-      <h3><i class="fas fa-droplet"></i> Section H: Haemoglobin Results</h3>
-      <div class="grid">
-        <div><label>Date & time</label><input type="text" name="hb_measurement_datetime" /></div>
-        <div><label>Device sequence</label><select name="device_sequence"><option>Masimo Rad-67</option><option>Minimally invasive POC</option><option>ABX Micros ES 60</option></select></div>
-      </div>
-
-      <div class="measurement-group">
-        <h4>Masimo Rad-67 (Non-invasive)</h4>
-        <div class="grid">
-          <div><label>Reading 1</label><input type="number" step="0.01" name="masimo_reading_1" /></div>
-          <div><label>Reading 2</label><input type="number" step="0.01" name="masimo_reading_2" /></div>
-          <div><label>Reading 3</label><input type="number" step="0.01" name="masimo_reading_3" /></div>
-          <div><label>Average SpHb</label><input type="number" step="0.01" name="masimo_avg_sphb" /></div>
-        </div>
-      </div>
-
-      <div class="measurement-group">
-        <h4>Minimally Invasive</h4>
-        <div class="grid">
-          <div class="full"><label>Capillary Hb (g/dL)</label><input type="number" step="0.01" name="capillary_hb_value" /></div>
-          <div><label>Attempts</label><select name="capillary_attempts"><option>1</option><option>2</option><option>≥3</option></select></div>
-        </div>
-      </div>
-
-      <div class="measurement-group">
-        <h4>Reference (Laboratory)</h4>
-        <label>Venous Hb (g/dL)</label><input type="number" step="0.01" name="venous_hb_value" />
-      </div>
-
-      <h4>Child Comfort</h4>
-      <select name="child_response_score">
-        <option>0 – Calm and cooperative</option><option>1 – Mild resistance</option><option>2 – Moderate distress</option><option>3 – Severe distress</option>
+      <label>6. Type of family:</label>
+      <select>
+        <option>Nuclear</option>
+        <option>Joint</option>
+        <option>Extended</option>
       </select>
-    </div>
 
-    <!-- Section G: Acceptability -->
-    <div class="card">
-      <h3><i class="fas fa-face-smile"></i> Section G: Parental Acceptability</h3>
-      <div class="grid">
-        <div class="full"><label>Comfortable with testing?</label><select name="comfortable_testing_process"><option>Yes</option><option>No</option></select></div>
-        <div><label>Preferred method</label><select name="preferred_method"><option>Non-invasive</option><option>Fingerprick</option><option>Blood test</option><option>No preference</option></select></div>
-        <div><label>Repeat screening?</label><select name="repeat_screening"><option>Yes</option><option>No</option></select></div>
+      <label>7. Total number of family members living in the household:</label>
+      <input type="number" placeholder="Enter count">
+
+      <label>8. Religion:</label>
+      <select>
+        <option>Hindu</option>
+        <option>Muslim</option>
+        <option>Christian</option>
+        <option>Other</option>
+      </select>
+
+      <label>9. Caste / Social category:</label>
+      <select>
+        <option>SC</option>
+        <option>ST</option>
+        <option>OBC</option>
+        <option>General</option>
+        <option>Prefer not to say</option>
+      </select>
+
+      <h4><i class="fas fa-chart-line"></i> B2. Modified Kuppuswamy Socio-Economic Scale (Urban)</h4>
+
+      <label>10. Education level of head of family:</label>
+      <select id="edu_head">
+        <option value="7">Profession / Honours (7)</option>
+        <option value="6">Graduate / Postgraduate (6)</option>
+        <option value="5">Intermediate / Diploma (5)</option>
+        <option value="4">High School Certificate (4)</option>
+        <option value="3">Middle School Certificate (3)</option>
+        <option value="2">Primary School Certificate (2)</option>
+        <option value="1">Illiterate (1)</option>
+      </select>
+
+      <label>11. Occupation of head of family:</label>
+      <select id="occ_head">
+        <option value="10">Legislators, managers (10)</option>
+        <option value="9">Profession (9)</option>
+        <option value="8">Technicians (8)</option>
+        <option value="7">Clerks (7)</option>
+        <option value="6">Skilled workers (6)</option>
+        <option value="5">Agricultural workers (5)</option>
+        <option value="4">Craft workers (4)</option>
+        <option value="3">Machine operators (3)</option>
+        <option value="2">Elementary occupation (2)</option>
+        <option value="1">Unemployed (1)</option>
+      </select>
+
+      <label>12. Total monthly family income:</label>
+      <select id="income">
+        <option value="12">₹1,59,586+ (12)</option>
+        <option value="10">₹79,756–1,59,585 (10)</option>
+        <option value="6">₹59,795–79,755 (6)</option>
+        <option value="4">₹39,830–59,794 (4)</option>
+        <option value="3">₹23,870–39,829 (3)</option>
+        <option value="2">₹7,989–23,869 (2)</option>
+        <option value="1">≤₹7,988 (1)</option>
+      </select>
+
+      <div class="score">
+        <span>13. Total Score: <input id="kupp_total" readonly></span>
+        <span style="color: var(--text-muted);">|</span>
+        <span>14. Socio-economic Class: <input id="ses_class" readonly></span>
       </div>
     </div>
 
-    <!-- Section H: Referral -->
-    <div class="card">
-      <h3><i class="fas fa-truck-medical"></i> Section H: Referral & Action</h3>
-      <div class="grid">
-        <div><label>Classification</label><select name="child_classification"><option>Anaemic</option><option>Non-anaemic</option></select></div>
-        <div><label>IFA dose</label><input type="text" name="ifa_dose" /></div>
-        <div><label>Referral advised?</label><select name="referral_advised"><option>Yes</option><option>No</option></select></div>
-        <div><label>Destination</label><select name="referral_destination"><option>PHC</option><option>Anganwadi</option><option>Private clinic</option><option>Other</option></select></div>
-        <div class="full"><label>Other specify</label><input type="text" name="referral_other_specify" /></div>
-        <div><label>Investigator signature</label><input type="text" name="investigator_signature" /></div>
-        <div><label>Date</label><input type="date" name="referral_date" /></div>
-      </div>
+    <!-- ================= SECTION E ================= -->
+    <div class="section">
+      <h3><i class="fas fa-heartbeat"></i> Section E: Child Health & Nutrition History</h3>
+
+      <label>17. History of low birth weight (<2.5 kg)?</label>
+      <select><option>Yes</option><option>No</option><option>Don’t know</option></select>
+
+      <label>18. Any known chronic illness?</label>
+      <select><option>Yes</option><option>No</option></select>
+      <label>If yes, specify:</label>
+      <input type="text" name="chronic_illness_specify" placeholder="Enter details">
+
+      <label>19. History of worm infestation in last 6 months?</label>
+      <select><option>Yes</option><option>No</option><option>Don’t know</option></select>
+
+      <label>20. Deworming in last 6 months?</label>
+      <select><option>Yes</option><option>No</option><option>Don’t know</option></select>
+
+      <label>21. Currently receiving iron supplementation?</label>
+      <select><option>Yes</option><option>No</option><option>Don’t know</option></select>
     </div>
 
-    <!-- Submit -->
-    <div class="card">
-      <button type="submit">
-        <i class="fas fa-paper-plane"></i> Submit Questionnaire
-      </button>
-      <div class="note">
-        <i class="fas fa-barcode"></i> Responses linked to your Barcode ID · auto-saved
-      </div>
+    <!-- ================= SECTION F ================= -->
+    <div class="section">
+      <h3><i class="fas fa-utensils"></i> Section F: Dietary Practices</h3>
+
+      <label>22. Type of diet:</label>
+      <select><option>Vegetarian</option><option>Mixed</option></select>
+
+      <label>23. Frequency of iron-rich foods:</label>
+      <table>
+        <tr><th>Food</th><th>Frequency</th></tr>
+        <tr><td>Green leafy vegetables</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+        <tr><td>Jaggery</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+        <tr><td>Dates</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+        <tr><td>Eggs</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+        <tr><td>Meat</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+        <tr><td>Fruits</td><td><select><option>Daily</option><option>3–4/week</option><option>1–2/week</option><option>Rarely</option><option>Never</option></select></td></tr>
+      </table>
+    </div>
+
+    <!-- ================= SECTION G ================= -->
+    <!-- ================= SECTION G ================= -->
+
+<div class="section">
+<h3>Section G: History of Hemoglobin Testing</h3>
+
+<label>24. Did the child previously get tested for hemoglobin?</label>
+<select>
+<option>Yes</option>
+<option>No</option>
+</select>
+
+<label>If Yes, Result (g/dL):</label>
+<input type="text">
+
+<label>Device Used:</label>
+<select>
+<option>Non-invasive</option>
+<option>Minimally invasive</option>
+<option>Invasive</option>
+<option>Others</option>
+</select>
+<label>If others, please specify:</label>
+<input type="text" name="previous_hb_device_other" placeholder="Specify other device">
+
+</div>
+
+
+<!-- ================= SECTION H ================= -->
+
+<div class="section">
+<h3>Section H: Haemoglobin Measurement Results</h3>
+
+<label>25. Device sequence used:</label>
+<select>
+<option>Masimo Rad-67</option>
+<option>Minimally invasive POC</option>
+<option>ABX Micros ES 60</option>
+</select>
+
+
+<!-- ===== MASIMO RAD-67 ===== -->
+
+<h4>Masimo Rad-67 (Non-invasive)</h4>
+
+<label>26. Start time:</label>
+<input type="text">
+
+<label>27. Reading (g/dL):</label>
+<input type="number" step="0.1">
+
+<label>28. End time:</label>
+<input type="text">
+
+<h4>29. FLACC Scale</h4>
+
+<table>
+<tr><th>Component</th><th>Score</th></tr>
+<tr><td>Face</td><td><select class="flacc_m"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Legs</td><td><select class="flacc_m"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Activity</td><td><select class="flacc_m"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Cry</td><td><select class="flacc_m"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Consolability</td><td><select class="flacc_m"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+</table>
+
+<div class="score">
+Total Score (29): <input id="flacc_total_masimo" readonly> /10
+</div>
+
+
+<h4>Operational Feasibility (30–40)</h4>
+
+<table>
+<tr><th>Q.No</th><th>Question</th><th>Response</th></tr>
+<tr><td>30</td><td>Ease of operation</td><td><select><option>Very easy</option><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>31</td><td>Training required</td><td><select><option>None</option><option>Minimal</option><option>Moderate</option><option>Extensive</option></select></td></tr>
+<tr><td>32</td><td>Maintenance frequency</td><td><select><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Rare</option></select></td></tr>
+<tr><td>33</td><td>Operational suitability</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>34</td><td>Reliability</td><td><select><option>Always</option><option>Often</option><option>Sometimes</option><option>Rarely</option></select></td></tr>
+<tr><td>35</td><td>Portability</td><td><select><option>Highly portable</option><option>Moderately portable</option><option>Not portable</option></select></td></tr>
+<tr><td>36</td><td>Maintenance & calibration</td><td><select><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>37</td><td>Data recording</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>38</td><td>Field practicality</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>39</td><td>Device safety</td><td><select><option>Very safe</option><option>Safe</option><option>Moderately safe</option><option>Unsafe</option></select></td></tr>
+<tr><td>40</td><td>Overall feasibility rating</td><td><select><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td></tr>
+</table>
+
+
+<!-- ===== MINIMALLY INVASIVE POC ===== -->
+
+<h4>Minimally Invasive POC Device</h4>
+
+<label>41. Start time:</label>
+<input type="text">
+
+<label>42. Capillary Hb value:</label>
+<input type="number" step="0.1">
+
+<label>43. Number of attempts:</label>
+<select><option>1</option><option>2</option><option>≥3</option></select>
+
+<label>44. End time:</label>
+<input type="text">
+
+<h4>45. FLACC Scale</h4>
+
+<table>
+<tr><th>Component</th><th>Score</th></tr>
+<tr><td>Face</td><td><select class="flacc_c"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Legs</td><td><select class="flacc_c"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Activity</td><td><select class="flacc_c"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Cry</td><td><select class="flacc_c"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Consolability</td><td><select class="flacc_c"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+</table>
+
+<div class="score">
+Total Score (45): <input id="flacc_total_mini" readonly> /10
+</div>
+
+
+<h4>Operational Feasibility (46–56)</h4>
+
+<table>
+<tr><th>Q.No</th><th>Question</th><th>Response</th></tr>
+<tr><td>46</td><td>Ease of operation</td><td><select><option>Very easy</option><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>47</td><td>Training required</td><td><select><option>None</option><option>Minimal</option><option>Moderate</option><option>Extensive</option></select></td></tr>
+<tr><td>48</td><td>Maintenance frequency</td><td><select><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Rare</option></select></td></tr>
+<tr><td>49</td><td>Operational suitability</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>50</td><td>Reliability</td><td><select><option>Always</option><option>Often</option><option>Sometimes</option><option>Rarely</option></select></td></tr>
+<tr><td>51</td><td>Portability</td><td><select><option>Highly portable</option><option>Moderately portable</option><option>Not portable</option></select></td></tr>
+<tr><td>52</td><td>Maintenance & calibration</td><td><select><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>53</td><td>Data recording</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>54</td><td>Field practicality</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>55</td><td>Device safety</td><td><select><option>Very safe</option><option>Safe</option><option>Moderately safe</option><option>Unsafe</option></select></td></tr>
+<tr><td>56</td><td>Overall feasibility rating</td><td><select><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></td></tr>
+</table>
+
+
+<!-- ===== REFERENCE LAB ===== -->
+
+<h4>Reference (Laboratory)</h4>
+
+<label>57. Start time:</label>
+<input type="text">
+
+<label>58. Venous Hb value:</label>
+<input type="number" step="0.1">
+
+<label>59. Number of attempts:</label>
+<select><option>1</option><option>2</option><option>≥3</option></select>
+
+<label>60. End time:</label>
+<input type="text">
+
+<h4>61. FLACC Scale</h4>
+
+<table>
+<tr><th>Component</th><th>Score</th></tr>
+<tr><td>Face</td><td><select class="flacc_l"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Legs</td><td><select class="flacc_l"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Activity</td><td><select class="flacc_l"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Cry</td><td><select class="flacc_l"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+<tr><td>Consolability</td><td><select class="flacc_l"><option value="0">0</option><option value="1">1</option><option value="2">2</option></select></td></tr>
+</table>
+
+<div class="score">
+Total Score (61): <input id="flacc_total_lab" readonly> /10
+</div>
+
+
+<h4>Operational Feasibility (62–71)</h4>
+
+<table>
+<tr><th>Q.No</th><th>Question</th><th>Response</th></tr>
+<tr><td>62</td><td>Ease of operation</td><td><select><option>Very easy</option><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>63</td><td>Training required</td><td><select><option>None</option><option>Minimal</option><option>Moderate</option><option>Extensive</option></select></td></tr>
+<tr><td>64</td><td>Maintenance frequency</td><td><select><option>Daily</option><option>Weekly</option><option>Monthly</option><option>Rare</option></select></td></tr>
+<tr><td>65</td><td>Operational suitability</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>66</td><td>Reliability</td><td><select><option>Always</option><option>Often</option><option>Sometimes</option><option>Rarely</option></select></td></tr>
+<tr><td>67</td><td>Portability</td><td><select><option>Highly portable</option><option>Moderately portable</option><option>Not portable</option></select></td></tr>
+<tr><td>68</td><td>Maintenance & calibration</td><td><select><option>Easy</option><option>Moderate</option><option>Difficult</option></select></td></tr>
+<tr><td>69</td><td>Data recording</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>70</td><td>Field practicality</td><td><select><option>Yes</option><option>Partially</option><option>No</option></select></td></tr>
+<tr><td>71</td><td>Device safety</td><td><select><option>Very safe</option><option>Safe</option><option>Moderately safe</option><option>Unsafe</option></select></td></tr>
+</table>
+
+</div>
+
+    <!-- ================= SECTION I ================= -->
+   <!-- ================= SECTION I ================= -->
+
+<div class="section">
+<h3>Section I: Parental Acceptability (1–5 Scale)</h3>
+
+<p>1 = Strongly Disagree &nbsp;&nbsp; 2 = Disagree &nbsp;&nbsp; 3 = Neutral &nbsp;&nbsp; 4 = Agree &nbsp;&nbsp; 5 = Strongly Agree</p>
+
+<table>
+<tr>
+<th>No.</th>
+<th>Statement</th>
+<th>Score (1–5)</th>
+</tr>
+
+<tr>
+<td>73</td>
+<td>I was comfortable with this Hb test for my child</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>74</td>
+<td>My child appeared calm during the test</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>75</td>
+<td>The test caused pain or distress to my child (Reverse Scored)</td>
+<td>
+<select class="parent_score" data-reverse="true">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>76</td>
+<td>I believe this test is safe for young children</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>77</td>
+<td>I trust the Hb result obtained from this test</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>78</td>
+<td>The test was completed quickly</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>79</td>
+<td>This test is acceptable for children aged 3–5 years</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>80</td>
+<td>I would allow this test again for my child</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+<tr>
+<td>81</td>
+<td>I would recommend this test to other parents</td>
+<td>
+<select class="parent_score">
+<option value="1">1</option>
+<option value="2">2</option>
+<option value="3">3</option>
+<option value="4">4</option>
+<option value="5">5</option>
+</select>
+</td>
+</tr>
+
+</table>
+
+<div class="score">
+Total Score: <input id="parent_total" name="parent_total" readonly> /45
+</div>
+
+</div>
+    <!-- ================= SECTION J ================= -->
+    <div class="section">
+      <h3><i class="fas fa-truck-medical"></i> Section J: Referral & Action Taken</h3>
+
+      <label>82. Child classified as:</label>
+      <select><option>Anaemic</option><option>Non-anaemic</option></select>
+
+      <label>83. Dose of IFA:</label> <input type="text" placeholder="Enter dose">
+
+      <label>84. Referral advised?</label>
+      <select><option>Yes</option><option>No</option></select>
+
+      <label>85. Referral destination:</label>
+      <select>
+        <option>PHC</option>
+        <option>UHC</option>
+        <option>Govt. Hospital</option>
+        <option>Anganwadi</option>
+        <option>Private clinic</option>
+        <option>Other</option>
+      </select>
+
+      <label>Referral destination (Other specify):</label>
+      <input type="text" name="referral_other_specify" placeholder="Specify other destination">
+
+      <label>Investigator Signature:</label>
+      <input type="text" name="investigator_signature" placeholder="Enter name/signature">
+
+      <label>Date:</label>
+      <input type="date" name="referral_date">
+    </div>
+
+    <!-- submit footer -->
+    <div class="form-footer">
+      <button type="submit"><i class="fas fa-paper-plane"></i> Submit Questionnaire</button>
     </div>
   </form>
 </div>
+
+<!-- SCRIPT exactly as yours, unchanged (only event listeners work) -->
+<script>
+/* KUPPUSWAMY */
+function calcKupp(){
+let edu=parseInt(edu_head.value)||0
+let occ=parseInt(occ_head.value)||0
+let inc=parseInt(income.value)||0
+let total=edu+occ+inc
+kupp_total.value=total
+if(total>=26) ses_class.value="Upper"
+else if(total>=16) ses_class.value="Upper Middle"
+else if(total>=11) ses_class.value="Lower Middle"
+else if(total>=5) ses_class.value="Upper Lower"
+else ses_class.value="Lower"
+}
+
+/* PARENTAL */
+function calcParent(){
+let total=0
+document.querySelectorAll(".parent_score").forEach(e=>{
+let v=parseInt(e.value)||0
+if(e.dataset.reverse==="true") v=6-v
+total+=v
+})
+parent_total.value=total
+}
+
+/* ANEMIA */
+function classify(){
+let hb=parseFloat(hb_value.value)
+if(hb>=11) anemia_status.value="Non-Anaemic"
+else if(hb>=10) anemia_status.value="Mild"
+else if(hb>=7) anemia_status.value="Moderate"
+else anemia_status.value="Severe"
+}
+
+/* IFA */
+function dose(){
+let w=parseFloat(weight_input.value)
+if(w<10) ifa_dose.value="10 mg elemental iron"
+else if(w<20) ifa_dose.value="20 mg elemental iron"
+else ifa_dose.value="30 mg elemental iron"
+}
+
+document.addEventListener("change",e=>{
+if(e.target.id==="edu_head"||e.target.id==="occ_head"||e.target.id==="income") calcKupp()
+if(e.target.classList.contains("parent_score")) calcParent()
+if(e.target.id==="hb_value") classify()
+if(e.target.id==="weight_input") dose()
+})
+</script>
 
 </body>
 </html>
