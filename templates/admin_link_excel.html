@@ -3,6 +3,7 @@
 
 <head>
   <title>Admin - Link Excel with Barcode</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     /* Hover and Dropdown Styles */
     .admin-actions {
@@ -22,13 +23,17 @@
       display: none;
       position: absolute;
       background-color: #fff;
-      min-width: 180px;
+      min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.15);
       z-index: 1000;
       border-radius: 10px;
       padding: 5px 0;
       margin-top: 5px;
       border: 1px solid #eee;
+    }
+
+    .dropdown-content.show {
+      display: block;
     }
 
     .dropdown-content a {
@@ -43,10 +48,6 @@
     .dropdown-content a:hover {
       background-color: #f8f9fa;
       color: #007bff;
-    }
-
-    .dropdown:hover .dropdown-content {
-      display: block;
     }
 
     .action-btn {
@@ -120,17 +121,23 @@
     <div class="admin-actions">
       <!-- Upload Button (Direct link to Masimo) -->
       <a href="/masimo" class="action-btn btn-upload">
-        Upload and Link
+        <i class="fas fa-upload"></i> Upload and Link
       </a>
 
-      <!-- Export Button (Keep dropdown or simplify if needed? User said "remove dropdown" for BOTH) -->
-      <a href="/admin/download/linked_data.xlsx" class="action-btn btn-export">
-        Export Data (Excel)
-      </a>
-
-      <a href="/admin/download/linked_data.csv" class="action-btn btn-export" style="background: #0d6efd;">
-        Export Data (CSV)
-      </a>
+      <!-- Export Button with Dropdown -->
+      <div class="dropdown">
+        <div class="action-btn btn-export" id="exportBtn" onclick="toggleDropdown()">
+          <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">▼</span>
+        </div>
+        <div class="dropdown-content" id="exportDropdown">
+          <a href="/admin/download/linked_data.xlsx">
+            <i class="far fa-file-excel" style="color:#198754; margin-right:8px;"></i> Excel Format (.xlsx)
+          </a>
+          <a href="/admin/download/linked_data.csv">
+            <i class="fas fa-file-csv" style="color:#0d6efd; margin-right:8px;"></i> CSV Format (.csv)
+          </a>
+        </div>
+      </div>
     </div>
 
     {% if error %}
@@ -171,6 +178,30 @@
       </table>
     </div>
     {% endif %}
+    <script>
+      function toggleDropdown() {
+        const dropdown = document.getElementById("exportDropdown");
+        const caret = document.getElementById("caret");
+        dropdown.classList.toggle("show");
+        caret.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+        caret.style.display = "inline-block";
+        caret.style.transition = "transform 0.3s";
+      }
+
+      // Close the dropdown if the user clicks outside of it
+      window.onclick = function (event) {
+        if (!event.target.closest('.dropdown')) {
+          var dropdowns = document.getElementsByClassName("dropdown-content");
+          for (var i = 0; i < dropdowns.length; i++) {
+            var openDropdown = dropdowns[i];
+            if (openDropdown.classList.contains('show')) {
+              openDropdown.classList.remove('show');
+              document.getElementById("caret").style.transform = "rotate(0deg)";
+            }
+          }
+        }
+      }
+    </script>
   </div>
 </body>
 

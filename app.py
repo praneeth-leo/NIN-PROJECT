@@ -197,28 +197,78 @@ def write_dict_list_to_csv(path, rows, fieldnames):
 
 def update_linked_excel_file():
     try:
+        # Fetch machine data for aggregation
+        responses = Response.query.all()
+        resp_map = {}
+        machine_keys = ["masimo", "hemocue", "horiba"]
+        for r in responses:
+            if r.data:
+                if r.profile_id not in resp_map:
+                    resp_map[r.profile_id] = {}
+                for k, v in r.data.items():
+                    k_norm = str(k).strip().lower()
+                    if k_norm in machine_keys and v:
+                        resp_map[r.profile_id][k_norm] = v
+
+        # Fetch all profiles to ensure everyone is in the report
+        profiles = Profile.query.all()
+        # Fetch linked data for "extra_data" matching
         linked = LinkedData.query.all()
+        linked_map = {l.profile_id: l for l in linked}
+        
         l_data = []
-        for l in linked:
+        for p in profiles:
+            p_id = p.profile_id
+            link_record = linked_map.get(p_id)
+            
             item = {
-                "profile_id": l.profile_id,
-                "profile_found": l.profile_found,
-                "name": l.name,
-                "school": l.school,
-                "class": l.class_name,
-                "section": l.section,
-                "linked_at": l.linked_at.strftime("%Y-%m-%d %H:%M:%S")
+                "profile_id": p_id,
+                "name": p.name,
+                "school": p.school,
+                "class": p.class_name,
+                "section": p.section,
+                "dob": p.dob,
+                "age": p.age,
+                "gender": p.gender
             }
-            if l.extra_data:
-                item.update(l.extra_data)
+            
+            # Append machine readings
+            m_data = resp_map.get(p_id, {})
+            item.update({
+                "masimo": m_data.get("masimo", ""),
+                "hemocue": m_data.get("hemocue", ""),
+                "horiba": m_data.get("horiba", "")
+            })
+            
+            # Append LinkedData specifics if available
+            if link_record:
+                item["profile_found"] = link_record.profile_found
+                item["linked_at"] = link_record.linked_at.strftime("%Y-%m-%d %H:%M:%S")
+                if link_record.extra_data:
+                    item.update(link_record.extra_data)
+            else:
+                item["profile_found"] = "n/a"
+                item["linked_at"] = ""
+
             l_data.append(item)
         
+        # Always create files if profiles exist, to avoid "File not found"
         if l_data:
             df_l = pd.DataFrame(l_data)
+            # Reorder columns to put machines after profile details but before extra_data if possible
+            # (Pandas naturally appends if we just update, but we can be specific)
             df_l.to_csv(LINKED_CSV, index=False)
             df_l.to_excel(LINKED_XLSX, index=False)
+        else:
+            # Create empty files with headers if no profiles
+            headers = ["profile_id", "name", "masimo", "hemocue", "horiba"]
+            df_empty = pd.DataFrame(columns=headers)
+            df_empty.to_csv(LINKED_CSV, index=False)
+            df_empty.to_excel(LINKED_XLSX, index=False)
+            
     except Exception as e:
         print("Linked excel error:", e)
+        traceback.print_exc()
 
 
 def build_linked_rows_from_excel(file_obj):
@@ -456,10 +506,15 @@ def admin_dashboard():
     
     for r in responses:
         if r.data:
-            # Extract only machine data for the map
-            machine_data = {k: v for k, v in r.data.items() if k in machine_keys}
-            if machine_data:
-                resp_map[r.profile_id] = machine_data
+            # Aggregate machine data across all responses for this profile
+            if r.profile_id not in resp_map:
+                resp_map[r.profile_id] = {}
+            
+            # Use case-insensitive matching for machine keys
+            for k, v in r.data.items():
+                k_norm = str(k).strip().lower()
+                if k_norm in machine_keys and v:
+                    resp_map[r.profile_id][k_norm] = v
 
     p_list = []
     for p in profiles:
@@ -750,6 +805,10 @@ def admin_export_filtered(profile_id):
 def admin_download(filename):
     if not admin_required():
         return redirect(url_for("admin_login"))
+
+    # Dynamically generate linked data files if requested
+    if filename in ["linked_data.csv", "linked_data.xlsx"]:
+        update_linked_excel_file()
 
     allowed_files = {
         "profiles.csv": PROFILE_CSV,
@@ -1094,9 +1153,15 @@ def handle_machine_upload(machine_name):
             else:
                 df = pd.read_excel(file)
                 
-            # Normalize columns
+            # Normalize columns: lower, remove newlines, replace multiple spaces/dashes with single underscore
             original_cols = list(df.columns)
-            df.columns = [str(c).strip().lower().replace(" ", "_").replace("-", "_") for c in df.columns]
+            normalized_cols = []
+            for c in original_cols:
+                c_norm = str(c).strip().lower()
+                c_norm = re.sub(r'[\s\n\r\-]+', '_', c_norm)
+                c_norm = re.sub(r'[^a-z0-9_]', '', c_norm)
+                normalized_cols.append(c_norm)
+            df.columns = normalized_cols
             
             # Identify profile_id column
             id_col = None
@@ -1107,32 +1172,54 @@ def handle_machine_upload(machine_name):
                     break
             
             if not id_col:
-                flash(f"Error: Missing ID column in {machine_name} upload.")
+                flash(f"Error: Missing ID column (e.g., 'Profile ID', 'Barcode') in {machine_name} upload.")
                 return redirect(request.url)
             
-            # Identify target column: only look for exactly the machine name
-            target_col = machine_name.lower()
-            if target_col not in df.columns:
-                # Fallback: if there's only one other column, use it, or fail
-                other_cols = [c for c in df.columns if c != id_col]
+            # Identify target column: look for exactly the machine name or a substring
+            target_col = None
+            machine_lower = machine_name.lower()
+            for col in df.columns:
+                if machine_lower in col:
+                    target_col = col
+                    break
+            
+            if not target_col:
+                # Fallback: if there's only one other column that is NOT a common metadata field, use it
+                metadata_fields = id_patterns + ["name", "dob", "age", "gender", "s_no", "sno"]
+                other_cols = [c for c in df.columns if c not in metadata_fields]
                 if len(other_cols) == 1:
                     target_col = other_cols[0]
                 else:
-                    flash(f"Error: Could not find '{target_col}' column in the file.")
+                    flash(f"Error: Could not find '{machine_lower}' column in the file. Found columns: {', '.join(original_cols)}")
                     return redirect(request.url)
                 
             updated_count = 0
             for _, row in df.iterrows():
                 profile_id = str(row[id_col]).strip().upper()
-                resp = Response.query.filter_by(profile_id=profile_id).first()
-                if resp:
-                    current_data = resp.data.copy() if resp.data else {}
-                    val = row[target_col]
-                    if pd.notna(val):
-                        # Use the machine_name as the standard key
-                        current_data[machine_name.lower()] = str(val)
+                val = row[target_col]
+                if pd.isna(val):
+                    continue
+                    
+                # Update ALL responses for this profile
+                resps = Response.query.filter_by(profile_id=profile_id).all()
+                if not resps:
+                    # Create a "Initial" response if profile exists but no response yet
+                    profile = Profile.query.filter_by(profile_id=profile_id).first()
+                    if profile:
+                        new_resp = Response(
+                            response_id=str(uuid.uuid4()),
+                            profile_id=profile_id, 
+                            data={}
+                        )
+                        db.session.add(new_resp)
+                        resps = [new_resp]
+                
+                if resps:
+                    for resp in resps:
+                        current_data = resp.data.copy() if resp.data else {}
+                        current_data[machine_lower] = str(val)
                         resp.data = current_data
-                        updated_count += 1
+                    updated_count += 1
             
             db.session.commit()
             flash(f"Successfully updated {updated_count} records with {machine_name} data.")

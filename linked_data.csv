@@ -1,0 +1,9 @@
+profile_id,name,school,class,section,dob,age,gender,masimo,hemocue,horiba,profile_found,linked_at
+RACI0001,ram,CID,ukg,c,,03,Male,12.8,12.4,9.5,n/a,
+RACI0002,ramba ho,CID,ukg,B,,2,Male,12.1,9.9,5.2,n/a,
+LECI0003,leomonster_1412,CID,ukg,C,2024-07-24,1,Male,14.8,16.4,4.5,n/a,
+PRCI0004,praneeth,cid,lkg,A,2023-06-18,2,Male,14.5,14.0,4.3,n/a,
+PRCI0005,praneeth,cid,lkg,A,2023-06-18,2,Male,11.6,12.0,,n/a,
+LEAR0006,leo,arena,ukg,F,2023-06-15,2,Male,11.9,13.1,,n/a,
+PHAR0007,phani,arena,LKG,A,2023-03-08,2,Male,11.5,10.8,,n/a,
+MUSR0008,Mucharla Sreelekha,sri indu college of engineering & technology,16,A,2004-01-25,22,Female,10.8,10.4,9.5,n/a,
