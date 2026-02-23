@@ -370,6 +370,10 @@
       </div>
     </div>
 
+    <div class="form-footer" style="margin-top: 0; margin-bottom: 20px;">
+      <button type="button" onclick="window.location.href='/section-status'"><i class="fas fa-table"></i> Generate Section Status Table</button>
+    </div>
+
     <form method="POST" action="/form">
       <!-- ================= STUDY DETAILS ================= -->
       <div class="section">
@@ -1480,7 +1484,27 @@
       if (e.target.classList.contains("parent_score")) calcParent()
       if (e.target.id === "hb_value") classify()
       if (e.target.id === "weight_input") dose()
+      if (e.target.classList.contains("flacc_m")) calcFlacc("flacc_m", "flacc_total_masimo")
+      if (e.target.classList.contains("flacc_c")) calcFlacc("flacc_c", "flacc_total_mini")
+      if (e.target.classList.contains("flacc_l")) calcFlacc("flacc_l", "flacc_total_lab")
     })
+
+    function calcFlacc(className, outputId) {
+      let total = 0
+      document.querySelectorAll("." + className).forEach(el => {
+        total += parseInt(el.value, 10) || 0
+      })
+      const out = document.getElementById(outputId)
+      if (out) out.value = total
+    }
+
+    function calcAllFlacc() {
+      calcFlacc("flacc_m", "flacc_total_masimo")
+      calcFlacc("flacc_c", "flacc_total_mini")
+      calcFlacc("flacc_l", "flacc_total_lab")
+    }
+
+    document.addEventListener("DOMContentLoaded", calcAllFlacc)
   </script>
 
 </body>

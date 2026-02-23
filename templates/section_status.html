@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Section Status</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background: #0a0c15;
+      color: #ffffff;
+      padding: 30px 20px;
+      min-height: 100vh;
+    }
+    .container { max-width: 1200px; margin: 0 auto; }
+    .section {
+      background: rgba(18, 24, 38, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 28px;
+      padding: 24px;
+      box-shadow: 0 30px 60px -15px rgba(0, 0, 0, 0.8);
+    }
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    h2 { font-size: 1.8rem; font-weight: 700; }
+    .btn {
+      background: linear-gradient(145deg, #2563eb, #1d4ed8);
+      border: none;
+      padding: 12px 20px;
+      border-radius: 60px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+      display: inline-block;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+      border-radius: 20px;
+      overflow: hidden;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    th, td {
+      padding: 12px;
+      text-align: left;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      white-space: nowrap;
+    }
+    th {
+      background: rgba(37, 99, 235, 0.15);
+      color: white;
+      font-weight: 600;
+    }
+    .status-green { background: rgba(16, 185, 129, 0.2); color: #6ee7b7; font-weight: 600; }
+    .status-orange { background: rgba(245, 158, 11, 0.2); color: #fcd34d; font-weight: 600; }
+    .status-red { background: rgba(239, 68, 68, 0.2); color: #fca5a5; font-weight: 600; }
+    .current-row td:first-child,
+    .current-row td:nth-child(2) {
+      color: #a5c9ff;
+      font-weight: 700;
+    }
+    .table-wrap { overflow-x: auto; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="section">
+      <div class="header">
+        <h2>Section Status (A-J)</h2>
+        <a class="btn" href="/form">Back To Form</a>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>S.No</th>
+              <th>Profile ID</th>
+              {% for letter in section_letters %}
+              <th>{{ letter }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in rows %}
+            <tr class="{% if row.profile_id == current_profile_id %}current-row{% endif %}">
+              <td>{{ row.sno }}</td>
+              <td>{{ row.profile_id }}</td>
+              {% for letter in section_letters %}
+              {% set status = row.statuses[letter] %}
+              <td class="status-{{ status }}">
+                {% if status == "green" %}Filled{% elif status == "orange" %}Partial{% else %}Not Filled{% endif %}
+              </td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

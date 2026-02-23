@@ -319,22 +319,67 @@ def profile_exists(profile):
     ).first() is not None
 
 
-def generate_profile_id(name, school):
-    name = name.strip().upper()
-    school = school.strip().upper()
+def _dob_code(dob):
+    dob = (dob or "").strip()
+    try:
+        dt = datetime.strptime(dob, "%Y-%m-%d")
+        return dt.strftime("%d%m%y")
+    except Exception:
+        digits = "".join(ch for ch in dob if ch.isdigit())
+        if len(digits) >= 6:
+            return digits[-6:]
+        return digits.rjust(6, "0")
 
-    name_code = name[:2] if len(name) >= 2 else name.ljust(2, "X")
-    school_code = school[:2] if len(school) >= 2 else school.ljust(2, "X")
 
-    count = Profile.query.count()
+def _gender_code(gender):
+    text = (gender or "").strip().upper()
+    for ch in text:
+        if ch.isalpha():
+            return ch
+    return "X"
 
-    return f"{name_code}{school_code}{count + 1:04d}"
+
+def _first_alpha(text, default="X"):
+    for ch in (text or "").strip().upper():
+        if ch.isalpha():
+            return ch
+    return default
+
+
+def _school_two_letter_code(text):
+    words = [w for w in re.findall(r"[A-Za-z]+", (text or "").upper()) if w]
+    if len(words) >= 2:
+        return f"{words[0][0]}{words[1][0]}"
+    joined = "".join(words)
+    if len(joined) >= 2:
+        return joined[:2]
+    return joined.ljust(2, "X")
+
+
+def generate_profile_id(name, surname, dob, gender, school, location):
+    # Fixed 12 chars: Name(1) + Surname(1) + DOB(DDMMYY) + Gender(1) + School(2) + Location(1)
+    return (
+        f"{_first_alpha(name)}"
+        f"{_first_alpha(surname)}"
+        f"{_dob_code(dob)}"
+        f"{_gender_code(gender)}"
+        f"{_school_two_letter_code(school)}"
+        f"{_first_alpha(location)}"
+    )
 
 
 def generate_barcode(profile_id):
     barcode = Code128(profile_id, writer=ImageWriter())
     path = os.path.join(BARCODE_FOLDER, profile_id)
-    barcode.save(path)
+    barcode.save(path, options={
+        "module_width": 0.2,
+        "module_height": 8,
+        "quiet_zone": 1.2,
+        "font_size": 0,
+        "text_distance": 1,
+        "write_text": False,
+        "dpi": 300,
+    })
     return f"barcodes/{profile_id}.png"
 
 
@@ -379,11 +424,13 @@ def profile():
 
         profile_data = {
             "name": form.get("name", "").strip(),
+            "surname": form.get("surname", "").strip(),
             "dob": form.get("dob", "").strip(),
             "age": form.get("age", "").strip(),
             "age_full": form.get("age_full", "").strip(),
             "gender": form.get("gender", "").strip(),
             "school": form.get("school", "").strip(),
+            "location": form.get("location", "").strip(),
             "class": form.get("class", "").strip(),
             "section": form.get("section", "").strip(),
         }
@@ -391,7 +438,14 @@ def profile():
         if profile_exists(profile_data):
             return "Profile already exists. Please login using Barcode ID."
 
-        profile_id = generate_profile_id(profile_data["name"], profile_data["school"])
+        profile_id = generate_profile_id(
+            profile_data["name"],
+            profile_data["surname"],
+            profile_data["dob"],
+            profile_data["gender"],
+            profile_data["school"],
+            profile_data["location"]
+        )
         
         new_profile = Profile(
             profile_id=profile_id,
@@ -449,6 +503,67 @@ def form():
         return redirect(url_for("dashboard"))
 
     return render_template("form.html", profile=profile)
+
+
+def _section_status(response, keys):
+    if not response or not keys:
+        return "red"
+    filled = 0
+    for key in keys:
+        value = str(response.get(key, "")).strip()
+        if value:
+            filled += 1
+    if filled == 0:
+        return "red"
+    if filled == len(keys):
+        return "green"
+    return "orange"
+
+
+@app.route("/section-status")
+def section_status():
+    profile_id = session.get("profile_id")
+    if not profile_id:
+        return redirect(url_for("login"))
+
+    section_keys = {
+        "A": ["child_id_code", "profile_id_code", "dob", "age_completed", "sex", "birth_order", "siblings_count"],
+        "B": ["family_type", "family_members_total", "religion", "caste_category", "edu_head_family", "occupation_head_family", "monthly_income", "kuppuswamy_total_score", "ses_class"],
+        "C": [],
+        "D": [],
+        "E": ["low_birth_weight", "chronic_illness", "chronic_illness_specify", "worm_infestation", "deworming_tablet", "iron_supplementation"],
+        "F": ["diet_type", "iron_rich_food_frequency"],
+        "G": ["hb_measurement_datetime"],
+        "H": ["device_sequence", "masimo_reading_1", "masimo_reading_2", "masimo_reading_3", "masimo_avg_sphb", "capillary_hb_value", "capillary_attempts", "venous_hb_value", "child_response_score"],
+        "I": ["comfortable_testing_process", "preferred_method", "repeat_screening", "parent_total"],
+        "J": ["child_classification", "ifa_dose", "referral_advised", "referral_destination", "referral_other_specify", "investigator_signature", "referral_date"],
+    }
+
+    profiles = Profile.query.all()
+    responses = Response.query.order_by(Response.submitted_at.asc()).all()
+
+    latest_response_by_profile = {}
+    for r in responses:
+        if r.profile_id:
+            latest_response_by_profile[r.profile_id.strip().upper()] = r.data or {}
+
+    rows = []
+    for idx, p in enumerate(profiles, start=1):
+        pid = (p.profile_id or "").strip().upper()
+        response = latest_response_by_profile.get(pid, {})
+        statuses = {letter: _section_status(response, keys) for letter, keys in section_keys.items()}
+        rows.append({
+            "sno": idx,
+            "profile_id": pid,
+            "statuses": statuses,
+        })
+
+    return render_template(
+        "section_status.html",
+        rows=rows,
+        current_profile_id=(profile_id or "").strip().upper(),
+        section_letters=["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+    )
 
 
 @app.route("/logout")
