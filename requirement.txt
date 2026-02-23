@@ -1,0 +1,9 @@
+flask
+pandas
+openpyxl
+barcode
+python-barcode
+flask-sqlalchemy
+pymysql
+cryptography
+python-dotenv

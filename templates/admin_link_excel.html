@@ -2,6 +2,100 @@
 <html>
 <head>
   <title>Admin - Link Excel with Barcode</title>
+  <style>
+    /* Hover and Dropdown Styles */
+    .admin-actions {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-top: 20px;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: #fff;
+      min-width: 180px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
+      z-index: 1000;
+      border-radius: 10px;
+      padding: 5px 0;
+      margin-top: 5px;
+      border: 1px solid #eee;
+    }
+
+    .dropdown-content a {
+      color: #333;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-weight: 500;
+      transition: background 0.2s;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f8f9fa;
+      color: #007bff;
+    }
+
+    .dropdown:hover .dropdown-content {
+      display: block;
+    }
+
+    .action-btn {
+      padding: 12px 20px;
+      border: none;
+      border-radius: 10px;
+      font-weight: bold;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-upload {
+      background: #ff8800;
+      color: white;
+    }
+
+    .btn-upload:hover {
+      background: #e67a00;
+      box-shadow: 0 4px 10px rgba(255, 136, 0, 0.3);
+    }
+
+    .btn-export {
+      background: #198754;
+      color: white;
+    }
+
+    .btn-export:hover {
+      background: #157347;
+      box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+    }
+
+    .caret {
+      font-size: 10px;
+      margin-left: 5px;
+    }
+
+    .file-input-wrapper {
+        background: #fff;
+        border: 1px solid #ccc;
+        border-radius: 10px;
+        padding: 5px 10px;
+        display: flex;
+        align-items: center;
+    }
+  </style>
 </head>
 <body style="font-family: Arial; background:#f4f6f9;">
   <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
@@ -19,18 +113,34 @@
       <b>profile_id</b>, <b>barcode</b>, <b>barcode_id</b>, <b>student_barcode</b>.
     </p>
 
-    <form method="POST" enctype="multipart/form-data" style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
-      <input type="file" name="file" accept=".xlsx,.xls" required
-             style="padding:8px;border:1px solid #ccc;border-radius:8px;background:#fff;">
-      <button type="submit" style="padding:10px 14px;background:#ff8800;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-        Upload and Link
-      </button>
-      <a href="/admin/download/linked_data.csv" style="padding:10px 14px;background:#198754;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Export linked_data.csv
-      </a>
-      <a href="/admin/download/linked_data.xlsx" style="padding:10px 14px;background:#198754;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Export linked_data.xlsx
-      </a>
+    <form method="POST" enctype="multipart/form-data" class="admin-actions">
+      <div class="file-input-wrapper">
+        <input type="file" name="file" accept=".xlsx,.xls" required
+               style="border:none;background:transparent;outline:none;padding:5px;">
+      </div>
+
+      <!-- Upload Button with Machine Hover -->
+      <div class="dropdown">
+        <button type="submit" class="action-btn btn-upload">
+          Upload and Link <span class="caret">▼</span>
+        </button>
+        <div class="dropdown-content">
+          <a href="/machine1">Machine 1</a>
+          <a href="/machine2">Machine 2</a>
+          <a href="/machine3">Machine 3</a>
+        </div>
+      </div>
+
+      <!-- Export Button with Dropdown -->
+      <div class="dropdown">
+        <button type="button" class="action-btn btn-export">
+          Export the data <span class="caret">▼</span>
+        </button>
+        <div class="dropdown-content">
+          <a href="/admin/download/linked_data.csv">CSV Format</a>
+          <a href="/admin/download/linked_data.xlsx">Excel Format</a>
+        </div>
+      </div>
     </form>
 
     {% if error %}
