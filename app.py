@@ -1,6 +1,6 @@
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_file
+    session, send_file, flash, jsonify
 )
 from flask_sqlalchemy import SQLAlchemy
 import csv
@@ -377,6 +377,10 @@ def form():
     if not profile_id:
         return redirect(url_for("login"))
 
+    profile = Profile.query.filter_by(profile_id=profile_id).first()
+    if not profile:
+        return redirect(url_for("login"))
+
     if request.method == "POST":
         answers = request.form.to_dict()
         
@@ -394,7 +398,7 @@ def form():
         update_excel_files()
         return redirect(url_for("dashboard"))
 
-    return render_template("form.html", profile_id=profile_id)
+    return render_template("form.html", profile=profile)
 
 
 @app.route("/logout")
@@ -441,11 +445,25 @@ def admin_dashboard():
     responses_count = Response.query.count()
     linked_count = LinkedData.query.count()
 
-    # Fetch Data for display (limit to recent if needed, but for now fetch all as requested)
+    # Fetch Data for display
     profiles = Profile.query.all()
+    responses = Response.query.all()
+    
+    # Create a mapping of profile_id -> response data for easy merging
+    resp_map = {}
+    # We only care about these 3 machine keys for the Profiles table
+    machine_keys = ["masimo", "hemocue", "horiba"]
+    
+    for r in responses:
+        if r.data:
+            # Extract only machine data for the map
+            machine_data = {k: v for k, v in r.data.items() if k in machine_keys}
+            if machine_data:
+                resp_map[r.profile_id] = machine_data
+
     p_list = []
     for p in profiles:
-        p_list.append({
+        item = {
             "profile_id": p.profile_id,
             "name": p.name,
             "dob": p.dob,
@@ -455,10 +473,14 @@ def admin_dashboard():
             "school": p.school,
             "class": p.class_name,
             "section": p.section
-        })
+        }
+        # Merge only machine data if it exists
+        if p.profile_id in resp_map:
+            item.update(resp_map[p.profile_id])
+        p_list.append(item)
 
-    responses = Response.query.all()
     r_list = []
+    all_keys = set(["response_id", "profile_id", "submitted_at"])
     for r in responses:
         item = {
             "response_id": r.response_id,
@@ -467,14 +489,16 @@ def admin_dashboard():
         }
         if r.data:
             item.update(r.data)
+            all_keys.update(r.data.keys())
         r_list.append(item)
 
-    # Get sample headers for display
-    profile_headers = PROFILE_FIELDS
-    # Use keys from first response for headers if available, else fallback
-    response_headers = ["response_id", "profile_id", "submitted_at"]
-    if r_list:
-        response_headers = list(r_list[0].keys())
+    # Get headers for profiles: Base fields + the 3 machines
+    profile_headers = PROFILE_FIELDS + ["masimo", "hemocue", "horiba"]
+    
+    # Organize response headers: base keys first, then all other discovered keys
+    base_headers = ["response_id", "profile_id", "submitted_at"]
+    extra_headers = sorted(list(all_keys - set(base_headers)))
+    response_headers = base_headers + extra_headers
 
     return render_template(
         "admin_dashboard.html",
@@ -1050,25 +1074,135 @@ def admin_link_excel():
 # --------------------------------------------------
 # ADMIN: MACHINE VIEWS
 # --------------------------------------------------
-@app.route("/machine1")
-def machine1():
+def handle_machine_upload(machine_name):
     if not admin_required():
         return redirect(url_for("admin_login"))
-    return render_template("machine1.html")
+
+    if request.method == "POST":
+        if 'file' not in request.files:
+            flash(f"No file part for {machine_name}")
+            return redirect(request.url)
+        
+        file = request.files['file']
+        if file.filename == '':
+            flash(f"No selected file for {machine_name}")
+            return redirect(request.url)
+
+        try:
+            if file.filename.endswith('.csv'):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file)
+                
+            # Normalize columns
+            original_cols = list(df.columns)
+            df.columns = [str(c).strip().lower().replace(" ", "_").replace("-", "_") for c in df.columns]
+            
+            # Identify profile_id column
+            id_col = None
+            id_patterns = ["profile_id", "barcode", "barcode_id", "student_barcode", "id", "study_id"]
+            for col in id_patterns:
+                if col in df.columns:
+                    id_col = col
+                    break
+            
+            if not id_col:
+                flash(f"Error: Missing ID column in {machine_name} upload.")
+                return redirect(request.url)
+            
+            # Identify target column: only look for exactly the machine name
+            target_col = machine_name.lower()
+            if target_col not in df.columns:
+                # Fallback: if there's only one other column, use it, or fail
+                other_cols = [c for c in df.columns if c != id_col]
+                if len(other_cols) == 1:
+                    target_col = other_cols[0]
+                else:
+                    flash(f"Error: Could not find '{target_col}' column in the file.")
+                    return redirect(request.url)
+                
+            updated_count = 0
+            for _, row in df.iterrows():
+                profile_id = str(row[id_col]).strip().upper()
+                resp = Response.query.filter_by(profile_id=profile_id).first()
+                if resp:
+                    current_data = resp.data.copy() if resp.data else {}
+                    val = row[target_col]
+                    if pd.notna(val):
+                        # Use the machine_name as the standard key
+                        current_data[machine_name.lower()] = str(val)
+                        resp.data = current_data
+                        updated_count += 1
+            
+            db.session.commit()
+            flash(f"Successfully updated {updated_count} records with {machine_name} data.")
+        except Exception as e:
+            db.session.rollback()
+            flash(f"Error processing {machine_name} upload: {str(e)}")
+            
+        return redirect(request.url)
+    
+    return render_template(f"{machine_name.lower()}.html")
 
 
-@app.route("/machine2")
-def machine2():
+@app.route("/masimo", methods=["GET", "POST"])
+def masimo():
+    return handle_machine_upload("Masimo")
+
+
+@app.route("/hemocue", methods=["GET", "POST"])
+def hemocue():
+    return handle_machine_upload("Hemocue")
+
+
+@app.route("/horiba")
+def horiba():
     if not admin_required():
         return redirect(url_for("admin_login"))
-    return render_template("machine2.html")
+    
+    # Fetch all profiles and merge machine data for the table
+    profiles = Profile.query.all()
+    responses = Response.query.all()
+    resp_map = {r.profile_id: r.data for r in responses if r.data}
+    
+    p_entries = []
+    for p in profiles:
+        data = resp_map.get(p.profile_id, {})
+        p_entries.append({
+            "profile_id": p.profile_id,
+            "name": p.name,
+            "masimo": data.get("masimo", ""),
+            "hemocue": data.get("hemocue", ""),
+            "horiba": data.get("horiba", "")
+        })
+        
+    return render_template("horiba.html", profiles=p_entries)
 
 
-@app.route("/machine3")
-def machine3():
+@app.route("/admin/update-horiba", methods=["POST"])
+def update_horiba():
     if not admin_required():
-        return redirect(url_for("admin_login"))
-    return render_template("machine3.html")
+        return jsonify({"success": False, "error": "Unauthorized"}), 403
+        
+    profile_id = request.form.get("profile_id")
+    horiba_val = request.form.get("horiba")
+    
+    if not profile_id:
+        return jsonify({"success": False, "error": "Missing Profile ID"}), 400
+        
+    resp = Response.query.filter_by(profile_id=profile_id).first()
+    if not resp:
+        return jsonify({"success": False, "error": "Response record not found for this profile"}), 404
+        
+    try:
+        current_data = resp.data.copy() if resp.data else {}
+        current_data["horiba"] = horiba_val
+        resp.data = current_data
+        db.session.commit()
+        return jsonify({"success": True})
+    except Exception as e:
+        db.session.rollback()
+        return jsonify({"success": False, "error": str(e)}), 500
 
 
 # --------------------------------------------------

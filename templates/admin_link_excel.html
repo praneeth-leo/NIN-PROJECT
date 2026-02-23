@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Admin - Link Excel with Barcode</title>
   <style>
@@ -22,7 +23,7 @@
       position: absolute;
       background-color: #fff;
       min-width: 180px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.15);
+      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.15);
       z-index: 1000;
       border-radius: 10px;
       padding: 5px 0;
@@ -88,20 +89,23 @@
     }
 
     .file-input-wrapper {
-        background: #fff;
-        border: 1px solid #ccc;
-        border-radius: 10px;
-        padding: 5px 10px;
-        display: flex;
-        align-items: center;
+      background: #fff;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      padding: 5px 10px;
+      display: flex;
+      align-items: center;
     }
   </style>
 </head>
+
 <body style="font-family: Arial; background:#f4f6f9;">
-  <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+  <div
+    style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
     <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
       <h2 style="margin:0;">Upload Excel and Link with Student Barcode</h2>
-      <a href="/admin-dashboard" style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
+      <a href="/admin-dashboard"
+        style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
         Back
       </a>
     </div>
@@ -113,72 +117,61 @@
       <b>profile_id</b>, <b>barcode</b>, <b>barcode_id</b>, <b>student_barcode</b>.
     </p>
 
-    <form method="POST" enctype="multipart/form-data" class="admin-actions">
-      <div class="file-input-wrapper">
-        <input type="file" name="file" accept=".xlsx,.xls" required
-               style="border:none;background:transparent;outline:none;padding:5px;">
-      </div>
+    <div class="admin-actions">
+      <!-- Upload Button (Direct link to Masimo) -->
+      <a href="/masimo" class="action-btn btn-upload">
+        Upload and Link
+      </a>
 
-      <!-- Upload Button with Machine Hover -->
-      <div class="dropdown">
-        <button type="submit" class="action-btn btn-upload">
-          Upload and Link <span class="caret">▼</span>
-        </button>
-        <div class="dropdown-content">
-          <a href="/machine1">Machine 1</a>
-          <a href="/machine2">Machine 2</a>
-          <a href="/machine3">Machine 3</a>
-        </div>
-      </div>
+      <!-- Export Button (Keep dropdown or simplify if needed? User said "remove dropdown" for BOTH) -->
+      <a href="/admin/download/linked_data.xlsx" class="action-btn btn-export">
+        Export Data (Excel)
+      </a>
 
-      <!-- Export Button with Dropdown -->
-      <div class="dropdown">
-        <button type="button" class="action-btn btn-export">
-          Export the data <span class="caret">▼</span>
-        </button>
-        <div class="dropdown-content">
-          <a href="/admin/download/linked_data.csv">CSV Format</a>
-          <a href="/admin/download/linked_data.xlsx">Excel Format</a>
-        </div>
-      </div>
-    </form>
+      <a href="/admin/download/linked_data.csv" class="action-btn btn-export" style="background: #0d6efd;">
+        Export Data (CSV)
+      </a>
+    </div>
 
     {% if error %}
-      <div style="margin-top:14px;padding:10px;border-radius:8px;background:#ffe3e3;color:#b02a37;border:1px solid #f5c2c7;">
-        {{ error }}
-      </div>
+    <div
+      style="margin-top:14px;padding:10px;border-radius:8px;background:#ffe3e3;color:#b02a37;border:1px solid #f5c2c7;">
+      {{ error }}
+    </div>
     {% endif %}
 
     {% if success %}
-      <div style="margin-top:14px;padding:10px;border-radius:8px;background:#e6ffed;color:#146c43;border:1px solid #badbcc;">
-        {{ success }}
-      </div>
+    <div
+      style="margin-top:14px;padding:10px;border-radius:8px;background:#e6ffed;color:#146c43;border:1px solid #badbcc;">
+      {{ success }}
+    </div>
     {% endif %}
 
     <hr>
 
     <h3 style="margin-top:0;">Linked Excel Data View</h3>
     {% if data|length == 0 %}
-      <p style="color:#666;">No linked data available. Upload an Excel file first.</p>
+    <p style="color:#666;">No linked data available. Upload an Excel file first.</p>
     {% else %}
-      <p style="color:#666;">Total linked rows: <b>{{ data|length }}</b></p>
-      <div style="overflow-x:auto;">
-        <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;">
-          <tr style="background:#0d6efd;color:#fff;">
-            {% for key in headers %}
-              <th style="white-space:nowrap;">{{ key }}</th>
-            {% endfor %}
-          </tr>
-          {% for row in data %}
-            <tr>
-              {% for key in headers %}
-                <td>{{ row.get(key, "") }}</td>
-              {% endfor %}
-            </tr>
+    <p style="color:#666;">Total linked rows: <b>{{ data|length }}</b></p>
+    <div style="overflow-x:auto;">
+      <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;">
+        <tr style="background:#0d6efd;color:#fff;">
+          {% for key in headers %}
+          <th style="white-space:nowrap;">{{ key }}</th>
           {% endfor %}
-        </table>
-      </div>
+        </tr>
+        {% for row in data %}
+        <tr>
+          {% for key in headers %}
+          <td>{{ row.get(key, "") }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
     {% endif %}
   </div>
 </body>
+
 </html>

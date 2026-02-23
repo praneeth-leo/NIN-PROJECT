@@ -1,6 +1,6 @@
-profile_id,name,age,gender,school,class,section
-RACI0001,ram,03,Male,CID,ukg,c
-RACI0002,ramba ho,2,Male,CID,ukg,B
+profile_id,name,dob,age,age_full,gender,school,class,section
+RACI0001,ram,,03,,Male,CID,ukg,c
+RACI0002,ramba ho,,2,,Male,CID,ukg,B
 LECI0003,leomonster_1412,2024-07-24,1,1y 6m 25d 11:47:42,Male,CID,ukg,C
 PRCI0004,praneeth,2023-06-18,2,2y 8m 0d 12:24:33,Male,cid,lkg,A
 PRCI0005,praneeth,2023-06-18,2,2y 8m 0d 12:24:33,Male,cid,lkg,A
