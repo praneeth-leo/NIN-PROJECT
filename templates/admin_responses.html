@@ -1,95 +1,501 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin - Responses</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro · Admin Responses</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a0c15;
+      --surface: rgba(18, 24, 38, 0.85);
+      --surface-card: rgba(22, 28, 45, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-active: rgba(40, 167, 69, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      /* Action colors */
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --success: #28a745;
+      --success-dark: #1e7e34;
+      --warning: #ffc107;
+      --warning-dark: #e0a800;
+      --danger: #dc3545;
+      --danger-dark: #b52a37;
+      --secondary: #6c757d;
+      --secondary-dark: #545b62;
+      
+      --gradient-primary: linear-gradient(145deg, #007bff, #0056b3);
+      --gradient-success: linear-gradient(145deg, #28a745, #1e7e34);
+      --gradient-warning: linear-gradient(145deg, #ffc107, #e0a800);
+      --gradient-danger: linear-gradient(145deg, #dc3545, #b52a37);
+      --gradient-secondary: linear-gradient(145deg, #6c757d, #545b62);
+      
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 32px;
+      --radius-button: 12px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(0, 123, 255, 0.12), transparent 40%),
+        radial-gradient(circle at 90% 72%, rgba(40, 167, 69, 0.09), transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(255, 193, 7, 0.06), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: min(96vw, 1600px);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* main panel */
+    .panel {
+      background: rgba(18, 24, 38, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 30px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(800px circle at 30% 20%, rgba(40, 167, 69, 0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .title-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-success);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 25px -12px rgba(40, 167, 69, 0.5);
+    }
+
+    .title-icon i {
+      font-size: 30px;
+      color: white;
+    }
+
+    .title-text h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #a5d6b6);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .title-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* button base */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: var(--radius-button);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      padding: 10px 20px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn i {
+      font-size: 0.95rem;
+    }
+
+    .btn-back { background: var(--gradient-primary); }
+    .btn-search { background: var(--gradient-success); }
+    .btn-reset { background: var(--gradient-secondary); }
+    .btn-edit { background: var(--gradient-warning); color: #212529; }
+    .btn-delete { background: var(--gradient-danger); width: 100%; }
+
+    /* search box */
+    .search-section {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 60px;
+      padding: 6px 6px 6px 20px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .search-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .search-wrapper i {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .search-wrapper input {
+      flex: 1;
+      min-width: 280px;
+      padding: 12px 12px;
+      background: transparent;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .search-wrapper input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* stats */
+    .stats-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 40px;
+      padding: 8px 22px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+    }
+
+    .stat i {
+      color: var(--success);
+    }
+
+    .stat strong {
+      color: white;
+      margin-left: 4px;
+    }
+
+    /* table wrapper */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(0, 0, 0, 0.2);
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1400px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: left;
+      padding: 14px 12px;
+      vertical-align: middle;
+    }
+
+    th {
+      background: rgba(40, 167, 69, 0.15);
+      font-weight: 600;
+      color: var(--text-secondary);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* action cell */
+    .action-cell {
+      min-width: 180px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-cell .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* data cell */
+    .data-cell {
+      max-width: 250px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* empty state */
+    .empty {
+      color: var(--text-muted);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 24px;
+      padding: 50px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 1.1rem;
+    }
+
+    .empty i {
+      font-size: 3.5rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* hint */
+    .hint {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 18px;
+      border-radius: 40px;
+      width: fit-content;
+    }
+
+    /* footer */
+    .footer-note {
+      margin-top: 25px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .panel { padding: 20px; }
+      .title-text h2 { font-size: 1.6rem; }
+      .search-section { border-radius: 20px; padding: 12px; }
+      .search-wrapper { flex-direction: column; align-items: stretch; }
+      .search-actions { justify-content: stretch; }
+      .search-actions .btn { flex: 1; }
+    }
+  </style>
 </head>
+<body>
 
-<body style="font-family: Arial; background:#f4f6f9;">
-
-  <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="margin:0;">Questionnaire Responses</h2>
-      <a href="/admin-dashboard"
-         style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Back
+<div class="container">
+  <div class="panel">
+    <!-- header with icon -->
+    <div class="header">
+      <div class="title">
+        <div class="title-icon">
+          <i class="fas fa-clipboard-list"></i>
+        </div>
+        <div class="title-text">
+          <h2>Questionnaire Responses</h2>
+          <p><i class="fas fa-database"></i> View and manage all survey submissions</p>
+        </div>
+      </div>
+      <a class="btn btn-back" href="/admin-dashboard">
+        <i class="fas fa-arrow-left"></i> Dashboard
       </a>
     </div>
 
-    <hr>
+    <!-- stats bar -->
+    <div class="stats-bar">
+      <div class="stat">
+        <i class="fas fa-file-alt"></i>
+        <span>Total Responses: <strong>{{ data|length if data else 0 }}</strong></span>
+      </div>
+      <div class="stat">
+        <i class="fas fa-barcode"></i>
+        <span>Unique Profiles: <strong>{{ data|map(attribute='profile_id')|unique|list|length if data else 0 }}</strong></span>
+      </div>
+    </div>
 
-    <!-- SEARCH -->
-    <form method="GET" action="/admin/responses" style="margin-bottom:15px;">
-      <input type="text" name="q" placeholder="Search Barcode ID (example: SENA0004)"
-             value="{{ q }}"
-             style="width:320px;padding:10px;border:1px solid #ccc;border-radius:10px;">
-
-      <button type="submit"
-              style="padding:10px 14px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-        Search
-      </button>
-
-      <a href="/admin/responses"
-         style="padding:10px 14px;background:#6c757d;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Reset
-      </a>
+    <!-- search form -->
+    <form method="GET" action="/admin/responses">
+      <div class="search-section">
+        <div class="search-wrapper">
+          <i class="fas fa-search"></i>
+          <input type="text" name="q" placeholder="Search by Barcode ID (e.g., SENA0004)" value="{{ q }}">
+          <div class="search-actions">
+            <button class="btn btn-search" type="submit">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <a class="btn btn-reset" href="/admin/responses">
+              <i class="fas fa-undo"></i> Reset
+            </a>
+          </div>
+        </div>
+      </div>
     </form>
 
-    {% if data|length == 0 %}
-      <p style="color:#555;">No responses found.</p>
-    {% else %}
-
-    <p style="color:#666;font-size:13px;">
-      Total responses: <b>{{ data|length }}</b>
-    </p>
-
-    <div style="overflow-x:auto;">
-      <table border="1" cellpadding="10" cellspacing="0"
-             style="width:100%;border-collapse:collapse;font-size:13px;">
-
-        <tr style="background:#28a745;color:white;">
-          <th>Actions</th>
-          {% for key in data[0].keys() %}
-            <th>{{ key }}</th>
-          {% endfor %}
-        </tr>
-
-        {% for row in data %}
-          <tr>
-
-            <!-- Actions -->
-            <td style="text-align:center;min-width:190px;">
-
-              <!-- Edit -->
-              <a href="/admin/edit-response/{{ row['response_id'] }}"
-                 style="display:block;margin-bottom:8px;padding:8px 10px;background:#ffc107;color:black;text-decoration:none;border-radius:8px;font-weight:bold;">
-                Edit
-              </a>
-
-              <!-- Delete -->
-              <form method="POST"
-                    action="/admin/delete-response/{{ row['response_id'] }}"
-                    onsubmit="return confirm('Delete this response?');">
-                <button type="submit"
-                        style="width:100%;padding:8px 10px;background:#dc3545;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer;">
-                  Delete
-                </button>
-              </form>
-
-            </td>
-
-            {% for val in row.values() %}
-              <td>{{ val }}</td>
-            {% endfor %}
-
-          </tr>
-        {% endfor %}
-      </table>
-    </div>
-
+    <!-- results count -->
+    {% if data and data|length > 0 %}
+      <div class="hint">
+        <i class="fas fa-info-circle"></i>
+        Showing <strong>{{ data|length }}</strong> response(s)
+      </div>
     {% endif %}
 
+    <!-- table -->
+    {% if data|length == 0 %}
+      <div class="empty">
+        <i class="fas fa-file-alt"></i>
+        <p>No responses found</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Complete a questionnaire to see responses here</p>
+      </div>
+    {% else %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Actions</th>
+              {% for key in headers %}
+                <th>{{ key.replace('_', ' ').title() }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+              <tr>
+                <!-- Action buttons -->
+                <td class="action-cell">
+                  <a class="btn btn-edit" href="/admin/edit-response/{{ row['response_id'] }}">
+                    <i class="fas fa-edit"></i> Edit Response
+                  </a>
+                  <form method="POST" action="/admin/delete-response/{{ row['response_id'] }}" 
+                        onsubmit="return confirm('⚠️ Are you sure? This will permanently delete this response.\n\nResponse ID: {{ row['response_id'] }}\n\nThis action cannot be undone!');">
+                    <button class="btn btn-delete" type="submit">
+                      <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                  </form>
+                </td>
+
+                <!-- Response data fields -->
+                {% for key in headers %}
+                  {% set val = row.get(key, '') %}
+                  <td class="data-cell" title="{{ val if val else '—' }}">
+                    {% if val is none or val == '' %}
+                      <span style="color: var(--text-muted); font-style: italic;">—</span>
+                    {% else %}
+                      {{ val }}
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+    <!-- footer note -->
+    <div class="footer-note">
+      <i class="fas fa-shield-alt"></i>
+      <span>Secure admin access · All deletions are permanent</span>
+    </div>
   </div>
+</div>
 
 </body>
 </html>

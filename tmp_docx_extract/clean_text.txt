@@ -1,0 +1,66 @@
+S.No
+Name
+Gender
+weight
+Horiba
+Syrup Dose
+1
+Nayrafazreen
+F
+14.6
+12.1
+2
+Keerthika
+F
+11.5
+11.1
+3
+Hamza
+M
+11.5
+8.9
+8 to 9 ml/Day
+4
+Akshara
+F
+13.9
+12
+5
+Virat
+M
+12.9
+9.3
+9 to 10 ml/day
+6
+Jahed 
+M
+16.1
+10.7
+5 to 7.5 ml/day
+7
+Nanditha
+F
+12.1
+11.4
+8
+Affan 
+F
+14.1
+12.6
+9
+Bindu Priya
+F
+12.5
+12.1
+10
+Uziramir
+M
+11.9
+10.6
+8 to 9 ml/Day
+11
+Abbas
+M
+14.2
+8.6
+9 to 10 ml/day

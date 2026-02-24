@@ -431,6 +431,10 @@
         <div>
           <label><i class="fas fa-calendar"></i> Date of birth</label>
           <input type="date" name="dob" id="dob" required />
+          <div class="note">
+            <i class="fas fa-info-circle"></i>
+            Allowed ages: 3, 4, 5 only
+          </div>
         </div>
 
         <!-- age years (readonly) -->
@@ -505,6 +509,7 @@
 <!-- JavaScript (EXACT same logic) -->
 <script>
   const dobInput = document.getElementById("dob");
+  const profileForm = document.querySelector("form[action='/profile']");
   const ageDisplay = document.getElementById("age_display");
   const ageYears = document.getElementById("age_years");
   const ageFullHidden = document.getElementById("age_full");
@@ -600,6 +605,14 @@
     updateAge();
     liveTimer = setInterval(updateAge, 1000);
   }
+
+  profileForm.addEventListener("submit", function (e) {
+    const years = parseInt(ageYears.value, 10);
+    if (Number.isNaN(years) || ![3, 4, 5].includes(years)) {
+      e.preventDefault();
+      alert("Only ages 3, 4, and 5 are allowed.");
+    }
+  });
 </script>
 
 </body>

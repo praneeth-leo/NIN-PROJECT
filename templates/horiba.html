@@ -123,7 +123,7 @@
                     formData.append('profile_id', profileId);
                     formData.append('horiba', val);
 
-                    fetch('/admin/update-horiba', {
+                    fetch('/update-horiba', {
                         method: 'POST',
                         body: formData
                     })

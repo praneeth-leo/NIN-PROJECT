@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro - Investigator Audit</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: "Inter", sans-serif;
+      background: #0a0c15;
+      color: #fff;
+      min-height: 100vh;
+      padding: 24px;
+    }
+    .container { max-width: 1500px; margin: 0 auto; }
+    .panel {
+      background: rgba(18, 24, 38, 0.85);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 24px;
+      padding: 24px;
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .title-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(145deg, #6610f2, #520dc2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .title-icon i { font-size: 24px; color: #fff; }
+    h1 { font-size: 1.7rem; }
+    .sub { color: #9fb0e3; font-size: 0.95rem; margin-top: 4px; }
+    .btn {
+      color: #fff;
+      text-decoration: none;
+      padding: 10px 14px;
+      border-radius: 10px;
+      background: linear-gradient(145deg, #0d6efd, #0b5ed7);
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meta {
+      margin-bottom: 14px;
+      color: #9fb0e3;
+      font-size: 0.9rem;
+    }
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 16px;
+      background: rgba(0, 0, 0, 0.2);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+      font-size: 0.9rem;
+    }
+    th, td {
+      padding: 12px 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: rgba(102, 16, 242, 0.15);
+      color: #fff;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    td { color: #d5deef; }
+    .empty {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9fb0e3;
+      font-style: italic;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="header">
+        <div class="title">
+          <div class="title-icon"><i class="fas fa-user-clock"></i></div>
+          <div>
+            <h1>Investigator Audit Log</h1>
+            <div class="sub">All investigator login/logout and machine data updates</div>
+          </div>
+        </div>
+        <a href="/admin-dashboard" class="btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+      </div>
+
+      <div class="meta">Total Entries: <strong>{{ data|length }}</strong></div>
+
+      {% if data|length == 0 %}
+        <div class="empty">No audit records found.</div>
+      {% else %}
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                {% for h in headers %}
+                  <th>{{ h.replace('_', ' ').title() }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in data %}
+                <tr>
+                  {% for h in headers %}
+                    <td>{{ row.get(h, '') if row.get(h, '') else '-' }}</td>
+                  {% endfor %}
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

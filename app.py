@@ -1,95 +1,81 @@
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_file, flash, jsonify
+    session, send_file, jsonify, flash
 )
-from flask_sqlalchemy import SQLAlchemy
 import csv
 import os
-from dotenv import load_dotenv
-load_dotenv()
+import re
 import pandas as pd
 from barcode import Code128
 from barcode.writer import ImageWriter
 from datetime import datetime
 import uuid
-from urllib.parse import quote_plus
-import re
-import traceback
+
 
 # --------------------------------------------------
 # App setup
 # --------------------------------------------------
 app = Flask(__name__)
 app.secret_key = "survey_secret_key"
-app.config.update(
-    SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
-)
-if os.getenv("FLASK_ENV") == "production":
-    app.config["SESSION_COOKIE_SECURE"] = True
 
-# MySQL Configuration
-db_user = os.getenv("DB_USER", "root")
-db_password = os.getenv("DB_PASSWORD", "")
-db_host = os.getenv("DB_HOST", "localhost")
-db_name = os.getenv("DB_NAME", "survey_db")
-
-app.config["SQLALCHEMY_DATABASE_URI"] = f"mysql+pymysql://{db_user}:{quote_plus(db_password)}@{db_host}/{db_name}"
-app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
-
-db = SQLAlchemy(app)
-
-# --------------------------------------------------
-# MODELS
-# --------------------------------------------------
-class Profile(db.Model):
-    __tablename__ = "profiles"
-    id = db.Column(db.Integer, primary_key=True)
-    profile_id = db.Column(db.String(50), unique=True, nullable=False)
-    name = db.Column(db.String(100))
-    dob = db.Column(db.String(20))
-    age = db.Column(db.String(10))
-    age_full = db.Column(db.String(50))
-    gender = db.Column(db.String(20))
-    school = db.Column(db.String(200))
-    class_name = db.Column("class", db.String(50)) # 'class' is a reserved keyword in some contexts, using class_name but mapping to 'class' column
-    section = db.Column(db.String(50))
-    created_at = db.Column(db.DateTime, default=datetime.utcnow)
-
-class Response(db.Model):
-    __tablename__ = "responses"
-    id = db.Column(db.Integer, primary_key=True)
-    response_id = db.Column(db.String(50), unique=True, nullable=False)
-    profile_id = db.Column(db.String(50), db.ForeignKey("profiles.profile_id"), nullable=False)
-    submitted_at = db.Column(db.DateTime, default=datetime.utcnow)
-    data = db.Column(db.JSON) # Store all other form fields as JSON for flexibility
-
-class LinkedData(db.Model):
-    __tablename__ = "linked_data"
-    id = db.Column(db.Integer, primary_key=True)
-    profile_id = db.Column(db.String(50))
-    profile_found = db.Column(db.String(10))
-    name = db.Column(db.String(100))
-    school = db.Column(db.String(200))
-    class_name = db.Column("class", db.String(50))
-    section = db.Column(db.String(50))
-    linked_at = db.Column(db.DateTime, default=datetime.utcnow)
-    extra_data = db.Column(db.JSON)
+# ---------------- INVESTIGATOR SETTINGS ----------------
+INVESTIGATOR_CREDENTIALS = [
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_1", "Jahnavi").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_1", "jah123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_2", "Yeshwanth").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_2", "yes123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_3", "Shailaja").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_3", "sha123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_4", "Samhita").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_4", "sam123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_5", "Kriti").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_5", "kri123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_6", "Nandini").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_6", "nan123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_7", "Ameeta").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_7", "ame123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_8", "Varshini").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_8", "var123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_9", "Sri Teja").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_9", "sri123").strip(),
+    ),
+    (
+        os.environ.get("INVESTIGATOR_USERNAME_10", "valcap").strip(),
+        os.environ.get("INVESTIGATOR_PASSWORD_10", "valcap123").strip(),
+    ),
+]
 
 # ---------------- ADMIN SETTINGS ----------------
 ADMIN_CREDENTIALS = [
-    {
-        "username": os.getenv("ADMIN1_USERNAME", os.getenv("ADMIN_USERNAME", "admin")),
-        "password": os.getenv("ADMIN1_PASSWORD", os.getenv("ADMIN_PASSWORD", "admin123")),
-    },
-    {
-        "username": os.getenv("ADMIN2_USERNAME", "admin2"),
-        "password": os.getenv("ADMIN2_PASSWORD", "admin234"),
-    },
-    {
-        "username": os.getenv("ADMIN3_USERNAME", "admin3"),
-        "password": os.getenv("ADMIN3_PASSWORD", "admin345"),
-    },
+    (
+        os.environ.get("ADMIN_USERNAME_1", "admin").strip(),
+        os.environ.get("ADMIN_PASSWORD_1", "admin123").strip(),
+    ),
+    (
+        os.environ.get("ADMIN_USERNAME_2", "admin2").strip(),
+        os.environ.get("ADMIN_PASSWORD_2", "admin234").strip(),
+    ),
+    (
+        os.environ.get("ADMIN_USERNAME_3", "admin3").strip(),
+        os.environ.get("ADMIN_PASSWORD_3", "admin345").strip(),
+    ),
 ]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -100,6 +86,7 @@ PROFILE_XLSX = os.path.join(BASE_DIR, "profiles.xlsx")
 RESPONSE_XLSX = os.path.join(BASE_DIR, "responses.xlsx")
 LINKED_CSV = os.path.join(BASE_DIR, "linked_data.csv")
 LINKED_XLSX = os.path.join(BASE_DIR, "linked_data.xlsx")
+AUDIT_LOG_CSV = os.path.join(BASE_DIR, "investigator_audit_log.csv")
 
 BARCODE_FOLDER = os.path.join(BASE_DIR, "static", "barcodes")
 EXPORT_FOLDER = os.path.join(BASE_DIR, "exports")
@@ -108,11 +95,13 @@ EXPORT_FOLDER = os.path.join(BASE_DIR, "exports")
 PROFILE_FIELDS = [
     "profile_id",
     "name",
+    "surname",
     "dob",
     "age",
     "age_full",
     "gender",
     "school",
+    "location",
     "class",
     "section"
 ]
@@ -125,58 +114,61 @@ def admin_required():
     return session.get("admin_logged_in") is True
 
 
-def is_valid_admin(username, password):
-    for admin in ADMIN_CREDENTIALS:
-        if username == admin["username"] and password == admin["password"]:
-            return True
-    return False
+def investigator_required():
+    return session.get("investigator_logged_in") is True
 
 
-def get_csv_headers(path):
-    rows = read_csv_as_dict_list(path)
-    return list(rows[0].keys()) if rows else []
+def machine_access_required():
+    return admin_required() or investigator_required()
+
+
+def machine_redirect_if_unauthorized():
+    if not machine_access_required():
+        return redirect(url_for("investigator_login"))
+    return None
+
+
+def append_investigator_audit(event, details):
+    actor_type = "investigator" if investigator_required() else ("admin" if admin_required() else "system")
+    actor = (
+        session.get("investigator_username")
+        or session.get("admin_username")
+        or "unknown"
+    )
+    row = {
+        "timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "actor_type": actor_type,
+        "actor": actor,
+        "event": event,
+        "details": details,
+    }
+    file_exists = os.path.exists(AUDIT_LOG_CSV)
+    with open(AUDIT_LOG_CSV, "a", newline="", encoding="utf-8") as f:
+        writer = csv.DictWriter(
+            f,
+            fieldnames=["timestamp", "actor_type", "actor", "event", "details"],
+        )
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(row)
 
 
 def update_excel_files():
     try:
-        # Export Profiles
-        profiles = Profile.query.all()
-        p_data = []
-        for p in profiles:
-            p_data.append({
-                "profile_id": p.profile_id,
-                "name": p.name,
-                "dob": p.dob,
-                "age": p.age,
-                "age_full": p.age_full,
-                "gender": p.gender,
-                "school": p.school,
-                "class": p.class_name,
-                "section": p.section
-            })
-        if p_data:
-            df_p = pd.DataFrame(p_data)
-            df_p.to_csv(PROFILE_CSV, index=False)
-            df_p.to_excel(PROFILE_XLSX, index=False)
-
-        # Export Responses
-        responses = Response.query.all()
-        r_data = []
-        for r in responses:
-            item = {
-                "response_id": r.response_id,
-                "profile_id": r.profile_id,
-                "submitted_at": r.submitted_at.strftime("%Y-%m-%d %H:%M:%S")
-            }
-            if r.data:
-                item.update(r.data)
-            r_data.append(item)
-        if r_data:
-            df_r = pd.DataFrame(r_data)
-            df_r.to_csv(RESPONSE_CSV, index=False)
-            df_r.to_excel(RESPONSE_XLSX, index=False)
+        if os.path.exists(PROFILE_CSV):
+            pd.read_csv(PROFILE_CSV).to_excel(PROFILE_XLSX, index=False)
+        if os.path.exists(RESPONSE_CSV):
+            pd.read_csv(RESPONSE_CSV).to_excel(RESPONSE_XLSX, index=False)
     except Exception as e:
         print("Excel error:", e)
+
+
+def update_linked_excel_file():
+    try:
+        if os.path.exists(LINKED_CSV):
+            pd.read_csv(LINKED_CSV).to_excel(LINKED_XLSX, index=False)
+    except Exception as e:
+        print("Linked excel error:", e)
 
 
 def read_csv_as_dict_list(path):
@@ -184,7 +176,15 @@ def read_csv_as_dict_list(path):
         return []
     with open(path, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
-        return list(reader)
+        rows = []
+        for row in reader:
+            clean = {}
+            for k, v in row.items():
+                if k is None:
+                    continue
+                clean[str(k).strip()] = v
+            rows.append(clean)
+        return rows
 
 
 def write_dict_list_to_csv(path, rows, fieldnames):
@@ -195,148 +195,174 @@ def write_dict_list_to_csv(path, rows, fieldnames):
             writer.writerow(r)
 
 
-def update_linked_excel_file():
-    try:
-        # Fetch machine data for aggregation
-        responses = Response.query.all()
-        resp_map = {}
-        machine_keys = ["masimo", "hemocue", "horiba"]
-        for r in responses:
-            if r.data:
-                if r.profile_id not in resp_map:
-                    resp_map[r.profile_id] = {}
-                for k, v in r.data.items():
-                    k_norm = str(k).strip().lower()
-                    if k_norm in machine_keys and v:
-                        resp_map[r.profile_id][k_norm] = v
+def build_ordered_fieldnames(rows, preferred=None):
+    preferred = preferred or []
+    seen = set()
+    fields = []
 
-        # Fetch all profiles to ensure everyone is in the report
-        profiles = Profile.query.all()
-        # Fetch linked data for "extra_data" matching
-        linked = LinkedData.query.all()
-        linked_map = {l.profile_id: l for l in linked}
-        
-        l_data = []
+    for key in preferred:
+        if key not in seen:
+            seen.add(key)
+            fields.append(key)
+
+    for row in rows:
+        for key in row.keys():
+            if key not in seen:
+                seen.add(key)
+                fields.append(key)
+    return fields
+
+
+def build_linked_view_data():
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    linked_rows = read_csv_as_dict_list(LINKED_CSV)
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+
+    profile_map = {}
+    for p in profiles:
+        pid = (p.get("profile_id", "") or "").strip().upper()
+        if pid:
+            profile_map[pid] = p
+
+    # Keep latest response row per profile (last row in CSV wins)
+    response_map = {}
+    for r in responses:
+        pid = (r.get("profile_id", "") or "").strip().upper()
+        if pid:
+            response_map[pid] = r
+
+    # Start with linked rows (if available), fallback to all profiles
+    base_rows = []
+    seen = set()
+    if linked_rows:
+        for lr in linked_rows:
+            pid = (lr.get("profile_id", "") or "").strip().upper()
+            if pid and pid not in seen:
+                seen.add(pid)
+                base_rows.append(lr)
+    else:
         for p in profiles:
-            p_id = p.profile_id
-            link_record = linked_map.get(p_id)
-            
-            item = {
-                "profile_id": p_id,
-                "name": p.name,
-                "school": p.school,
-                "class": p.class_name,
-                "section": p.section,
-                "dob": p.dob,
-                "age": p.age,
-                "gender": p.gender
-            }
-            
-            # Append machine readings
-            m_data = resp_map.get(p_id, {})
-            item.update({
-                "masimo": m_data.get("masimo", ""),
-                "hemocue": m_data.get("hemocue", ""),
-                "horiba": m_data.get("horiba", "")
-            })
-            
-            # Append LinkedData specifics if available
-            if link_record:
-                item["profile_found"] = link_record.profile_found
-                item["linked_at"] = link_record.linked_at.strftime("%Y-%m-%d %H:%M:%S")
-                if link_record.extra_data:
-                    item.update(link_record.extra_data)
-            else:
-                item["profile_found"] = "n/a"
-                item["linked_at"] = ""
+            pid = (p.get("profile_id", "") or "").strip().upper()
+            if pid and pid not in seen:
+                seen.add(pid)
+                base_rows.append({"profile_id": pid})
 
-            l_data.append(item)
-        
-        # Always create files if profiles exist, to avoid "File not found"
-        if l_data:
-            df_l = pd.DataFrame(l_data)
-            # Reorder columns to put machines after profile details but before extra_data if possible
-            # (Pandas naturally appends if we just update, but we can be specific)
-            df_l.to_csv(LINKED_CSV, index=False)
-            df_l.to_excel(LINKED_XLSX, index=False)
-        else:
-            # Create empty files with headers if no profiles
-            headers = ["profile_id", "name", "masimo", "hemocue", "horiba"]
-            df_empty = pd.DataFrame(columns=headers)
-            df_empty.to_csv(LINKED_CSV, index=False)
-            df_empty.to_excel(LINKED_XLSX, index=False)
-            
-    except Exception as e:
-        print("Linked excel error:", e)
-        traceback.print_exc()
+    # Include profiles that exist but were not in linked_data.csv
+    for p in profiles:
+        pid = (p.get("profile_id", "") or "").strip().upper()
+        if pid and pid not in seen:
+            seen.add(pid)
+            base_rows.append({"profile_id": pid, "profile_found": "yes"})
+
+    merged = []
+    for base in base_rows:
+        row = dict(base)
+        pid = (row.get("profile_id", "") or "").strip().upper()
+        if not pid:
+            continue
+        row["profile_id"] = pid
+
+        p = profile_map.get(pid, {})
+        row.setdefault("profile_found", "yes" if p else "no")
+        row.setdefault("name", p.get("name", ""))
+        row.setdefault("school", p.get("school", ""))
+        row.setdefault("class", p.get("class", ""))
+        row.setdefault("section", p.get("section", ""))
+
+        # Bring latest response fields into linked view
+        resp = response_map.get(pid, {})
+        for k, v in resp.items():
+            if k is None:
+                continue
+            key = str(k).strip()
+            if not key:
+                continue
+            if key not in row:
+                row[key] = v
+            elif (row.get(key, "") in ["", None]) and v not in ["", None]:
+                row[key] = v
+
+        merged.append(row)
+
+    # Ensure key machine columns are always visible
+    preferred_order = [
+        "profile_id", "profile_found", "name", "school", "class", "section",
+        "masimo", "hemocue", "horiba",
+        "submitted_at", "response_id",
+    ]
+    all_keys = set()
+    for r in merged:
+        all_keys.update(r.keys())
+    extra_keys = [k for k in sorted(all_keys) if k not in preferred_order]
+    headers = [k for k in preferred_order if k in all_keys] + extra_keys
+
+    normalized = []
+    for r in merged:
+        normalized.append({h: r.get(h, "") for h in headers})
+
+    return normalized, headers
 
 
-def build_linked_rows_from_excel(file_obj):
-    df = pd.read_excel(file_obj)
-    if df.empty:
-        return None, "Uploaded Excel is empty."
+def save_linked_rows(rows):
+    fields = build_ordered_fieldnames(
+        rows,
+        preferred=[
+            "profile_id", "profile_found", "name", "school", "class", "section",
+            "masimo", "hemocue", "horiba", "submitted_at", "response_id",
+        ],
+    )
+    normalized_rows = [{k: row.get(k, "") for k in fields} for row in rows]
+    write_dict_list_to_csv(LINKED_CSV, normalized_rows, fields)
+    update_linked_excel_file()
 
-    df.columns = [str(c).strip() for c in df.columns]
-    profile_id_column = None
-    for candidate in ["profile_id", "barcode", "barcode_id", "student_barcode"]:
+
+def _normalized_df_columns(df):
+    normalized = []
+    for col in df.columns:
+        key = str(col).strip().lower()
+        key = re.sub(r"\s+", "_", key)
+        key = re.sub(r"[^a-z0-9_]", "", key)
+        normalized.append(key)
+    df.columns = normalized
+    return df
+
+
+def _find_profile_id_column(df):
+    for candidate in ["profile_id", "barcode", "barcode_id", "participant_id", "id"]:
         if candidate in df.columns:
-            profile_id_column = candidate
-            break
+            return candidate
+    return None
 
-    if not profile_id_column:
-        return None, "Excel must contain one column: profile_id (or barcode / barcode_id / student_barcode)."
 
-    # Get all profiles to create a map
-    profiles = Profile.query.all()
-    profile_map = {p.profile_id.strip().upper(): p for p in profiles}
-
-    rows = []
-    for raw in df.to_dict(orient="records"):
-        raw = {str(k).strip(): ("" if pd.isna(v) else str(v).strip()) for k, v in raw.items()}
-        profile_id = raw.get(profile_id_column, "").strip().upper()
-        profile = profile_map.get(profile_id)
-
-        row = {
-            "profile_id": profile_id,
-            "profile_found": "yes" if profile else "no",
-            "name": profile.name if profile else "",
-            "school": profile.school if profile else "",
-            "class": profile.class_name if profile else "",
-            "section": profile.section if profile else "",
-            "extra_data": {k: v for k, v in raw.items() if k != profile_id_column}
-        }
-        rows.append(row)
-
-    return rows, None
+def _find_machine_value_column(df, machine_key, profile_col):
+    if machine_key in df.columns:
+        return machine_key
+    machine_like = [c for c in df.columns if machine_key in c]
+    if machine_like:
+        return machine_like[0]
+    candidates = [c for c in df.columns if c != profile_col]
+    if len(candidates) == 1:
+        return candidates[0]
+    return None
 
 
 def profile_exists(profile):
-    return Profile.query.filter(
-        Profile.name == profile["name"].strip(),
-        Profile.school == profile["school"].strip(),
-        Profile.class_name == profile["class"].strip(),
-        Profile.section == profile["section"].strip()
-    ).first() is not None
+    if not os.path.exists(PROFILE_CSV):
+        return False
 
-
-def _dob_code(dob):
-    dob = (dob or "").strip()
-    try:
-        dt = datetime.strptime(dob, "%Y-%m-%d")
-        return dt.strftime("%d%m%y")
-    except Exception:
-        digits = "".join(ch for ch in dob if ch.isdigit())
-        if len(digits) >= 6:
-            return digits[-6:]
-        return digits.rjust(6, "0")
-
-
-def _gender_code(gender):
-    text = (gender or "").strip().upper()
-    for ch in text:
-        if ch.isalpha():
-            return ch
-    return "X"
+    with open(PROFILE_CSV, "r", newline="", encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        for row in reader:
+            if (
+                row.get("name", "").strip().lower() == profile["name"].strip().lower()
+                and row.get("surname", "").strip().lower() == profile["surname"].strip().lower()
+                and row.get("school", "").strip().lower() == profile["school"].strip().lower()
+                and row.get("location", "").strip().lower() == profile["location"].strip().lower()
+                and row.get("class", "").strip().lower() == profile["class"].strip().lower()
+                and row.get("section", "").strip().lower() == profile["section"].strip().lower()
+            ):
+                return True
+    return False
 
 
 def _first_alpha(text, default="X"):
@@ -356,13 +382,39 @@ def _school_two_letter_code(text):
     return joined.ljust(2, "X")
 
 
+def _dob_code(dob):
+    dob = (dob or "").strip()
+    try:
+        dt = datetime.strptime(dob, "%Y-%m-%d")
+        return dt.strftime("%d%m%y")
+    except Exception:
+        digits = "".join(ch for ch in dob if ch.isdigit())
+        if len(digits) >= 6:
+            return digits[-6:]
+        return digits.rjust(6, "0")
+
+
+def _calculate_age_years(dob):
+    dob = (dob or "").strip()
+    if not dob:
+        return None
+    try:
+        birth = datetime.strptime(dob, "%Y-%m-%d").date()
+    except Exception:
+        return None
+    today = datetime.now().date()
+    years = today.year - birth.year - ((today.month, today.day) < (birth.month, birth.day))
+    return years
+
+
 def generate_profile_id(name, surname, dob, gender, school, location):
-    # Fixed 12 chars: Name(1) + Surname(1) + DOB(DDMMYY) + Gender(1) + School(2) + Location(1)
+    # Requested format:
+    # Name first letter + Surname first letter + DOB(DDMMYY) + Gender first letter + School first 2 letters + Location first letter
     return (
         f"{_first_alpha(name)}"
         f"{_first_alpha(surname)}"
         f"{_dob_code(dob)}"
-        f"{_gender_code(gender)}"
+        f"{_first_alpha(gender)}"
         f"{_school_two_letter_code(school)}"
         f"{_first_alpha(location)}"
     )
@@ -372,9 +424,9 @@ def generate_barcode(profile_id):
     barcode = Code128(profile_id, writer=ImageWriter())
     path = os.path.join(BARCODE_FOLDER, profile_id)
     barcode.save(path, options={
-        "module_width": 0.2,
-        "module_height": 8,
-        "quiet_zone": 1.2,
+        "module_width": 0.18,
+        "module_height": 7,
+        "quiet_zone": 1.0,
         "font_size": 0,
         "text_distance": 1,
         "write_text": False,
@@ -391,28 +443,123 @@ def home():
     return redirect(url_for("login"))
 
 
+@app.route("/investigator-login", methods=["GET", "POST"])
+def investigator_login():
+    if investigator_required():
+        return redirect(url_for("masimo"))
+
+    if request.method == "POST":
+        username = request.form.get("username", "").strip()
+        password = request.form.get("password", "").strip()
+
+        valid = any(
+            username == inv_user and password == inv_pass
+            for inv_user, inv_pass in INVESTIGATOR_CREDENTIALS
+            if inv_user and inv_pass
+        )
+        if valid:
+            session["investigator_logged_in"] = True
+            session["investigator_username"] = username
+            append_investigator_audit("login", "Investigator logged in")
+            return redirect(url_for("masimo"))
+        return render_template("investigator_login.html", error="Invalid investigator credentials")
+
+    return render_template("investigator_login.html")
+
+
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
-        entered_id = request.form.get("profile_id", "").strip().upper()
+        raw_id = request.form.get("profile_id", "")
+        entered_id = re.sub(r"[^A-Za-z0-9]", "", (raw_id or "")).upper()
 
         if entered_id == "":
-            return "Please enter Barcode ID"
+            return render_template("login.html", error="Please enter Barcode ID")
 
-        profile = Profile.query.filter_by(profile_id=entered_id).first()
+        if not os.path.exists(PROFILE_CSV):
+            return render_template("login.html", error="No profiles found. Please create a profile first.")
 
-        if not profile:
-            return f"Invalid Barcode ID: {entered_id}"
+        found = False
+        matched_profile = None
+        with open(PROFILE_CSV, "r", newline="", encoding="utf-8") as f:
+            reader = csv.DictReader(f)
+            for row in reader:
+                csv_id = str(row.get("profile_id", "")).strip().upper()
+                if csv_id == entered_id:
+                    found = True
+                    matched_profile = row
+                    break
+
+        if not found:
+            return render_template("login.html", error=f"Invalid Barcode ID: {entered_id}")
 
         session["profile_id"] = entered_id
-        return redirect(url_for("dashboard"))
+        session["scanned_profile"] = matched_profile or {}
+        return redirect(url_for("profile_details"))
 
     return render_template("login.html")
 
 
+@app.route("/profile-details")
+def profile_details():
+    profile_id = session.get("profile_id", "").strip().upper()
+    if not profile_id:
+        return redirect(url_for("login"))
+
+    profile = session.get("scanned_profile") or {}
+    if not profile:
+        profiles = read_csv_as_dict_list(PROFILE_CSV)
+        for row in profiles:
+            if (row.get("profile_id", "") or "").strip().upper() == profile_id:
+                profile = row
+                break
+
+    if not profile:
+        return render_template("login.html", error="Profile not found for scanned barcode.")
+
+    barcode_file = f"{profile_id}.png"
+    barcode_fs_path = os.path.join(BARCODE_FOLDER, barcode_file)
+    barcode_path = f"barcodes/{barcode_file}" if os.path.exists(barcode_fs_path) else ""
+
+    return render_template(
+        "profile_details.html",
+        profile=profile,
+        profile_id=profile_id,
+        barcode_path=barcode_path,
+    )
+
+
+@app.route("/profile-details/<profile_id>")
+def profile_details_by_id(profile_id):
+    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    if not pid:
+        return render_template("login.html", error="Invalid Barcode ID.")
+
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profile = None
+    for row in profiles:
+        if (row.get("profile_id", "") or "").strip().upper() == pid:
+            profile = row
+            break
+
+    if not profile:
+        return render_template("login.html", error=f"Profile not found for Barcode ID: {pid}")
+
+    barcode_file = f"{pid}.png"
+    barcode_fs_path = os.path.join(BARCODE_FOLDER, barcode_file)
+    barcode_path = f"barcodes/{barcode_file}" if os.path.exists(barcode_fs_path) else ""
+
+    return render_template(
+        "profile_details.html",
+        profile=profile,
+        profile_id=pid,
+        barcode_path=barcode_path,
+    )
+
+
 @app.route("/dashboard")
 def dashboard():
-    if "profile_id" not in session:
+    if not session.get("profile_id"):
         return redirect(url_for("login"))
     return render_template("dashboard.html")
 
@@ -422,7 +569,8 @@ def profile():
     if request.method == "POST":
         form = request.form.to_dict()
 
-        profile_data = {
+        profile_row = {
+            "profile_id": "",
             "name": form.get("name", "").strip(),
             "surname": form.get("surname", "").strip(),
             "dob": form.get("dob", "").strip(),
@@ -435,32 +583,28 @@ def profile():
             "section": form.get("section", "").strip(),
         }
 
-        if profile_exists(profile_data):
-            return "Profile already exists. Please login using Barcode ID."
+        age_years = _calculate_age_years(profile_row["dob"])
+        if age_years is None:
+            return "Invalid DOB. Please enter a valid date of birth."
+        if age_years not in [3, 4, 5]:
+            return "Only ages 3, 4, and 5 are allowed."
+
+        if profile_exists(profile_row):
+            return "Profile already exists. Please use the existing participant barcode/profile."
 
         profile_id = generate_profile_id(
-            profile_data["name"],
-            profile_data["surname"],
-            profile_data["dob"],
-            profile_data["gender"],
-            profile_data["school"],
-            profile_data["location"]
+            profile_row["name"],
+            profile_row["surname"],
+            profile_row["dob"],
+            profile_row["gender"],
+            profile_row["school"],
+            profile_row["location"]
         )
-        
-        new_profile = Profile(
-            profile_id=profile_id,
-            name=profile_data["name"],
-            dob=profile_data["dob"],
-            age=profile_data["age"],
-            age_full=profile_data["age_full"],
-            gender=profile_data["gender"],
-            school=profile_data["school"],
-            class_name=profile_data["class"],
-            section=profile_data["section"]
-        )
+        profile_row["profile_id"] = profile_id
 
-        db.session.add(new_profile)
-        db.session.commit()
+        existing_rows = read_csv_as_dict_list(PROFILE_CSV)
+        existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
+        write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
 
         update_excel_files()
         barcode_path = generate_barcode(profile_id)
@@ -481,26 +625,35 @@ def form():
     if not profile_id:
         return redirect(url_for("login"))
 
-    profile = Profile.query.filter_by(profile_id=profile_id).first()
-    if not profile:
-        return redirect(url_for("login"))
-
     if request.method == "POST":
         answers = request.form.to_dict()
-        
-        response_id = str(uuid.uuid4())
-        
-        new_response = Response(
-            response_id=response_id,
-            profile_id=profile_id,
-            data=answers
-        )
 
-        db.session.add(new_response)
-        db.session.commit()
+        # response unique id
+        answers["response_id"] = str(uuid.uuid4())
+        answers["profile_id"] = profile_id
+        answers["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        existing_rows = read_csv_as_dict_list(RESPONSE_CSV)
+        existing_rows.append(answers)
+        response_fields = build_ordered_fieldnames(
+            existing_rows,
+            preferred=["response_id", "profile_id", "submitted_at"]
+        )
+        normalized_rows = [{k: row.get(k, "") for k in response_fields} for row in existing_rows]
+        write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, response_fields)
 
         update_excel_files()
         return redirect(url_for("dashboard"))
+
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profile = None
+    for p in profiles:
+        if (p.get("profile_id", "") or "").strip().upper() == profile_id.strip().upper():
+            profile = p
+            break
+
+    if not profile:
+        return redirect(url_for("login"))
 
     return render_template("form.html", profile=profile)
 
@@ -522,8 +675,7 @@ def _section_status(response, keys):
 
 @app.route("/section-status")
 def section_status():
-    profile_id = session.get("profile_id")
-    if not profile_id:
+    if not session.get("profile_id"):
         return redirect(url_for("login"))
 
     section_keys = {
@@ -539,17 +691,18 @@ def section_status():
         "J": ["child_classification", "ifa_dose", "referral_advised", "referral_destination", "referral_other_specify", "investigator_signature", "referral_date"],
     }
 
-    profiles = Profile.query.all()
-    responses = Response.query.order_by(Response.submitted_at.asc()).all()
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
 
     latest_response_by_profile = {}
-    for r in responses:
-        if r.profile_id:
-            latest_response_by_profile[r.profile_id.strip().upper()] = r.data or {}
+    for row in responses:
+        pid = (row.get("profile_id", "") or "").strip().upper()
+        if pid:
+            latest_response_by_profile[pid] = row
 
     rows = []
     for idx, p in enumerate(profiles, start=1):
-        pid = (p.profile_id or "").strip().upper()
+        pid = (p.get("profile_id", "") or "").strip().upper()
         response = latest_response_by_profile.get(pid, {})
         statuses = {letter: _section_status(response, keys) for letter, keys in section_keys.items()}
         rows.append({
@@ -561,8 +714,30 @@ def section_status():
     return render_template(
         "section_status.html",
         rows=rows,
-        current_profile_id=(profile_id or "").strip().upper(),
+        current_profile_id=session.get("profile_id", "").strip().upper(),
         section_letters=["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
+        section_labels={
+            "A": {
+                "title": "Participant Identification",
+                "subs": []
+            },
+            "B": {
+                "title": "Socio Demographic & Socio Economic Details",
+                "subs": [
+                    "B1. Family Characteristics",
+                    "B2. Modified Kuppuswamy Socio-Economic Scale (Urban)",
+                    "B3. Additional Socio-Economic Details"
+                ]
+            },
+            "C": {"title": "Monthly Family Income (₹)", "subs": []},
+            "D": {"title": "Final Kuppuswamy Score & SES Class (To be Investigator Filled)", "subs": []},
+            "E": {"title": "Child Health & Nutrition History", "subs": []},
+            "F": {"title": "Dietary Practices", "subs": []},
+            "G": {"title": "History of Hemoglobin Testing", "subs": []},
+            "H": {"title": "Haemoglobin Measurement Results", "subs": []},
+            "I": {"title": "Parental Acceptability", "subs": []},
+            "J": {"title": "Referral & Action Taken", "subs": []},
+        },
     )
 
 
@@ -577,106 +752,43 @@ def logout():
 # --------------------------------------------------
 @app.route("/admin-login", methods=["GET", "POST"])
 def admin_login():
-    if admin_required():
-        return redirect(url_for("admin_dashboard"))
-
     if request.method == "POST":
         username = request.form.get("username", "").strip()
         password = request.form.get("password", "").strip()
 
-        if is_valid_admin(username, password):
+        valid = any(
+            username == admin_user and password == admin_pass
+            for admin_user, admin_pass in ADMIN_CREDENTIALS
+            if admin_user and admin_pass
+        )
+        if valid:
             session["admin_logged_in"] = True
             session["admin_username"] = username
             return redirect(url_for("admin_dashboard"))
 
-        return render_template("admin_login.html", error="Invalid admin credentials")
+        return "Invalid Admin Credentials"
 
     return render_template("admin_login.html")
-
-
-@app.route("/admin")
-def admin_home():
-    if not admin_required():
-        return redirect(url_for("admin_login"))
-    return redirect(url_for("admin_dashboard"))
 
 
 @app.route("/admin-dashboard")
 def admin_dashboard():
     if not admin_required():
         return redirect(url_for("admin_login"))
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    linked = read_csv_as_dict_list(LINKED_CSV)
 
-    profiles_count = Profile.query.count()
-    responses_count = Response.query.count()
-    linked_count = LinkedData.query.count()
-
-    # Fetch Data for display
-    profiles = Profile.query.all()
-    responses = Response.query.all()
-    
-    # Create a mapping of profile_id -> response data for easy merging
-    resp_map = {}
-    # We only care about these 3 machine keys for the Profiles table
-    machine_keys = ["masimo", "hemocue", "horiba"]
-    
-    for r in responses:
-        if r.data:
-            # Aggregate machine data across all responses for this profile
-            if r.profile_id not in resp_map:
-                resp_map[r.profile_id] = {}
-            
-            # Use case-insensitive matching for machine keys
-            for k, v in r.data.items():
-                k_norm = str(k).strip().lower()
-                if k_norm in machine_keys and v:
-                    resp_map[r.profile_id][k_norm] = v
-
-    p_list = []
-    for p in profiles:
-        item = {
-            "profile_id": p.profile_id,
-            "name": p.name,
-            "dob": p.dob,
-            "age": p.age,
-            "age_full": p.age_full,
-            "gender": p.gender,
-            "school": p.school,
-            "class": p.class_name,
-            "section": p.section
-        }
-        # Merge only machine data if it exists
-        if p.profile_id in resp_map:
-            item.update(resp_map[p.profile_id])
-        p_list.append(item)
-
-    r_list = []
-    all_keys = set(["response_id", "profile_id", "submitted_at"])
-    for r in responses:
-        item = {
-            "response_id": r.response_id,
-            "profile_id": r.profile_id,
-            "submitted_at": r.submitted_at.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        if r.data:
-            item.update(r.data)
-            all_keys.update(r.data.keys())
-        r_list.append(item)
-
-    # Get headers for profiles: Base fields + the 3 machines
-    profile_headers = PROFILE_FIELDS + ["masimo", "hemocue", "horiba"]
-    
-    # Organize response headers: base keys first, then all other discovered keys
-    base_headers = ["response_id", "profile_id", "submitted_at"]
-    extra_headers = sorted(list(all_keys - set(base_headers)))
-    response_headers = base_headers + extra_headers
+    profile_headers = list(profiles[0].keys()) if profiles else PROFILE_FIELDS
+    response_headers = list(responses[0].keys()) if responses else []
 
     return render_template(
         "admin_dashboard.html",
-        total_profiles=profiles_count,
-        total_responses=responses_count,
-        total_linked=linked_count,
-        profiles=p_list,
-        responses=r_list,
+        profiles=profiles,
+        responses=responses,
+        total_profiles=len(profiles),
+        total_responses=len(responses),
+        total_linked=len(linked),
         profile_headers=profile_headers,
         response_headers=response_headers,
     )
@@ -689,6 +801,15 @@ def admin_logout():
     return redirect(url_for("admin_login"))
 
 
+@app.route("/investigator-logout")
+def investigator_logout():
+    if investigator_required():
+        append_investigator_audit("logout", "Investigator logged out")
+    session.pop("investigator_logged_in", None)
+    session.pop("investigator_username", None)
+    return redirect(url_for("investigator_login"))
+
+
 # --------------------------------------------------
 # ADMIN: VIEW PROFILES (SEARCH)
 # --------------------------------------------------
@@ -698,25 +819,10 @@ def admin_profiles():
         return redirect(url_for("admin_login"))
 
     q = request.args.get("q", "").strip().upper()
-    if q:
-        profiles = Profile.query.filter_by(profile_id=q).all()
-    else:
-        profiles = Profile.query.all()
+    data = read_csv_as_dict_list(PROFILE_CSV)
 
-    # Convert to list of dicts for template
-    data = []
-    for p in profiles:
-        data.append({
-            "profile_id": p.profile_id,
-            "name": p.name,
-            "dob": p.dob,
-            "age": p.age,
-            "age_full": p.age_full,
-            "gender": p.gender,
-            "school": p.school,
-            "class": p.class_name,
-            "section": p.section
-        })
+    if q:
+        data = [r for r in data if r.get("profile_id", "").strip().upper() == q]
 
     return render_template("admin_profiles.html", data=data, q=q)
 
@@ -729,24 +835,52 @@ def admin_responses():
     if not admin_required():
         return redirect(url_for("admin_login"))
 
+    data = read_csv_as_dict_list(RESPONSE_CSV)
+    if not data:
+        return render_template("admin_responses.html", data=[], q="", headers=[])
+
+    # Backfill missing response IDs so rows are editable/deletable and stable.
+    updated = False
+    for row in data:
+        if not (row.get("response_id", "") or "").strip():
+            row["response_id"] = str(uuid.uuid4())
+            updated = True
+
+    response_headers = build_ordered_fieldnames(
+        data,
+        preferred=["response_id", "profile_id", "submitted_at"]
+    )
+    if updated:
+        normalized_rows = [{k: row.get(k, "") for k in response_headers} for row in data]
+        write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, response_headers)
+        data = normalized_rows
+
     q = request.args.get("q", "").strip().upper()
+
     if q:
-        responses = Response.query.filter_by(profile_id=q).all()
-    else:
-        responses = Response.query.all()
+        data = [r for r in data if r.get("profile_id", "").strip().upper() == q]
 
-    data = []
-    for r in responses:
-        item = {
-            "response_id": r.response_id,
-            "profile_id": r.profile_id,
-            "submitted_at": r.submitted_at.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        if r.data:
-            item.update(r.data)
-        data.append(item)
+    return render_template("admin_responses.html", data=data, q=q, headers=response_headers)
 
-    return render_template("admin_responses.html", data=data, q=q)
+
+@app.route("/admin/investigator-audit")
+def admin_investigator_audit():
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    data = read_csv_as_dict_list(AUDIT_LOG_CSV)
+    headers = ["timestamp", "actor_type", "actor", "event", "details"]
+
+    # Ensure stable columns even if file is missing/empty
+    normalized = []
+    for row in data:
+        normalized.append({h: row.get(h, "") for h in headers})
+
+    return render_template(
+        "admin_investigator_audit.html",
+        data=normalized,
+        headers=headers,
+    )
 
 
 # --------------------------------------------------
@@ -758,16 +892,21 @@ def admin_delete_profile(profile_id):
         return redirect(url_for("admin_login"))
 
     profile_id = profile_id.strip().upper()
-    profile = Profile.query.filter_by(profile_id=profile_id).first()
 
-    if not profile:
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles_new = [p for p in profiles if p.get("profile_id", "").strip().upper() != profile_id]
+
+    if profiles and len(profiles_new) == len(profiles):
         return "Profile not found"
 
-    # Delete responses first (cascade or manual)
-    Response.query.filter_by(profile_id=profile_id).delete()
-    
-    db.session.delete(profile)
-    db.session.commit()
+    write_dict_list_to_csv(PROFILE_CSV, profiles_new, PROFILE_FIELDS)
+
+    # delete responses of that profile
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    if responses:
+        response_fields = list(responses[0].keys())
+        responses_new = [r for r in responses if r.get("profile_id", "").strip().upper() != profile_id]
+        write_dict_list_to_csv(RESPONSE_CSV, responses_new, response_fields)
 
     # delete barcode image
     barcode_path = os.path.join(BARCODE_FOLDER, f"{profile_id}.png")
@@ -786,13 +925,14 @@ def admin_delete_response(response_id):
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    response = Response.query.filter_by(response_id=response_id).first()
-    if not response:
-        return "Response not found"
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    if not responses:
+        return "No responses found"
 
-    db.session.delete(response)
-    db.session.commit()
-    
+    response_fields = list(responses[0].keys())
+    responses_new = [r for r in responses if r.get("response_id", "") != response_id]
+
+    write_dict_list_to_csv(RESPONSE_CSV, responses_new, response_fields)
     update_excel_files()
     return redirect(url_for("admin_responses"))
 
@@ -806,26 +946,32 @@ def admin_edit_profile(profile_id):
         return redirect(url_for("admin_login"))
 
     profile_id = profile_id.strip().upper()
-    profile = Profile.query.filter_by(profile_id=profile_id).first()
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
 
-    if not profile:
+    profile_row = None
+    for p in profiles:
+        if p.get("profile_id", "").strip().upper() == profile_id:
+            profile_row = p
+            break
+
+    if not profile_row:
         return "Profile not found"
 
     if request.method == "POST":
-        profile.name = request.form.get("name", "").strip()
-        profile.dob = request.form.get("dob", "").strip()
-        profile.age = request.form.get("age", "").strip()
-        profile.age_full = request.form.get("age_full", "").strip()
-        profile.gender = request.form.get("gender", "").strip()
-        profile.school = request.form.get("school", "").strip()
-        profile.class_name = request.form.get("class", "").strip()
-        profile.section = request.form.get("section", "").strip()
+        profile_row["name"] = request.form.get("name", "").strip()
+        profile_row["dob"] = request.form.get("dob", "").strip()
+        profile_row["age"] = request.form.get("age", "").strip()
+        profile_row["age_full"] = request.form.get("age_full", "").strip()
+        profile_row["gender"] = request.form.get("gender", "").strip()
+        profile_row["school"] = request.form.get("school", "").strip()
+        profile_row["class"] = request.form.get("class", "").strip()
+        profile_row["section"] = request.form.get("section", "").strip()
 
-        db.session.commit()
+        write_dict_list_to_csv(PROFILE_CSV, profiles, PROFILE_FIELDS)
         update_excel_files()
         return redirect(url_for("admin_profiles"))
 
-    return render_template("admin_edit_profile.html", p=profile)
+    return render_template("admin_edit_profile.html", p=profile_row)
 
 
 # --------------------------------------------------
@@ -836,33 +982,32 @@ def admin_edit_response(response_id):
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    response = Response.query.filter_by(response_id=response_id).first()
-    if not response:
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    if not responses:
+        return "No responses found"
+
+    response_row = None
+    for r in responses:
+        if r.get("response_id", "") == response_id:
+            response_row = r
+            break
+
+    if not response_row:
         return "Response not found"
 
     if request.method == "POST":
-        new_data = response.data.copy() if response.data else {}
-        for key in request.form.keys():
+        for key in response_row.keys():
             if key == "response_id":
                 continue
-            new_data[key] = request.form.get(key).strip()
-        
-        response.data = new_data
-        db.session.commit()
+            response_row[key] = request.form.get(key, response_row.get(key, "")).strip()
+
+        response_fields = list(responses[0].keys())
+        write_dict_list_to_csv(RESPONSE_CSV, responses, response_fields)
 
         update_excel_files()
         return redirect(url_for("admin_responses"))
 
-    # Prepare data for template
-    r_dict = {
-        "response_id": response.response_id,
-        "profile_id": response.profile_id,
-        "submitted_at": response.submitted_at.strftime("%Y-%m-%d %H:%M:%S")
-    }
-    if response.data:
-        r_dict.update(response.data)
-
-    return render_template("admin_edit_response.html", r=r_dict)
+    return render_template("admin_edit_response.html", r=response_row)
 
 
 # --------------------------------------------------
@@ -876,39 +1021,17 @@ def admin_export_filtered(profile_id):
     profile_id = profile_id.strip().upper()
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
 
-    profile = Profile.query.filter_by(profile_id=profile_id).first()
-    responses = Response.query.filter_by(profile_id=profile_id).all()
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
 
-    p_data = []
-    if profile:
-        p_data.append({
-            "profile_id": profile.profile_id,
-            "name": profile.name,
-            "dob": profile.dob,
-            "age": profile.age,
-            "age_full": profile.age_full,
-            "gender": profile.gender,
-            "school": profile.school,
-            "class": profile.class_name,
-            "section": profile.section
-        })
-
-    r_data = []
-    for r in responses:
-        item = {
-            "response_id": r.response_id,
-            "profile_id": r.profile_id,
-            "submitted_at": r.submitted_at.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        if r.data:
-            item.update(r.data)
-        r_data.append(item)
+    profiles_f = [p for p in profiles if p.get("profile_id", "").strip().upper() == profile_id]
+    responses_f = [r for r in responses if r.get("profile_id", "").strip().upper() == profile_id]
 
     export_path = os.path.join(EXPORT_FOLDER, f"filtered_{profile_id}.xlsx")
 
     with pd.ExcelWriter(export_path, engine="openpyxl") as writer:
-        pd.DataFrame(p_data).to_excel(writer, sheet_name="Profile", index=False)
-        pd.DataFrame(r_data).to_excel(writer, sheet_name="Responses", index=False)
+        pd.DataFrame(profiles_f).to_excel(writer, sheet_name="Profile", index=False)
+        pd.DataFrame(responses_f).to_excel(writer, sheet_name="Responses", index=False)
 
     return send_file(export_path, as_attachment=True)
 
@@ -921,10 +1044,6 @@ def admin_download(filename):
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    # Dynamically generate linked data files if requested
-    if filename in ["linked_data.csv", "linked_data.xlsx"]:
-        update_linked_excel_file()
-
     allowed_files = {
         "profiles.csv": PROFILE_CSV,
         "responses.csv": RESPONSE_CSV,
@@ -932,6 +1051,7 @@ def admin_download(filename):
         "responses.xlsx": RESPONSE_XLSX,
         "linked_data.csv": LINKED_CSV,
         "linked_data.xlsx": LINKED_XLSX,
+        "investigator_audit_log.csv": AUDIT_LOG_CSV,
     }
 
     if filename not in allowed_files:
@@ -967,8 +1087,10 @@ def admin_upload():
         save_path = os.path.join(BASE_DIR, filename)
         file.save(save_path)
 
-        # After upload, suggest or perform migration
-        return redirect(url_for("admin_migrate_data"))
+        update_excel_files()
+        if filename in ["linked_data.csv", "linked_data.xlsx"]:
+            update_linked_excel_file()
+        return redirect(url_for("admin_dashboard"))
 
     return render_template("admin_upload.html")
 
@@ -978,433 +1100,208 @@ def admin_upload_alias():
     return admin_upload()
 
 
-# --------------------------------------------------
-# ADMIN: MIGRATE DATA (CSV -> DB)
-# --------------------------------------------------
-@app.route("/admin/migrate-data")
-def admin_migrate_data():
-    if not admin_required():
-        return redirect(url_for("admin_login"))
-
-    # Optional reset of database tables
-    if request.args.get("reset") == "1":
-        db.drop_all()
-        db.create_all()
-        # Fall through to migrate anyway
-
-    try:
-        # Migrate Profiles
-        profiles_processed = 0
-        with open(PROFILE_CSV, "r", newline="", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            for row in reader:
-                if not row or not any(row): continue
-                p_id = row[0].strip().upper()
-                if not p_id: continue
-                
-                # Basic check for profile_id pattern to avoid junk
-                if not re.match(r"^[A-Z]{2,5}\d{1,6}$", p_id):
-                    # Try searching for it in the row
-                    found_id = None
-                    for val in row:
-                        val = val.strip().upper()
-                        if re.match(r"^[A-Z]{4}\d{4}$", val):
-                            found_id = val
-                            break
-                    if found_id:
-                        p_id = found_id
-                    else:
-                        continue # Still no valid profile ID
-
-                if not Profile.query.filter_by(profile_id=p_id).first():
-                    if len(row) == 7:
-                        # old format: id, name, age, gender, school, class, section
-                        new_profile = Profile(
-                            profile_id=p_id,
-                            name=row[1],
-                            age=row[2],
-                            gender=row[3],
-                            school=row[4],
-                            class_name=row[5],
-                            section=row[6]
-                        )
-                    elif len(row) >= 9:
-                        # new format: id, name, dob, age, age_full, gender, school, class, section
-                        new_profile = Profile(
-                            profile_id=p_id,
-                            name=row[1],
-                            dob=row[2],
-                            age=row[3],
-                            age_full=row[4],
-                            gender=row[5],
-                            school=row[6],
-                            class_name=row[7],
-                            section=row[8]
-                        )
-                    else:
-                        new_profile = Profile(profile_id=p_id, name=row[1] if len(row) > 1 else "")
-                    
-                    db.session.add(new_profile)
-                    profiles_processed += 1
-        
-        # Flush to allow responses to reference profiles if needed (foreign key)
-        db.session.flush()
-
-        # Migrate Responses
-        responses_processed = 0
-        with open(RESPONSE_CSV, "r", newline="", encoding="utf-8") as f:
-            reader = csv.reader(f)
-            header = next(reader, None)
-            if header:
-                for row in reader:
-                    if not row or not any(row): continue
-                    
-                    data = {}
-                    for i, val in enumerate(row):
-                        key = header[i] if i < len(header) else f"extra_{i}"
-                        data[key] = val
-                    
-                    resp_id = data.get("response_id")
-                    prof_id = data.get("profile_id")
-                    sub_at_str = data.get("submitted_at")
-                    
-                    # Heuristic for missing response_id/profile_id or shifted columns
-                    # 1. Clean up prof_id if it looks like a UUID or timestamp
-                    if prof_id and (len(prof_id) > 20 or "-" in prof_id or ":" in prof_id):
-                        prof_id = None
-
-                    # 2. Extract resp_id (UUID format)
-                    if not resp_id or len(resp_id) != 36:
-                        resp_id = None
-                        for val in row:
-                            val = val.strip()
-                            if len(val) == 36 and "-" in val:
-                                resp_id = val
-                                break
-                    
-                    # 3. Extract prof_id (Pattern format)
-                    if not prof_id:
-                        for val in row:
-                            val = val.strip().upper()
-                            if re.match(r"^[A-Z]{4}\d{4}$", val):
-                                prof_id = val
-                                break
-                    
-                    if not resp_id:
-                        resp_id = str(uuid.uuid4())
-                    
-                    if not prof_id:
-                        # Last ditch attempt: check index 0 as it often contains profile_id
-                        first_val = row[0].strip().upper()
-                        if re.match(r"^[A-Z]{2,5}\d{1,6}$", first_val):
-                            prof_id = first_val
-
-                    if not prof_id:
-                        continue
-
-                    # Ensure profile exists in DB (to satisfy foreign key)
-                    if not Profile.query.filter_by(profile_id=prof_id).first():
-                        # Create a stub profile if missing
-                        db.session.add(Profile(profile_id=prof_id, name="Auto Migrated"))
-                        db.session.flush()
-
-                    if not Response.query.filter_by(response_id=resp_id).first():
-                        survey_data = {k: v for k, v in data.items() if k not in ["response_id", "profile_id", "submitted_at"]}
-                        new_response = Response(
-                            response_id=resp_id,
-                            profile_id=prof_id,
-                            data=survey_data
-                        )
-                        if sub_at_str:
-                            try:
-                                # Try common formats
-                                for fmt in ["%Y-%m-%d %H:%M:%S", "%Y-%m-%d %H:%M:%S.%f", "%Y-%m-%d"]:
-                                    try:
-                                        new_response.submitted_at = datetime.strptime(sub_at_str, fmt)
-                                        break
-                                    except:
-                                        continue
-                            except:
-                                pass
-                        db.session.add(new_response)
-                        responses_processed += 1
-
-        # Migrate Linked Data
-        linked_processed = 0
-        if os.path.exists(LINKED_CSV):
-            with open(LINKED_CSV, "r", newline="", encoding="utf-8") as f:
-                reader = csv.reader(f)
-                header = next(reader, None)
-                if header:
-                    for row in reader:
-                        if not row or not any(row): continue
-                        data = {}
-                        for i, val in enumerate(row):
-                            key = header[i] if i < len(header) else f"extra_{i}"
-                            data[key] = val
-                        
-                        prof_id = data.get("profile_id")
-                        if not prof_id: continue
-                        
-                        extra = {k: v for k, v in data.items() if k not in ["profile_id", "profile_found", "name", "school", "class", "section", "linked_at"]}
-                        new_linked = LinkedData(
-                            profile_id=prof_id,
-                            profile_found=data.get("profile_found"),
-                            name=data.get("name"),
-                            school=data.get("school"),
-                            class_name=data.get("class"),
-                            section=data.get("section"),
-                            extra_data=extra
-                        )
-                        sub_at_str = data.get("linked_at")
-                        if sub_at_str:
-                            try:
-                                new_linked.linked_at = datetime.strptime(sub_at_str, "%Y-%m-%d %H:%M:%S")
-                            except:
-                                pass
-                        db.session.add(new_linked)
-                        linked_processed += 1
-
-        db.session.commit()
-        return f"Migration successful! Profiles: {profiles_processed}, Responses: {responses_processed}, Linked: {linked_processed}"
-    except Exception as e:
-        db.session.rollback()
-        return f"Migration failed: {str(e)}<br><pre>{traceback.format_exc()}</pre>"
-
-
-# --------------------------------------------------
-# ADMIN: UPLOAD EXCEL + LINK WITH BARCODE
-# --------------------------------------------------
-@app.route("/admin/link-excel", methods=["GET", "POST"])
+@app.route("/admin/link-excel")
 def admin_link_excel():
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    error = ""
-    success = ""
+    linked_data, headers = build_linked_view_data()
 
-    if request.method == "POST":
-        file = request.files.get("file")
-
-        if not file or file.filename == "":
-            error = "No file selected."
-        else:
-            filename = file.filename.strip().lower()
-            if not (filename.endswith(".xlsx") or filename.endswith(".xls")):
-                error = "Only Excel files (.xlsx, .xls) are allowed."
-            else:
-                linked_rows, err = build_linked_rows_from_excel(file)
-                if err:
-                    error = err
-                else:
-                    # Save to database
-                    for row in linked_rows:
-                        new_linked = LinkedData(
-                            profile_id=row["profile_id"],
-                            profile_found=row["profile_found"],
-                            name=row["name"],
-                            school=row["school"],
-                            class_name=row["class"],
-                            section=row["section"],
-                            extra_data=row["extra_data"]
-                        )
-                        db.session.add(new_linked)
-                    
-                    db.session.commit()
-                    update_linked_excel_file()
-                    success = f"Excel linked successfully. Rows linked: {len(linked_rows)}"
-
-    linked_data = LinkedData.query.all()
-    # Prepare for template
-    data = []
-    headers = ["profile_id", "profile_found", "name", "school", "class", "section", "linked_at"]
-    for l in linked_data:
-        item = {
-            "profile_id": l.profile_id,
-            "profile_found": l.profile_found,
-            "name": l.name,
-            "school": l.school,
-            "class": l.class_name,
-            "section": l.section,
-            "linked_at": l.linked_at.strftime("%Y-%m-%d %H:%M:%S")
-        }
-        if l.extra_data:
-            item.update(l.extra_data)
-        data.append(item)
-    
-    if data and not headers: # fallback
-        headers = list(data[0].keys())
+    # Refresh export files so "Export Data" matches what is shown on this page.
+    if linked_data:
+        write_dict_list_to_csv(LINKED_CSV, linked_data, headers)
+        update_linked_excel_file()
 
     return render_template(
         "admin_link_excel.html",
-        data=data,
+        data=linked_data,
         headers=headers,
-        error=error,
-        success=success,
+        error="",
+        success="",
     )
-
-
-# --------------------------------------------------
-# ADMIN: MACHINE VIEWS
-# --------------------------------------------------
-def handle_machine_upload(machine_name):
-    if not admin_required():
-        return redirect(url_for("admin_login"))
-
-    if request.method == "POST":
-        if 'file' not in request.files:
-            flash(f"No file part for {machine_name}")
-            return redirect(request.url)
-        
-        file = request.files['file']
-        if file.filename == '':
-            flash(f"No selected file for {machine_name}")
-            return redirect(request.url)
-
-        try:
-            if file.filename.endswith('.csv'):
-                df = pd.read_csv(file)
-            else:
-                df = pd.read_excel(file)
-                
-            # Normalize columns: lower, remove newlines, replace multiple spaces/dashes with single underscore
-            original_cols = list(df.columns)
-            normalized_cols = []
-            for c in original_cols:
-                c_norm = str(c).strip().lower()
-                c_norm = re.sub(r'[\s\n\r\-]+', '_', c_norm)
-                c_norm = re.sub(r'[^a-z0-9_]', '', c_norm)
-                normalized_cols.append(c_norm)
-            df.columns = normalized_cols
-            
-            # Identify profile_id column
-            id_col = None
-            id_patterns = ["profile_id", "barcode", "barcode_id", "student_barcode", "id", "study_id"]
-            for col in id_patterns:
-                if col in df.columns:
-                    id_col = col
-                    break
-            
-            if not id_col:
-                flash(f"Error: Missing ID column (e.g., 'Profile ID', 'Barcode') in {machine_name} upload.")
-                return redirect(request.url)
-            
-            # Identify target column: look for exactly the machine name or a substring
-            target_col = None
-            machine_lower = machine_name.lower()
-            for col in df.columns:
-                if machine_lower in col:
-                    target_col = col
-                    break
-            
-            if not target_col:
-                # Fallback: if there's only one other column that is NOT a common metadata field, use it
-                metadata_fields = id_patterns + ["name", "dob", "age", "gender", "s_no", "sno"]
-                other_cols = [c for c in df.columns if c not in metadata_fields]
-                if len(other_cols) == 1:
-                    target_col = other_cols[0]
-                else:
-                    flash(f"Error: Could not find '{machine_lower}' column in the file. Found columns: {', '.join(original_cols)}")
-                    return redirect(request.url)
-                
-            updated_count = 0
-            for _, row in df.iterrows():
-                profile_id = str(row[id_col]).strip().upper()
-                val = row[target_col]
-                if pd.isna(val):
-                    continue
-                    
-                # Update ALL responses for this profile
-                resps = Response.query.filter_by(profile_id=profile_id).all()
-                if not resps:
-                    # Create a "Initial" response if profile exists but no response yet
-                    profile = Profile.query.filter_by(profile_id=profile_id).first()
-                    if profile:
-                        new_resp = Response(
-                            response_id=str(uuid.uuid4()),
-                            profile_id=profile_id, 
-                            data={}
-                        )
-                        db.session.add(new_resp)
-                        resps = [new_resp]
-                
-                if resps:
-                    for resp in resps:
-                        current_data = resp.data.copy() if resp.data else {}
-                        current_data[machine_lower] = str(val)
-                        resp.data = current_data
-                    updated_count += 1
-            
-            db.session.commit()
-            flash(f"Successfully updated {updated_count} records with {machine_name} data.")
-        except Exception as e:
-            db.session.rollback()
-            flash(f"Error processing {machine_name} upload: {str(e)}")
-            
-        return redirect(request.url)
-    
-    return render_template(f"{machine_name.lower()}.html")
 
 
 @app.route("/masimo", methods=["GET", "POST"])
 def masimo():
-    return handle_machine_upload("Masimo")
+    redirect_response = machine_redirect_if_unauthorized()
+    if redirect_response:
+        return redirect_response
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or file.filename == "":
+            flash("Error: No file selected for Masimo upload")
+            return redirect(url_for("masimo"))
+        try:
+            filename = (file.filename or "").lower()
+            if filename.endswith(".csv"):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file)
+
+            if df.empty:
+                flash("Error: Uploaded file is empty")
+                return redirect(url_for("masimo"))
+
+            df = _normalized_df_columns(df)
+            profile_col = _find_profile_id_column(df)
+            value_col = _find_machine_value_column(df, "masimo", profile_col) if profile_col else None
+
+            if not profile_col or not value_col:
+                flash("Error: Required columns missing. Need profile_id/barcode and masimo value column")
+                return redirect(url_for("masimo"))
+
+            linked_rows, _ = build_linked_view_data()
+            row_map = {(r.get("profile_id", "") or "").strip().upper(): r for r in linked_rows}
+            updates = 0
+            changed_ids = []
+
+            for _, raw in df.iterrows():
+                pid = str(raw.get(profile_col, "")).strip().upper()
+                if not pid or pid == "NAN":
+                    continue
+                val = raw.get(value_col)
+                if pd.isna(val):
+                    continue
+                if pid in row_map:
+                    row_map[pid]["masimo"] = str(val).strip()
+                    updates += 1
+                    changed_ids.append(pid)
+
+            if updates > 0:
+                save_linked_rows(list(row_map.values()))
+                sample_ids = ", ".join(changed_ids[:15])
+                append_investigator_audit(
+                    "machine_update",
+                    f"Masimo upload updated {updates} profiles from {file.filename}; profile_ids={sample_ids}",
+                )
+                flash(f"Masimo data updated for {updates} profiles")
+            else:
+                flash("No matching profiles found for Masimo upload")
+        except Exception as e:
+            flash(f"Error processing Masimo file: {e}")
+        return redirect(url_for("masimo"))
+
+    return render_template("masimo.html")
 
 
 @app.route("/hemocue", methods=["GET", "POST"])
 def hemocue():
-    return handle_machine_upload("Hemocue")
+    redirect_response = machine_redirect_if_unauthorized()
+    if redirect_response:
+        return redirect_response
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or file.filename == "":
+            flash("Error: No file selected for Hemocue upload")
+            return redirect(url_for("hemocue"))
+        try:
+            filename = (file.filename or "").lower()
+            if filename.endswith(".csv"):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file)
+
+            if df.empty:
+                flash("Error: Uploaded file is empty")
+                return redirect(url_for("hemocue"))
+
+            df = _normalized_df_columns(df)
+            profile_col = _find_profile_id_column(df)
+            value_col = _find_machine_value_column(df, "hemocue", profile_col) if profile_col else None
+
+            if not profile_col or not value_col:
+                flash("Error: Required columns missing. Need profile_id/barcode and hemocue value column")
+                return redirect(url_for("hemocue"))
+
+            linked_rows, _ = build_linked_view_data()
+            row_map = {(r.get("profile_id", "") or "").strip().upper(): r for r in linked_rows}
+            updates = 0
+            changed_ids = []
+
+            for _, raw in df.iterrows():
+                pid = str(raw.get(profile_col, "")).strip().upper()
+                if not pid or pid == "NAN":
+                    continue
+                val = raw.get(value_col)
+                if pd.isna(val):
+                    continue
+                if pid in row_map:
+                    row_map[pid]["hemocue"] = str(val).strip()
+                    updates += 1
+                    changed_ids.append(pid)
+
+            if updates > 0:
+                save_linked_rows(list(row_map.values()))
+                sample_ids = ", ".join(changed_ids[:15])
+                append_investigator_audit(
+                    "machine_update",
+                    f"Hemocue upload updated {updates} profiles from {file.filename}; profile_ids={sample_ids}",
+                )
+                flash(f"Hemocue data updated for {updates} profiles")
+            else:
+                flash("No matching profiles found for Hemocue upload")
+        except Exception as e:
+            flash(f"Error processing Hemocue file: {e}")
+        return redirect(url_for("hemocue"))
+
+    return render_template("hemocue.html")
 
 
 @app.route("/horiba")
 def horiba():
-    if not admin_required():
-        return redirect(url_for("admin_login"))
-    
-    # Fetch all profiles and merge machine data for the table
-    profiles = Profile.query.all()
-    responses = Response.query.all()
-    resp_map = {r.profile_id: r.data for r in responses if r.data}
-    
-    p_entries = []
-    for p in profiles:
-        data = resp_map.get(p.profile_id, {})
-        p_entries.append({
-            "profile_id": p.profile_id,
-            "name": p.name,
-            "masimo": data.get("masimo", ""),
-            "hemocue": data.get("hemocue", ""),
-            "horiba": data.get("horiba", "")
+    redirect_response = machine_redirect_if_unauthorized()
+    if redirect_response:
+        return redirect_response
+    linked_data, _ = build_linked_view_data()
+    profiles = []
+    for row in linked_data:
+        profiles.append({
+            "profile_id": (row.get("profile_id", "") or "").strip().upper(),
+            "name": row.get("name", ""),
+            "masimo": row.get("masimo", ""),
+            "hemocue": row.get("hemocue", ""),
+            "horiba": row.get("horiba", ""),
         })
-        
-    return render_template("horiba.html", profiles=p_entries)
+    return render_template("horiba.html", profiles=profiles)
 
 
-@app.route("/admin/update-horiba", methods=["POST"])
+@app.route("/update-horiba", methods=["POST"])
 def update_horiba():
-    if not admin_required():
-        return jsonify({"success": False, "error": "Unauthorized"}), 403
-        
-    profile_id = request.form.get("profile_id")
-    horiba_val = request.form.get("horiba")
-    
+    if not machine_access_required():
+        return jsonify({"success": False, "error": "Unauthorized"}), 401
+
+    profile_id = (request.form.get("profile_id", "") or "").strip().upper()
+    horiba_value = (request.form.get("horiba", "") or "").strip()
+
     if not profile_id:
-        return jsonify({"success": False, "error": "Missing Profile ID"}), 400
-        
-    resp = Response.query.filter_by(profile_id=profile_id).first()
-    if not resp:
-        return jsonify({"success": False, "error": "Response record not found for this profile"}), 404
-        
-    try:
-        current_data = resp.data.copy() if resp.data else {}
-        current_data["horiba"] = horiba_val
-        resp.data = current_data
-        db.session.commit()
-        return jsonify({"success": True})
-    except Exception as e:
-        db.session.rollback()
-        return jsonify({"success": False, "error": str(e)}), 500
+        return jsonify({"success": False, "error": "Profile ID is required"}), 400
+
+    linked_rows = read_csv_as_dict_list(LINKED_CSV)
+    if not linked_rows:
+        linked_rows, _ = build_linked_view_data()
+
+    updated = False
+    old_val = ""
+    for row in linked_rows:
+        pid = (row.get("profile_id", "") or "").strip().upper()
+        if pid == profile_id:
+            old_val = str(row.get("horiba", "") or "")
+            row["horiba"] = horiba_value
+            updated = True
+            break
+
+    if not updated:
+        return jsonify({"success": False, "error": "Profile not found"}), 404
+
+    save_linked_rows(linked_rows)
+    append_investigator_audit(
+        "machine_update",
+        f"Horiba updated for {profile_id}: '{old_val}' -> '{horiba_value}'",
+    )
+
+    return jsonify({"success": True})
 
 
 # --------------------------------------------------
@@ -1413,6 +1310,4 @@ def update_horiba():
 if __name__ == "__main__":
     os.makedirs(BARCODE_FOLDER, exist_ok=True)
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
-    with app.app_context():
-        db.create_all()
     app.run(debug=True)

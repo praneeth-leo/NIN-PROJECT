@@ -1,109 +1,537 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin - Profiles</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro · Admin Profiles</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-deep: #0a0c15;
+      --surface: rgba(18, 24, 38, 0.85);
+      --surface-card: rgba(22, 28, 45, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-active: rgba(37, 99, 235, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      /* Action colors */
+      --primary: #2563eb;
+      --primary-dark: #1d4ed8;
+      --success: #16a34a;
+      --success-dark: #15803d;
+      --warning: #f59e0b;
+      --warning-dark: #b45309;
+      --danger: #dc2626;
+      --danger-dark: #991b1b;
+      --info: #0891b2;
+      --info-dark: #0e7490;
+      --secondary: #6b7280;
+      --secondary-dark: #374151;
+      
+      --gradient-primary: linear-gradient(145deg, #2563eb, #1d4ed8);
+      --gradient-success: linear-gradient(145deg, #16a34a, #15803d);
+      --gradient-warning: linear-gradient(145deg, #f59e0b, #b45309);
+      --gradient-danger: linear-gradient(145deg, #dc2626, #991b1b);
+      --gradient-info: linear-gradient(145deg, #0891b2, #0e7490);
+      --gradient-secondary: linear-gradient(145deg, #6b7280, #374151);
+      
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 28px;
+      --radius-button: 12px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 12% 18%, rgba(37, 99, 235, 0.12), transparent 40%),
+        radial-gradient(circle at 90% 72%, rgba(22, 163, 74, 0.08), transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(245, 158, 11, 0.06), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      width: min(96vw, 1600px);
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* main panel */
+    .panel {
+      background: rgba(18, 24, 38, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 30px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(800px circle at 30% 20%, rgba(37, 99, 235, 0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* header */
+    .top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .title-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-primary);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 25px -12px rgba(37, 99, 235, 0.5);
+    }
+
+    .title-icon i {
+      font-size: 30px;
+      color: white;
+    }
+
+    .title-text h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #a5c9ff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .title-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* button base */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: none;
+      border-radius: var(--radius-button);
+      text-decoration: none;
+      font-weight: 600;
+      cursor: pointer;
+      color: white;
+      padding: 10px 18px;
+      font-size: 0.9rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn i {
+      font-size: 0.95rem;
+    }
+
+    .btn-back { background: var(--gradient-primary); }
+    .btn-search { background: var(--gradient-success); }
+    .btn-reset { background: var(--gradient-secondary); }
+    .btn-edit { background: var(--gradient-warning); color: #111827; }
+    .btn-export { background: var(--gradient-info); }
+    .btn-delete { background: var(--gradient-danger); width: 100%; }
+
+    /* search box */
+    .search-wrap {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 60px;
+      padding: 6px 6px 6px 20px;
+      margin-bottom: 25px;
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .search-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex: 1;
+      flex-wrap: wrap;
+    }
+
+    .search-row i {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .search-row input {
+      flex: 1;
+      min-width: 250px;
+      padding: 12px 12px;
+      background: transparent;
+      color: var(--text-primary);
+      border: none;
+      outline: none;
+      font-size: 0.95rem;
+    }
+
+    .search-row input::placeholder {
+      color: var(--text-muted);
+      opacity: 0.6;
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 8px;
+    }
+
+    .hint {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 15px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 8px 16px;
+      border-radius: 40px;
+      width: fit-content;
+    }
+
+    /* table wrapper */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(0, 0, 0, 0.2);
+      margin-top: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 1200px;
+    }
+
+    th, td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      text-align: left;
+      padding: 14px 12px;
+      font-size: 0.9rem;
+      vertical-align: middle;
+    }
+
+    th {
+      background: rgba(37, 99, 235, 0.15);
+      font-weight: 600;
+      color: var(--text-secondary);
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+
+    tbody tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    /* barcode cell */
+    .barcode-cell {
+      min-width: 280px;
+      text-align: center;
+    }
+
+    .barcode-img {
+      width: 200px;
+      max-width: 100%;
+      background: white;
+      border-radius: 12px;
+      padding: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: transform 0.2s;
+    }
+
+    .barcode-img:hover {
+      transform: scale(1.02);
+    }
+
+    .barcode-id {
+      margin-top: 8px;
+      font-weight: 600;
+      font-family: monospace;
+      color: var(--primary);
+      background: rgba(37, 99, 235, 0.1);
+      padding: 4px 12px;
+      border-radius: 40px;
+      display: inline-block;
+      font-size: 0.9rem;
+      border: 1px solid rgba(37, 99, 235, 0.2);
+    }
+
+    /* action cell */
+    .action-cell {
+      min-width: 200px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .action-cell .btn {
+      width: 100%;
+      justify-content: center;
+    }
+
+    /* data cells */
+    .data-cell {
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    /* empty state */
+    .empty {
+      color: var(--text-muted);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 20px;
+      padding: 40px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.2);
+      font-size: 1.1rem;
+    }
+
+    .empty i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* stats bar */
+    .stats-bar {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 40px;
+      padding: 8px 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--text-secondary);
+    }
+
+    .stat i {
+      color: var(--primary);
+    }
+
+    .stat strong {
+      color: white;
+      margin-left: 4px;
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .panel { padding: 20px; }
+      .title-text h2 { font-size: 1.6rem; }
+      .search-wrap { border-radius: 20px; padding: 12px; }
+      .search-row { flex-direction: column; align-items: stretch; }
+      .search-actions { justify-content: stretch; }
+      .search-actions .btn { flex: 1; }
+    }
+  </style>
 </head>
+<body>
 
-<body style="font-family: Arial; background:#f4f6f9;">
-
-  <div style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
-
-    <div style="display:flex;justify-content:space-between;align-items:center;">
-      <h2 style="margin:0;">Profiles (Barcode Login IDs)</h2>
-      <a href="/admin-dashboard"
-         style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Back
+<div class="container">
+  <div class="panel">
+    <!-- header with icon -->
+    <div class="top">
+      <div class="title">
+        <div class="title-icon">
+          <i class="fas fa-id-card"></i>
+        </div>
+        <div class="title-text">
+          <h2>Profile Management</h2>
+          <p><i class="fas fa-barcode"></i> Barcode Login IDs & Profile Data</p>
+        </div>
+      </div>
+      <a class="btn btn-back" href="/admin-dashboard">
+        <i class="fas fa-arrow-left"></i> Dashboard
       </a>
     </div>
 
-    <hr>
+    <!-- stats -->
+    <div class="stats-bar">
+      <div class="stat">
+        <i class="fas fa-users"></i>
+        <span>Total Profiles: <strong>{{ data|length if data else 0 }}</strong></span>
+      </div>
+      <div class="stat">
+        <i class="fas fa-barcode"></i>
+        <span>Active Barcodes: <strong>{{ data|length if data else 0 }}</strong></span>
+      </div>
+    </div>
 
-    <!-- SEARCH -->
-    <form method="GET" action="/admin/profiles" style="margin-bottom:15px;">
-      <input type="text" name="q" placeholder="Search Barcode ID (example: SENA0004)"
-             value="{{ q }}"
-             style="width:320px;padding:10px;border:1px solid #ccc;border-radius:10px;">
-
-      <button type="submit"
-              style="padding:10px 14px;background:#28a745;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-        Search
-      </button>
-
-      <a href="/admin/profiles"
-         style="padding:10px 14px;background:#6c757d;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Reset
-      </a>
+    <!-- search form -->
+    <form method="GET" action="/admin/profiles">
+      <div class="search-wrap">
+        <div class="search-row">
+          <i class="fas fa-search"></i>
+          <input type="text" name="q" placeholder="Search by Barcode ID (e.g., SENA0004)" value="{{ q }}">
+          <div class="search-actions">
+            <button class="btn btn-search" type="submit">
+              <i class="fas fa-search"></i> Search
+            </button>
+            <a class="btn btn-reset" href="/admin/profiles">
+              <i class="fas fa-undo"></i> Reset
+            </a>
+          </div>
+        </div>
+      </div>
     </form>
 
-    {% if data|length == 0 %}
-      <p style="color:#555;">No profiles found.</p>
-    {% else %}
-
-    <table border="1" cellpadding="10" cellspacing="0"
-           style="width:100%;border-collapse:collapse;font-size:14px;">
-
-      <tr style="background:#007bff;color:white;">
-        <th>Barcode</th>
-        <th>Actions</th>
-        {% for key in data[0].keys() %}
-          <th>{{ key }}</th>
-        {% endfor %}
-      </tr>
-
-      {% for row in data %}
-        <tr>
-
-          <!-- Barcode -->
-          <td style="text-align:center;min-width:260px;">
-            <img
-              src="{{ url_for('static', filename='barcodes/' + row['profile_id'] + '.png') }}"
-              alt="Barcode"
-              style="width:220px;height:auto;background:white;padding:6px;border-radius:6px;"
-            />
-            <div style="font-weight:bold;margin-top:6px;">
-              {{ row['profile_id'] }}
-            </div>
-          </td>
-
-          <!-- Actions -->
-          <td style="min-width:220px;text-align:center;">
-
-            <!-- Edit Profile -->
-            <a href="/admin/edit-profile/{{ row['profile_id'] }}"
-               style="display:block;margin-bottom:8px;padding:10px;background:#ffc107;color:black;text-decoration:none;border-radius:10px;font-weight:bold;">
-              Edit Profile
-            </a>
-
-            <!-- Export -->
-            <a href="/admin/export/{{ row['profile_id'] }}"
-               style="display:block;margin-bottom:8px;padding:10px;background:#17a2b8;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-              Export Excel
-            </a>
-
-            <!-- Delete Profile -->
-            <form method="POST"
-                  action="/admin/delete-profile/{{ row['profile_id'] }}"
-                  onsubmit="return confirm('Are you sure? This will delete profile + barcode + all responses for this ID!');">
-              <button type="submit"
-                      style="width:100%;padding:10px;background:#dc3545;color:white;border:none;border-radius:10px;font-weight:bold;cursor:pointer;">
-                Delete Profile
-              </button>
-            </form>
-
-          </td>
-
-          <!-- Remaining columns -->
-          {% for val in row.values() %}
-            <td>{{ val }}</td>
-          {% endfor %}
-
-        </tr>
-      {% endfor %}
-    </table>
-
+    <!-- results count -->
+    {% if data and data|length > 0 %}
+      <div class="hint">
+        <i class="fas fa-info-circle"></i>
+        Showing <strong>{{ data|length }}</strong> profile(s)
+      </div>
     {% endif %}
 
+    <!-- table -->
+    {% if data|length == 0 %}
+      <div class="empty">
+        <i class="fas fa-id-card"></i>
+        <p>No profiles found</p>
+        <p style="font-size: 0.9rem; margin-top: 10px;">Create a new profile to get started</p>
+      </div>
+    {% else %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Barcode</th>
+              <th>Actions</th>
+              {% for key in data[0].keys() %}
+                <th>{{ key.replace('_', ' ').title() }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+              <tr>
+                <!-- Barcode cell with image -->
+                <td class="barcode-cell">
+                  <img class="barcode-img" 
+                       src="{{ url_for('static', filename='barcodes/' + row['profile_id'] + '.png') }}" 
+                       alt="Barcode for {{ row['profile_id'] }}"
+                       onerror="this.onerror=null; this.style.opacity='0.45'; this.style.filter='grayscale(1)';">
+                  <div class="barcode-id">{{ row['profile_id'] }}</div>
+                </td>
+
+                <!-- Action buttons -->
+                <td class="action-cell">
+                  <a class="btn btn-edit" href="/admin/edit-profile/{{ row['profile_id'] }}">
+                    <i class="fas fa-edit"></i> Edit Profile
+                  </a>
+                  <a class="btn btn-export" href="/admin/export/{{ row['profile_id'] }}">
+                    <i class="fas fa-file-excel"></i> Export Excel
+                  </a>
+                  <form method="POST" action="/admin/delete-profile/{{ row['profile_id'] }}" 
+                        onsubmit="return confirm('⚠️ Are you sure? This will permanently delete:\n\n• Profile\n• Barcode image\n• All associated responses\n\nThis action cannot be undone!');">
+                    <button class="btn btn-delete" type="submit">
+                      <i class="fas fa-trash-alt"></i> Delete Profile
+                    </button>
+                  </form>
+                </td>
+
+                <!-- Profile data fields -->
+                {% for val in row.values() %}
+                  <td class="data-cell" title="{{ val if val else '—' }}">
+                    {% if val is none or val == '' %}
+                      <span style="color: var(--text-muted); font-style: italic;">—</span>
+                    {% else %}
+                      {{ val }}
+                    {% endif %}
+                  </td>
+                {% endfor %}
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endif %}
+
+    <!-- footer note -->
+    <div style="margin-top: 25px; text-align: center; color: var(--text-muted); font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 12px;">
+      <i class="fas fa-shield-alt"></i>
+      <span>Secure admin access · All actions are logged</span>
+    </div>
   </div>
+</div>
 
 </body>
 </html>

@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SurveyPro · Field Questionnaire A–J (Dark Mode)</title>
+  <title>SurveyPro - Field Questionnaire A-J (Dark Mode)</title>
   <!-- Font Awesome 6 + Google Inter for modern look -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -120,6 +120,30 @@
 
     .save-indicator i {
       color: #10b981;
+    }
+    .top-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .corner-btn {
+      background: linear-gradient(145deg, #0ea5a3, #0f766e);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 60px;
+      color: #fff;
+      padding: 10px 16px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .corner-btn:hover {
+      filter: brightness(1.06);
     }
 
     /* sections */
@@ -318,6 +342,64 @@
     #ifa_dose {
       background: rgba(0, 0, 0, 0.3);
     }
+    .ifa-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.6);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 999;
+      padding: 16px;
+    }
+
+    .ifa-modal.show {
+      display: flex;
+    }
+
+    .ifa-card {
+      width: min(560px, 96vw);
+      background: rgba(18, 24, 38, 0.97);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .ifa-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+    }
+
+    .ifa-head h4 {
+      margin: 0;
+      color: #fff;
+    }
+
+    .ifa-close {
+      background: transparent;
+      color: #cbd5e1;
+      border: none;
+      font-size: 1.4rem;
+      cursor: pointer;
+    }
+
+    .ifa-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .ifa-result {
+      margin-top: 12px;
+      background: rgba(14, 165, 163, 0.14);
+      border: 1px solid rgba(14, 165, 163, 0.35);
+      border-radius: 12px;
+      padding: 12px;
+      color: #c7f9f7;
+      font-weight: 600;
+    }
 
     /* responsive */
     @media (max-width: 768px) {
@@ -351,6 +433,10 @@
         display: block;
         overflow-x: auto;
       }
+
+      .ifa-grid {
+        grid-template-columns: 1fr;
+      }
     }
   </style>
 </head>
@@ -362,16 +448,44 @@
     <div class="top-bar">
       <h2>
         <i class="fas fa-clipboard-list"></i>
-        FIELD QUESTIONNAIRE (A–J)
+        FIELD QUESTIONNAIRE (A-J)
       </h2>
-      <div class="save-indicator">
-        <i class="fas fa-cloud-upload-alt"></i>
-        auto‑sync enabled · progress saved
+      <div class="top-actions">
+        <button type="button" class="corner-btn" id="openIfaCalculator">
+          <i class="fas fa-calculator"></i> IFA Dose Calculator
+        </button>
+        <div class="save-indicator">
+          <i class="fas fa-cloud-upload-alt"></i>
+          Auto-sync enabled - progress saved
+        </div>
       </div>
     </div>
 
     <div class="form-footer" style="margin-top: 0; margin-bottom: 20px;">
       <button type="button" onclick="window.location.href='/section-status'"><i class="fas fa-table"></i> Generate Section Status Table</button>
+    </div>
+
+    <div class="ifa-modal" id="ifaModal">
+      <div class="ifa-card">
+        <div class="ifa-head">
+          <h4><i class="fas fa-syringe"></i> IFA Syrup Dose Calculator</h4>
+          <button type="button" class="ifa-close" id="closeIfaCalculator">&times;</button>
+        </div>
+        <div class="ifa-grid">
+          <div>
+            <label for="ifa_calc_weight">Weight (kg)</label>
+            <input type="number" step="0.1" id="ifa_calc_weight" placeholder="Enter weight">
+          </div>
+          <div>
+            <label for="ifa_calc_hb">Horiba Hb (g/dL)</label>
+            <input type="number" step="0.1" id="ifa_calc_hb" placeholder="Enter Hb value">
+          </div>
+        </div>
+        <div class="form-footer" style="margin-top: 14px;">
+          <button type="button" id="runIfaCalculator"><i class="fas fa-bolt"></i> Calculate</button>
+        </div>
+        <div class="ifa-result" id="ifaCalcResult">Enter values and click Calculate.</div>
+      </div>
     </div>
 
     <form method="POST" action="/form">
@@ -440,7 +554,7 @@
           <option>1</option>
           <option>2</option>
           <option>3</option>
-          <option>≥4</option>
+          <option>â‰¥4</option>
         </select>
 
         <label>5. Number of siblings:</label>
@@ -509,13 +623,13 @@
 
         <label>12. Total monthly family income:</label>
         <select id="income" name="family_income_level">
-          <option value="12">₹1,59,586+ (12)</option>
-          <option value="10">₹79,756–1,59,585 (10)</option>
-          <option value="6">₹59,795–79,755 (6)</option>
-          <option value="4">₹39,830–59,794 (4)</option>
-          <option value="3">₹23,870–39,829 (3)</option>
-          <option value="2">₹7,989–23,869 (2)</option>
-          <option value="1">≤₹7,988 (1)</option>
+          <option value="12">â‚¹1,59,586+ (12)</option>
+          <option value="10">â‚¹79,756â€“1,59,585 (10)</option>
+          <option value="6">â‚¹59,795â€“79,755 (6)</option>
+          <option value="4">â‚¹39,830â€“59,794 (4)</option>
+          <option value="3">â‚¹23,870â€“39,829 (3)</option>
+          <option value="2">â‚¹7,989â€“23,869 (2)</option>
+          <option value="1">â‰¤â‚¹7,988 (1)</option>
         </select>
 
         <div class="score">
@@ -533,7 +647,7 @@
             <select name="low_birth_weight_history">
               <option>Yes</option>
               <option>No</option>
-              <option>Don’t know</option>
+              <option>Donâ€™t know</option>
             </select>
 
             <label>18. Any known chronic illness?</label>
@@ -548,21 +662,21 @@
             <select name="worm_infestation_history">
               <option>Yes</option>
               <option>No</option>
-              <option>Don’t know</option>
+              <option>Donâ€™t know</option>
             </select>
 
             <label>20. Deworming in last 6 months?</label>
             <select name="deworming_history">
               <option>Yes</option>
               <option>No</option>
-              <option>Don’t know</option>
+              <option>Donâ€™t know</option>
             </select>
 
             <label>21. Currently receiving iron supplementation?</label>
             <select name="iron_supplementation_current">
               <option>Yes</option>
               <option>No</option>
-              <option>Don’t know</option>
+              <option>Donâ€™t know</option>
             </select>
       </div>
 
@@ -586,8 +700,8 @@
             <td>Green leafy vegetables</td>
             <td><select name="freq_green_leafy">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -596,8 +710,8 @@
             <td>Jaggery</td>
             <td><select name="freq_jaggery">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -606,8 +720,8 @@
             <td>Dates</td>
             <td><select name="freq_dates">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -616,8 +730,8 @@
             <td>Eggs</td>
             <td><select name="freq_eggs">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -626,8 +740,8 @@
             <td>Meat</td>
             <td><select name="freq_meat">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -636,8 +750,8 @@
             <td>Fruits</td>
             <td><select name="freq_fruits">
                 <option>Daily</option>
-                <option>3–4/week</option>
-                <option>1–2/week</option>
+                <option>3â€“4/week</option>
+                <option>1â€“2/week</option>
                 <option>Rarely</option>
                 <option>Never</option>
               </select></td>
@@ -752,7 +866,7 @@
         </div>
 
 
-        <h4>Operational Feasibility (30–40)</h4>
+        <h4>Operational Feasibility (30â€“40)</h4>
 
         <table>
           <tr>
@@ -883,7 +997,7 @@
         <select name="poc_attempts">
           <option>1</option>
           <option>2</option>
-          <option>≥3</option>
+          <option>â‰¥3</option>
         </select>
 
         <label>44. End time:</label>
@@ -943,7 +1057,7 @@
         </div>
 
 
-        <h4>Operational Feasibility (46–56)</h4>
+        <h4>Operational Feasibility (46â€“56)</h4>
 
         <table>
           <tr>
@@ -1074,7 +1188,7 @@
         <select name="lab_attempts">
           <option>1</option>
           <option>2</option>
-          <option>≥3</option>
+          <option>â‰¥3</option>
         </select>
 
         <label>60. End time:</label>
@@ -1134,7 +1248,7 @@
         </div>
 
 
-        <h4>Operational Feasibility (62–71)</h4>
+        <h4>Operational Feasibility (62â€“71)</h4>
 
         <table>
           <tr>
@@ -1245,7 +1359,7 @@
       <!-- ================= SECTION I ================= -->
 
       <div class="section">
-        <h3>Section I: Parental Acceptability (1–5 Scale)</h3>
+        <h3>Section I: Parental Acceptability (1â€“5 Scale)</h3>
 
         <p>1 = Strongly Disagree &nbsp;&nbsp; 2 = Disagree &nbsp;&nbsp; 3 = Neutral &nbsp;&nbsp; 4 = Agree &nbsp;&nbsp;
           5 = Strongly Agree</p>
@@ -1254,7 +1368,7 @@
           <tr>
             <th>No.</th>
             <th>Statement</th>
-            <th>Score (1–5)</th>
+            <th>Score (1â€“5)</th>
           </tr>
 
           <tr>
@@ -1343,7 +1457,7 @@
 
           <tr>
             <td>79</td>
-            <td>This test is acceptable for children aged 3–5 years</td>
+            <td>This test is acceptable for children aged 3â€“5 years</td>
             <td>
               <select class="parent_score">
                 <option value="1">1</option>
@@ -1395,21 +1509,21 @@
         <h3><i class="fas fa-truck-medical"></i> Section J: Referral & Action Taken</h3>
 
         <label>82. Child classified as:</label>
-        <select>
+        <select name="child_classification">
           <option>Anaemic</option>
           <option>Non-anaemic</option>
         </select>
 
-        <label>83. Dose of IFA:</label> <input type="text" placeholder="Enter dose">
+        <label>83. Dose of IFA:</label> <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Enter dose">
 
         <label>84. Referral advised?</label>
-        <select>
+        <select name="referral_advised">
           <option>Yes</option>
           <option>No</option>
         </select>
 
         <label>85. Referral destination:</label>
-        <select>
+        <select name="referral_destination">
           <option>PHC</option>
           <option>UHC</option>
           <option>Govt. Hospital</option>
@@ -1474,9 +1588,21 @@
     /* IFA */
     function dose() {
       let w = parseFloat(weight_input.value)
-      if (w < 10) ifa_dose.value = "10 mg elemental iron"
-      else if (w < 20) ifa_dose.value = "20 mg elemental iron"
-      else ifa_dose.value = "30 mg elemental iron"
+      const hbInput = document.querySelector('input[name="lab_hb_value"]')
+      const hb = hbInput ? parseFloat(hbInput.value) : NaN
+      ifa_dose.value = calculateIfaDose(w, hb)
+    }
+
+    function calculateIfaDose(weight, hb) {
+      if (Number.isNaN(weight) || Number.isNaN(hb) || weight <= 0) return "Enter valid Weight + Horiba Hb"
+      if (hb >= 11) return "No therapeutic syrup dose"
+      if (hb < 5) return "5 to 7.5 ml/day (urgent referral)"
+      if (hb < 7) return "7.5 to 9 ml/day (urgent referral)"
+      if (hb < 8) return "8 to 9 ml/day"
+      if (hb < 9) return weight < 12 ? "8 to 9 ml/day" : "9 to 10 ml/day"
+      if (hb < 10) return "9 to 10 ml/day"
+      if (hb < 11) return weight >= 15.5 ? "5 to 7.5 ml/day" : "8 to 9 ml/day"
+      return "Enter valid values"
     }
 
     document.addEventListener("change", e => {
@@ -1505,8 +1631,43 @@
     }
 
     document.addEventListener("DOMContentLoaded", calcAllFlacc)
+    document.addEventListener("DOMContentLoaded", () => {
+      const openBtn = document.getElementById("openIfaCalculator")
+      const closeBtn = document.getElementById("closeIfaCalculator")
+      const modal = document.getElementById("ifaModal")
+      const runBtn = document.getElementById("runIfaCalculator")
+      const weightInput = document.getElementById("ifa_calc_weight")
+      const hbInput = document.getElementById("ifa_calc_hb")
+      const result = document.getElementById("ifaCalcResult")
+      const formWeight = document.getElementById("weight_input")
+      const formHb = document.querySelector('input[name="lab_hb_value"]')
+
+      if (openBtn && modal) {
+        openBtn.addEventListener("click", () => {
+          if (formWeight && !weightInput.value) weightInput.value = formWeight.value || ""
+          if (formHb && !hbInput.value) hbInput.value = formHb.value || ""
+          modal.classList.add("show")
+        })
+      }
+      if (closeBtn && modal) closeBtn.addEventListener("click", () => modal.classList.remove("show"))
+      if (modal) {
+        modal.addEventListener("click", (e) => {
+          if (e.target === modal) modal.classList.remove("show")
+        })
+      }
+      if (runBtn) {
+        runBtn.addEventListener("click", () => {
+          const w = parseFloat(weightInput.value)
+          const hb = parseFloat(hbInput.value)
+          const out = calculateIfaDose(w, hb)
+          result.textContent = "Suggested Dose: " + out
+          if (typeof ifa_dose !== "undefined" && ifa_dose) ifa_dose.value = out
+        })
+      }
+    })
   </script>
 
 </body>
 
 </html>
+

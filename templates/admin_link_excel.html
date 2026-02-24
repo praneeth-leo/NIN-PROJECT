@@ -1,19 +1,255 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <title>Admin - Link Excel with Barcode</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro · Link Excel with Barcode</title>
+  <!-- Font Awesome 6 + Google Inter font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    /* Hover and Dropdown Styles */
-    .admin-actions {
-      display: flex;
-      gap: 15px;
-      flex-wrap: wrap;
-      align-items: center;
-      margin-top: 20px;
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
     }
 
+    :root {
+      --bg-deep: #0a0c15;
+      --surface: rgba(18, 24, 38, 0.85);
+      --surface-card: rgba(22, 28, 45, 0.8);
+      --border-subtle: rgba(255, 255, 255, 0.04);
+      --border-active: rgba(255, 136, 0, 0.4);
+      --text-primary: #ffffff;
+      --text-secondary: #cbd5e1;
+      --text-muted: #94a3b8;
+      
+      /* Action colors */
+      --primary: #007bff;
+      --primary-dark: #0056b3;
+      --success: #198754;
+      --success-dark: #157347;
+      --warning: #ff8800;
+      --warning-dark: #e67a00;
+      --danger: #dc3545;
+      --danger-dark: #b52a37;
+      --info: #0dcaf0;
+      --info-dark: #0bacd0;
+      
+      --gradient-primary: linear-gradient(145deg, #007bff, #0056b3);
+      --gradient-success: linear-gradient(145deg, #198754, #157347);
+      --gradient-warning: linear-gradient(145deg, #ff8800, #e67a00);
+      --gradient-danger: linear-gradient(145deg, #dc3545, #b52a37);
+      --gradient-info: linear-gradient(145deg, #0dcaf0, #0bacd0);
+      
+      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
+      --radius-card: 32px;
+      --radius-button: 14px;
+      --radius-dropdown: 16px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      padding: 24px;
+      position: relative;
+    }
+
+    /* animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 20%, rgba(255, 136, 0, 0.12), transparent 40%),
+        radial-gradient(circle at 90% 70%, rgba(0, 123, 255, 0.09), transparent 45%),
+        radial-gradient(circle at 40% 80%, rgba(25, 135, 84, 0.08), transparent 50%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 2;
+      animation: fadeUp 0.5s ease-out;
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* main card */
+    .main-card {
+      background: rgba(18, 24, 38, 0.8);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: var(--radius-card);
+      padding: 32px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .main-card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(800px circle at 30% 20%, rgba(255, 136, 0, 0.06), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* header */
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 25px;
+    }
+
+    .title {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .title-icon {
+      width: 60px;
+      height: 60px;
+      background: var(--gradient-warning);
+      border-radius: 18px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 15px 25px -12px rgba(255, 136, 0, 0.5);
+    }
+
+    .title-icon i {
+      font-size: 30px;
+      color: white;
+    }
+
+    .title-text h2 {
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #ffffff, #ffd6a3);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 4px;
+    }
+
+    .title-text p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* back button */
+    .btn-back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: var(--gradient-primary);
+      border-radius: 40px;
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      transition: all 0.2s ease;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .btn-back:hover {
+      transform: translateX(-2px);
+      filter: brightness(1.1);
+    }
+
+    /* info box */
+    .info-box {
+      background: rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      border-radius: 60px;
+      padding: 16px 24px;
+      margin-bottom: 25px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .info-box i {
+      color: var(--warning);
+      font-size: 1.2rem;
+    }
+
+    .info-box b {
+      color: white;
+      background: rgba(255, 136, 0, 0.2);
+      padding: 4px 12px;
+      border-radius: 40px;
+      margin: 0 4px;
+    }
+
+    /* action buttons container */
+    .action-bar {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    /* base button */
+    .action-btn {
+      padding: 14px 28px;
+      border: none;
+      border-radius: var(--radius-button);
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 1rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .action-btn i {
+      font-size: 1.1rem;
+    }
+
+    .action-btn:hover {
+      transform: translateY(-2px);
+      filter: brightness(1.1);
+    }
+
+    .btn-upload {
+      background: var(--gradient-warning);
+      box-shadow: 0 15px 25px -10px rgba(255, 136, 0, 0.4);
+    }
+
+    .btn-export {
+      background: var(--gradient-success);
+      box-shadow: 0 15px 25px -10px rgba(25, 135, 84, 0.4);
+    }
+
+    /* dropdown */
     .dropdown {
       position: relative;
       display: inline-block;
@@ -22,187 +258,348 @@
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #fff;
-      min-width: 220px;
-      box-shadow: 0px 8px 16px 0px rgba(0, 0, 0, 0.15);
+      top: 110%;
+      left: 0;
+      min-width: 260px;
+      background: rgba(22, 28, 45, 0.95);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: var(--radius-dropdown);
+      box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5);
       z-index: 1000;
-      border-radius: 10px;
-      padding: 5px 0;
+      padding: 8px 0;
       margin-top: 5px;
-      border: 1px solid #eee;
     }
 
     .dropdown-content.show {
       display: block;
+      animation: slideDown 0.2s ease;
+    }
+
+    @keyframes slideDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .dropdown-content a {
-      color: #333;
-      padding: 12px 16px;
+      color: var(--text-secondary);
+      padding: 14px 20px;
       text-decoration: none;
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 12px;
       font-weight: 500;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+    }
+
+    .dropdown-content a:last-child {
+      border-bottom: none;
     }
 
     .dropdown-content a:hover {
-      background-color: #f8f9fa;
-      color: #007bff;
-    }
-
-    .action-btn {
-      padding: 12px 20px;
-      border: none;
-      border-radius: 10px;
-      font-weight: bold;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      font-size: 14px;
-      transition: all 0.3s;
-      text-decoration: none;
-    }
-
-    .btn-upload {
-      background: #ff8800;
+      background: rgba(255, 255, 255, 0.05);
       color: white;
+      padding-left: 24px;
     }
 
-    .btn-upload:hover {
-      background: #e67a00;
-      box-shadow: 0 4px 10px rgba(255, 136, 0, 0.3);
-    }
-
-    .btn-export {
-      background: #198754;
-      color: white;
-    }
-
-    .btn-export:hover {
-      background: #157347;
-      box-shadow: 0 4px 10px rgba(25, 135, 84, 0.3);
+    .dropdown-content a i {
+      width: 24px;
+      text-align: center;
     }
 
     .caret {
-      font-size: 10px;
-      margin-left: 5px;
+      font-size: 12px;
+      margin-left: 8px;
+      transition: transform 0.3s;
+      display: inline-block;
     }
 
-    .file-input-wrapper {
-      background: #fff;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      padding: 5px 10px;
+    /* alert messages */
+    .alert {
+      margin-top: 20px;
+      padding: 16px 24px;
+      border-radius: 60px;
       display: flex;
       align-items: center;
+      gap: 12px;
+      font-size: 0.95rem;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-10px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+
+    .alert-error {
+      background: rgba(220, 53, 69, 0.1);
+      border: 1px solid rgba(220, 53, 69, 0.2);
+      color: #f8d7da;
+    }
+
+    .alert-success {
+      background: rgba(25, 135, 84, 0.1);
+      border: 1px solid rgba(25, 135, 84, 0.2);
+      color: #d1e7dd;
+    }
+
+    .alert i {
+      font-size: 1.2rem;
+    }
+
+    .alert-error i { color: #dc3545; }
+    .alert-success i { color: #198754; }
+
+    /* data section */
+    .data-section {
+      margin-top: 30px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .section-header i {
+      font-size: 1.8rem;
+      color: var(--warning);
+      background: rgba(255, 136, 0, 0.1);
+      padding: 12px;
+      border-radius: 16px;
+    }
+
+    .section-header h3 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: white;
+    }
+
+    .stats-badge {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      border-radius: 40px;
+      padding: 8px 20px;
+      color: var(--text-secondary);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 20px;
+    }
+
+    .stats-badge i {
+      color: var(--warning);
+    }
+
+    .stats-badge b {
+      color: white;
+      margin-left: 4px;
+    }
+
+    /* table wrapper */
+    .table-wrap {
+      overflow-x: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 800px;
+      font-size: 0.9rem;
+    }
+
+    th, td {
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+      padding: 14px 12px;
+      text-align: left;
+    }
+
+    th {
+      background: rgba(255, 136, 0, 0.15);
+      font-weight: 600;
+      color: white;
+      white-space: nowrap;
+    }
+
+    td {
+      color: var(--text-secondary);
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.02);
+    }
+
+    .empty-state {
+      color: var(--text-muted);
+      padding: 50px;
+      text-align: center;
+      background: rgba(0, 0, 0, 0.1);
+      border-radius: 20px;
+      font-size: 1rem;
+    }
+
+    .empty-state i {
+      font-size: 3rem;
+      margin-bottom: 15px;
+      opacity: 0.5;
+    }
+
+    /* responsive */
+    @media (max-width: 768px) {
+      body { padding: 16px; }
+      .main-card { padding: 22px; }
+      .title-text h2 { font-size: 1.6rem; }
+      .action-bar { flex-direction: column; align-items: stretch; }
+      .action-btn { justify-content: center; }
+      .dropdown-content { min-width: 100%; }
     }
   </style>
 </head>
 
-<body style="font-family: Arial; background:#f4f6f9;">
-  <div
-    style="width:95%;margin:30px auto;background:white;padding:20px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
-    <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
-      <h2 style="margin:0;">Upload Excel and Link with Student Barcode</h2>
-      <a href="/admin-dashboard"
-        style="padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;font-weight:bold;">
-        Back
-      </a>
-    </div>
-
-    <hr>
-
-    <p style="color:#555; margin-bottom:10px;">
-      Upload an Excel file with a barcode column. Supported column names:
-      <b>profile_id</b>, <b>barcode</b>, <b>barcode_id</b>, <b>student_barcode</b>.
-    </p>
-
-    <div class="admin-actions">
-      <!-- Upload Button (Direct link to Masimo) -->
-      <a href="/masimo" class="action-btn btn-upload">
-        <i class="fas fa-upload"></i> Upload and Link
-      </a>
-
-      <!-- Export Button with Dropdown -->
-      <div class="dropdown">
-        <div class="action-btn btn-export" id="exportBtn" onclick="toggleDropdown()">
-          <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">▼</span>
+<body>
+  <div class="container">
+    <div class="main-card">
+      <!-- Header -->
+      <div class="header">
+        <div class="title">
+          <div class="title-icon">
+            <i class="fas fa-link"></i>
+          </div>
+          <div class="title-text">
+            <h2>Link Excel with Barcode</h2>
+            <p><i class="fas fa-file-excel"></i> Upload and link student data with barcode IDs</p>
+          </div>
         </div>
-        <div class="dropdown-content" id="exportDropdown">
-          <a href="/admin/download/linked_data.xlsx">
-            <i class="far fa-file-excel" style="color:#198754; margin-right:8px;"></i> Excel Format (.xlsx)
-          </a>
-          <a href="/admin/download/linked_data.csv">
-            <i class="fas fa-file-csv" style="color:#0d6efd; margin-right:8px;"></i> CSV Format (.csv)
-          </a>
+        <a href="/admin-dashboard" class="btn-back">
+          <i class="fas fa-arrow-left"></i> Dashboard
+        </a>
+      </div>
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <i class="fas fa-info-circle"></i>
+        <span>Supported column names:</span>
+        <b>profile_id</b>
+        <b>barcode</b>
+        <b>barcode_id</b>
+        <b>student_barcode</b>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-bar">
+        <!-- Upload Button -->
+        <a href="/masimo" class="action-btn btn-upload">
+          <i class="fas fa-cloud-upload-alt"></i> Upload and Link Excel
+        </a>
+
+        <!-- Export Dropdown -->
+        <div class="dropdown">
+          <div class="action-btn btn-export" id="exportBtn" onclick="toggleDropdown()">
+            <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">▼</span>
+          </div>
+          <div class="dropdown-content" id="exportDropdown">
+            <a href="/admin/download/linked_data.xlsx">
+              <i class="far fa-file-excel" style="color: #198754;"></i> Excel Format (.xlsx)
+            </a>
+            <a href="/admin/download/linked_data.csv">
+              <i class="fas fa-file-csv" style="color: #0d6efd;"></i> CSV Format (.csv)
+            </a>
+          </div>
         </div>
       </div>
+
+      <!-- Error/Success Messages -->
+      {% if error %}
+      <div class="alert alert-error">
+        <i class="fas fa-exclamation-circle"></i>
+        {{ error }}
+      </div>
+      {% endif %}
+
+      {% if success %}
+      <div class="alert alert-success">
+        <i class="fas fa-check-circle"></i>
+        {{ success }}
+      </div>
+      {% endif %}
+
+      <!-- Linked Data Section -->
+      <div class="data-section">
+        <div class="section-header">
+          <i class="fas fa-table"></i>
+          <h3>Linked Excel Data</h3>
+        </div>
+
+        {% if data|length == 0 %}
+        <div class="empty-state">
+          <i class="fas fa-database"></i>
+          <p>No linked data available</p>
+          <p style="font-size: 0.9rem; margin-top: 10px;">Upload an Excel file to see data here</p>
+        </div>
+        {% else %}
+        <div class="stats-badge">
+          <i class="fas fa-link"></i>
+          Total linked rows: <b>{{ data|length }}</b>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                {% for key in headers %}
+                <th>{{ key.replace('_', ' ').title() }}</th>
+                {% endfor %}
+              </tr>
+            </thead>
+            <tbody>
+              {% for row in data %}
+              <tr>
+                {% for key in headers %}
+                <td>
+                  {% if row.get(key) is none or row.get(key) == '' %}
+                  <span style="color: var(--text-muted); font-style: italic;">—</span>
+                  {% else %}
+                  {{ row.get(key) }}
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+        {% endif %}
+      </div>
     </div>
+  </div>
 
-    {% if error %}
-    <div
-      style="margin-top:14px;padding:10px;border-radius:8px;background:#ffe3e3;color:#b02a37;border:1px solid #f5c2c7;">
-      {{ error }}
-    </div>
-    {% endif %}
+  <script>
+    function toggleDropdown() {
+      const dropdown = document.getElementById("exportDropdown");
+      const caret = document.getElementById("caret");
+      dropdown.classList.toggle("show");
+      caret.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
+    }
 
-    {% if success %}
-    <div
-      style="margin-top:14px;padding:10px;border-radius:8px;background:#e6ffed;color:#146c43;border:1px solid #badbcc;">
-      {{ success }}
-    </div>
-    {% endif %}
-
-    <hr>
-
-    <h3 style="margin-top:0;">Linked Excel Data View</h3>
-    {% if data|length == 0 %}
-    <p style="color:#666;">No linked data available. Upload an Excel file first.</p>
-    {% else %}
-    <p style="color:#666;">Total linked rows: <b>{{ data|length }}</b></p>
-    <div style="overflow-x:auto;">
-      <table border="1" cellpadding="8" cellspacing="0" style="width:100%;border-collapse:collapse;font-size:13px;">
-        <tr style="background:#0d6efd;color:#fff;">
-          {% for key in headers %}
-          <th style="white-space:nowrap;">{{ key }}</th>
-          {% endfor %}
-        </tr>
-        {% for row in data %}
-        <tr>
-          {% for key in headers %}
-          <td>{{ row.get(key, "") }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </table>
-    </div>
-    {% endif %}
-    <script>
-      function toggleDropdown() {
-        const dropdown = document.getElementById("exportDropdown");
-        const caret = document.getElementById("caret");
-        dropdown.classList.toggle("show");
-        caret.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
-        caret.style.display = "inline-block";
-        caret.style.transition = "transform 0.3s";
-      }
-
-      // Close the dropdown if the user clicks outside of it
-      window.onclick = function (event) {
-        if (!event.target.closest('.dropdown')) {
-          var dropdowns = document.getElementsByClassName("dropdown-content");
-          for (var i = 0; i < dropdowns.length; i++) {
-            var openDropdown = dropdowns[i];
-            if (openDropdown.classList.contains('show')) {
-              openDropdown.classList.remove('show');
-              document.getElementById("caret").style.transform = "rotate(0deg)";
-            }
+    // Close dropdown when clicking outside
+    window.onclick = function (event) {
+      if (!event.target.closest('.dropdown')) {
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+        for (let i = 0; i < dropdowns.length; i++) {
+          const openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+            document.getElementById("caret").style.transform = "rotate(0deg)";
           }
         }
       }
-    </script>
-  </div>
+    }
+  </script>
 </body>
 
 </html>

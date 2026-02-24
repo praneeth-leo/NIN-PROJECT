@@ -1,9 +1,13 @@
-profile_id,name,dob,age,age_full,gender,school,class,section
-RACI0001,ram,,03,,Male,CID,ukg,c
-RACI0002,ramba ho,,2,,Male,CID,ukg,B
-LECI0003,leomonster_1412,2024-07-24,1,1y 6m 25d 11:47:42,Male,CID,ukg,C
-PRCI0004,praneeth,2023-06-18,2,2y 8m 0d 12:24:33,Male,cid,lkg,A
-PRCI0005,praneeth,2023-06-18,2,2y 8m 0d 12:24:33,Male,cid,lkg,A
-LEAR0006,leo,2023-06-15,2,2y 8m 6d 10:19:52,Male,arena,ukg,F
-PHAR0007,phani,2023-03-08,2,2y 11m 13d 11:01:45,Male,arena,LKG,A
-MUSR0008,Mucharla Sreelekha,2004-01-25,22,22y 0m 28d 20:51:01,Female,sri indu college of engineering & technology,16,A
+profile_id,name,surname,dob,age,age_full,gender,school,location,class,section
+LB080721MCII,leo,,2021-07-08,4,4y 7m 15d 18:39:33,Male,CID,,lkg,A
+PHSR0002,phani,,2023-02-23,3,3y 0m 0d 21:25:48,Male,sri indu,,LKG,C
+KV260704SII,kirthi,vardhan,2004-07-26,21,21y 6m 29d 00:11:38,Male,sri indu,India,LKG,C
+DP241122SCH,damodhR,puma,2022-11-24,3,3y 3m 0d 00:23:13,Male,sri chaithanya,hyderabad,lkg,F
+KR240720MWEH,kirthi,reddy,2020-07-24,5,5y 7m 0d 10:55:13,Male,westside,hyderabad,lkg,F
+PS160621MWEH,Praneeth,sharma,2021-06-16,4,4y 8m 8d 11:05:46,Male,westside,hyderabad,lkg,F
+LG171122MSIH,leo,green,2022-11-17,3,3y 3m 7d 12:14:42,Male,sri indu,hyderabad,lkg,F
+LM220222MSIH,leo,math,2022-02-22,4,4y 0m 2d 15:41:49,Male,sri indu,hyderabad,lkg,F
+JA240221MSIH,jhon,ali,2021-02-24,5,5y 0m 0d 15:47:16,Male,sri indu,hyderabad,lkg,F
+JP100221MSIH,jhon,paul,2021-02-10,5,5y 0m 14d 15:50:55,Male,sri indu,hyderabad,lkg,F
+SB150622FSIH,swetha,blue,2022-06-15,3,3y 8m 9d 16:00:12,Female,sri indu,hyderabad,lkg,F
+SR160622FSIH,swetha,reddy,2022-06-16,3,3y 8m 8d 16:03:50,Female,sri indu,hyderabad,lkg,F

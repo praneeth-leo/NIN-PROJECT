@@ -199,10 +199,10 @@
 
     #barcode-img {
       width: 100%;
-      max-width: 220px;
-      border-radius: 16px;
+      max-width: 360px;
+      border-radius: 10px;
       background: white;
-      padding: 8px;
+      padding: 5px;
       box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
       transition: transform 0.3s ease;
     }
@@ -498,87 +498,39 @@
         };
       });
       
-      // Print functionality - opens full print dialog
+      // Print functionality - print barcode image only
       printBtn.addEventListener('click', function() {
-        // Create a print-specific content
         const printWindow = window.open('', '_blank');
         
         printWindow.document.write(`
           <!DOCTYPE html>
           <html>
           <head>
-            <title>SurveyPro Barcode - ${barcodeId}</title>
+            <title>Barcode - ${barcodeId}</title>
             <style>
               body {
-                font-family: Arial, sans-serif;
                 text-align: center;
-                padding: 40px 20px;
+                padding: 12px;
                 background: white;
-              }
-              .print-container {
-                max-width: 500px;
-                margin: 0 auto;
-                border: 2px solid #28a745;
-                border-radius: 20px;
-                padding: 30px;
-              }
-              h1 {
-                color: #28a745;
-                font-size: 28px;
-                margin-bottom: 10px;
-              }
-              .barcode-id {
-                font-size: 32px;
-                font-weight: bold;
-                font-family: monospace;
-                background: #f8f9fa;
-                padding: 15px;
-                border-radius: 10px;
-                margin: 20px 0;
-                letter-spacing: 2px;
+                margin: 0;
               }
               .barcode-img {
-                max-width: 100%;
+                width: 420px;
+                max-width: 96vw;
                 height: auto;
-                margin: 20px 0;
-                padding: 15px;
-                background: white;
-                border: 1px solid #dee2e6;
-                border-radius: 10px;
-              }
-              .footer {
-                color: #6c757d;
-                font-size: 14px;
-                margin-top: 30px;
-              }
-              .note {
-                color: #28a745;
-                font-size: 16px;
-                margin-top: 20px;
+                display: block;
+                margin: 0 auto;
               }
               @media print {
-                body { background: white; }
-                .print-container { border: 2px solid #28a745; }
+                @page { margin: 6mm; }
+                body { padding: 0; }
               }
             </style>
           </head>
           <body>
-            <div class="print-container">
-              <h1>SurveyPro</h1>
-              <h2 style="color: #333;">Profile Barcode</h2>
-              
-              <div class="barcode-id">${barcodeId}</div>
-              
-              <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
-              
-              <div class="note">Save this barcode for future logins</div>
-              <div class="footer">
-                Generated on ${new Date().toLocaleDateString()} at ${new Date().toLocaleTimeString()}
-              </div>
-            </div>
+            <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
             
             <script>
-              // Automatically trigger print dialog when page loads
               window.onload = function() {
                 window.print();
               };
