@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -7,7 +8,9 @@
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
     * {
@@ -26,7 +29,7 @@
       --text-primary: #1e293b;
       --text-secondary: #4a40a0;
       --text-muted: #5f6caf;
-      
+
       /* Action colors - vibrant */
       --primary: #4361ee;
       --primary-dark: #3a56d4;
@@ -38,14 +41,14 @@
       --danger-dark: #dc2626;
       --purple: #b5179e;
       --purple-dark: #9e1488;
-      
+
       --gradient-primary: linear-gradient(145deg, #4361ee, #b5179e);
       --gradient-success: linear-gradient(145deg, #06d6a0, #1b9aaa);
       --gradient-warning: linear-gradient(145deg, #f59e0b, #d97706);
       --gradient-danger: linear-gradient(145deg, #ef4444, #dc2626);
       --gradient-purple: linear-gradient(145deg, #b5179e, #7209b7);
-      
-      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255,255,255,0.8) inset;
+
+      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
       --radius-card: 40px;
       --radius-button: 40px;
     }
@@ -77,8 +80,13 @@
     }
 
     @keyframes softFloat {
-      0% { transform: scale(1) rotate(0deg); }
-      100% { transform: scale(1.03) rotate(0.5deg); }
+      0% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      100% {
+        transform: scale(1.03) rotate(0.5deg);
+      }
     }
 
     .dashboard {
@@ -90,8 +98,15 @@
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* main card */
@@ -157,7 +172,7 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 20px 30px -15px #b5179e;
-      border: 3px solid rgba(255,255,255,0.8);
+      border: 3px solid rgba(255, 255, 255, 0.8);
     }
 
     .title-icon i {
@@ -222,7 +237,7 @@
       left: -60%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
       transform: rotate(25deg);
       transition: left 0.6s ease;
     }
@@ -239,17 +254,45 @@
       transform: scale(1.1);
     }
 
-    .btn-primary { background: var(--gradient-primary); }
-    .btn-success { background: var(--gradient-success); }
-    .btn-warning { background: var(--gradient-warning); }
-    .btn-danger { background: var(--gradient-danger); }
-    .btn-purple { background: var(--gradient-purple); }
+    .btn-primary {
+      background: var(--gradient-primary);
+    }
 
-    .btn-primary:hover { box-shadow: 0 25px 35px -14px #b5179e; }
-    .btn-success:hover { box-shadow: 0 25px 35px -14px #06d6a0; }
-    .btn-warning:hover { box-shadow: 0 25px 35px -14px #f59e0b; }
-    .btn-danger:hover { box-shadow: 0 25px 35px -14px #ef4444; }
-    .btn-purple:hover { box-shadow: 0 25px 35px -14px #b5179e; }
+    .btn-success {
+      background: var(--gradient-success);
+    }
+
+    .btn-warning {
+      background: var(--gradient-warning);
+    }
+
+    .btn-danger {
+      background: var(--gradient-danger);
+    }
+
+    .btn-purple {
+      background: var(--gradient-purple);
+    }
+
+    .btn-primary:hover {
+      box-shadow: 0 25px 35px -14px #b5179e;
+    }
+
+    .btn-success:hover {
+      box-shadow: 0 25px 35px -14px #06d6a0;
+    }
+
+    .btn-warning:hover {
+      box-shadow: 0 25px 35px -14px #f59e0b;
+    }
+
+    .btn-danger:hover {
+      box-shadow: 0 25px 35px -14px #ef4444;
+    }
+
+    .btn-purple:hover {
+      box-shadow: 0 25px 35px -14px #b5179e;
+    }
 
     .action-bar {
       display: flex;
@@ -295,9 +338,20 @@
       border: 3px solid white;
     }
 
-    .stat-icon.blue { background: #4361ee; color: white; }
-    .stat-icon.green { background: #06d6a0; color: white; }
-    .stat-icon.purple { background: #b5179e; color: white; }
+    .stat-icon.blue {
+      background: #4361ee;
+      color: white;
+    }
+
+    .stat-icon.green {
+      background: #06d6a0;
+      color: white;
+    }
+
+    .stat-icon.purple {
+      background: #b5179e;
+      color: white;
+    }
 
     .stat-content h3 {
       font-size: 2.2rem;
@@ -321,7 +375,7 @@
       border-radius: 40px;
       padding: 28px;
       margin-top: 24px;
-      box-shadow: 0 20px 40px -20px rgba(0,0,0,0.1);
+      box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.1);
     }
 
     .section-header {
@@ -361,7 +415,8 @@
       min-width: 900px;
     }
 
-    th, td {
+    th,
+    td {
       border-bottom: 1px solid rgba(181, 23, 158, 0.1);
       padding: 16px 14px;
       text-align: left;
@@ -402,27 +457,47 @@
 
     /* responsive */
     @media (max-width: 768px) {
-      body { padding: 16px; }
-      .main-card { padding: 20px; }
-      .header { 
-        flex-direction: column; 
+      body {
+        padding: 16px;
+      }
+
+      .main-card {
+        padding: 20px;
+      }
+
+      .header {
+        flex-direction: column;
         align-items: stretch;
         border-radius: 40px;
         padding: 20px;
       }
-      .title-text h1 { font-size: 1.8rem; }
-      .action-bar { 
+
+      .title-text h1 {
+        font-size: 1.8rem;
+      }
+
+      .action-bar {
         justify-content: center;
         gap: 8px;
       }
-      .action-bar .btn { 
+
+      .action-bar .btn {
         flex: 1 1 auto;
         padding: 10px 16px;
         font-size: 0.85rem;
       }
-      .stats-grid { grid-template-columns: 1fr; }
-      .section-card { padding: 20px; }
-      .section-header h2 { font-size: 1.4rem; }
+
+      .stats-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .section-card {
+        padding: 20px;
+      }
+
+      .section-header h2 {
+        font-size: 1.4rem;
+      }
     }
 
     /* null value styling */
@@ -432,186 +507,192 @@
     }
   </style>
 </head>
+
 <body>
 
-<div class="dashboard">
-  <!-- Main Dashboard Card -->
-  <div class="main-card">
-    <!-- Header -->
-    <div class="header">
-      <div class="title">
-        <div class="title-icon">
-          <i class="fas fa-chart-pie"></i>
+  <div class="dashboard">
+    <!-- Main Dashboard Card -->
+    <div class="main-card">
+      <!-- Header -->
+      <div class="header">
+        <div class="title">
+          <div class="title-icon">
+            <i class="fas fa-chart-pie"></i>
+          </div>
+          <div class="title-text">
+            <h1>Admin Dashboard</h1>
+            <p><i class="fas fa-database"></i> All saved profile and response data</p>
+          </div>
         </div>
-        <div class="title-text">
-          <h1>Admin Dashboard</h1>
-          <p><i class="fas fa-database"></i> All saved profile and response data</p>
-        </div>
-      </div>
-      
-      <div class="action-bar">
-        <a href="/admin/download/profiles.csv" class="btn btn-success">
-          <i class="fas fa-file-csv"></i> Profiles CSV
-        </a>
-        <a href="/admin/download/responses.csv" class="btn btn-success">
-          <i class="fas fa-file-csv"></i> Responses CSV
-        </a>
-        <a href="/admin/link-excel" class="btn btn-purple">
-          <i class="fas fa-link"></i> Link Excel
-        </a>
-        <a href="/admin/profiles" class="btn btn-primary">
-          <i class="fas fa-users"></i> Profiles
-        </a>
-        <a href="/admin/responses" class="btn btn-primary">
-          <i class="fas fa-clipboard-list"></i> Responses
-        </a>
-        <a href="/admin/investigator-audit" class="btn btn-purple">
-          <i class="fas fa-user-clock"></i> Investigator Audit
-        </a>
-        <a href="/admin/upload" class="btn btn-warning">
-          <i class="fas fa-upload"></i> Replace
-        </a>
-        <a href="/admin-logout" class="btn btn-danger">
-          <i class="fas fa-sign-out-alt"></i> Logout
-        </a>
-      </div>
-    </div>
 
-    <!-- Stats Cards -->
-    <div class="stats-grid">
-      <div class="stat-card">
-        <div class="stat-icon blue">
-          <i class="fas fa-users"></i>
+        <div class="action-bar">
+          <a href="/admin/download/profiles.csv" class="btn btn-success">
+            <i class="fas fa-file-csv"></i> Profiles CSV
+          </a>
+          <a href="/admin/download/responses.csv" class="btn btn-success">
+            <i class="fas fa-file-csv"></i> Responses CSV
+          </a>
+          <a href="/admin/link-excel" class="btn btn-purple">
+            <i class="fas fa-link"></i> Link Excel
+          </a>
+          <a href="/admin/profiles" class="btn btn-primary">
+            <i class="fas fa-users"></i> Profiles
+          </a>
+          <a href="/admin/responses" class="btn btn-primary">
+            <i class="fas fa-clipboard-list"></i> Responses
+          </a>
+          <a href="/admin/investigator-audit" class="btn btn-purple">
+            <i class="fas fa-user-clock"></i> Investigator Audit
+          </a>
+          <a href="/horiba" class="btn btn-success">
+            <i class="fas fa-microscope"></i> Horiba Management
+          </a>
+          <a href="/admin/upload" class="btn btn-warning">
+            <i class="fas fa-upload"></i> Replace
+          </a>
+          <a href="/admin-logout" class="btn btn-danger">
+            <i class="fas fa-sign-out-alt"></i> Logout
+          </a>
         </div>
-        <div class="stat-content">
-          <h3>{{ total_profiles }}</h3>
-          <p>Total Profiles</p>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon green">
-          <i class="fas fa-file-alt"></i>
-        </div>
-        <div class="stat-content">
-          <h3>{{ total_responses }}</h3>
-          <p>Total Responses</p>
-        </div>
-      </div>
-      
-      <div class="stat-card">
-        <div class="stat-icon purple">
-          <i class="fas fa-link"></i>
-        </div>
-        <div class="stat-content">
-          <h3>{{ total_linked }}</h3>
-          <p>Linked Rows</p>
-        </div>
-      </div>
-    </div>
-
-    <!-- Profiles Section -->
-    <div class="section-card">
-      <div class="section-header">
-        <i class="fas fa-id-card"></i>
-        <h2>Profiles Data</h2>
       </div>
 
-      {% if profiles|length == 0 %}
+      <!-- Stats Cards -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">
+            <i class="fas fa-users"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ total_profiles }}</h3>
+            <p>Total Profiles</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon green">
+            <i class="fas fa-file-alt"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ total_responses }}</h3>
+            <p>Total Responses</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon purple">
+            <i class="fas fa-link"></i>
+          </div>
+          <div class="stat-content">
+            <h3>{{ total_linked }}</h3>
+            <p>Linked Rows</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profiles Section -->
+      <div class="section-card">
+        <div class="section-header">
+          <i class="fas fa-id-card"></i>
+          <h2>Profiles Data</h2>
+        </div>
+
+        {% if profiles|length == 0 %}
         <div class="empty-message">
           <i class="fas fa-users"></i>
           <div>No profiles available.</div>
         </div>
-      {% else %}
+        {% else %}
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 {% for key in profile_headers %}
-                  <th>{{ key.replace('_', ' ').title() }}</th>
+                <th>{{ key.replace('_', ' ').title() }}</th>
                 {% endfor %}
               </tr>
             </thead>
             <tbody>
               {% for row in profiles %}
-                <tr>
-                  {% for key in profile_headers %}
-                    <td>
-                      {% if row.get(key) is none or row.get(key) == '' %}
-                        <span class="null-value">—</span>
-                      {% else %}
-                        {{ row.get(key) }}
-                      {% endif %}
-                    </td>
-                  {% endfor %}
-                </tr>
+              <tr>
+                {% for key in profile_headers %}
+                <td>
+                  {% if row.get(key) is none or row.get(key) == '' %}
+                  <span class="null-value">—</span>
+                  {% else %}
+                  {{ row.get(key) }}
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      {% endif %}
-    </div>
-
-    <!-- Responses Section -->
-    <div class="section-card" style="margin-top: 24px;">
-      <div class="section-header">
-        <i class="fas fa-clipboard-list"></i>
-        <h2>Responses Data</h2>
+        {% endif %}
       </div>
 
-      {% if responses|length == 0 %}
+      <!-- Responses Section -->
+      <div class="section-card" style="margin-top: 24px;">
+        <div class="section-header">
+          <i class="fas fa-clipboard-list"></i>
+          <h2>Responses Data</h2>
+        </div>
+
+        {% if responses|length == 0 %}
         <div class="empty-message">
           <i class="fas fa-file-alt"></i>
           <div>No responses available.</div>
         </div>
-      {% else %}
+        {% else %}
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
                 {% for key in response_headers %}
-                  <th>{{ key.replace('_', ' ').title() }}</th>
+                <th>{{ key.replace('_', ' ').title() }}</th>
                 {% endfor %}
               </tr>
             </thead>
             <tbody>
               {% for row in responses %}
-                <tr>
-                  {% for key in response_headers %}
-                    <td>
-                      {% if row.get(key) is none or row.get(key) == '' %}
-                        <span class="null-value">—</span>
-                      {% else %}
-                        {{ row.get(key) }}
-                      {% endif %}
-                    </td>
-                  {% endfor %}
-                </tr>
+              <tr>
+                {% for key in response_headers %}
+                <td>
+                  {% if row.get(key) is none or row.get(key) == '' %}
+                  <span class="null-value">—</span>
+                  {% else %}
+                  {{ row.get(key) }}
+                  {% endif %}
+                </td>
+                {% endfor %}
+              </tr>
               {% endfor %}
             </tbody>
           </table>
         </div>
-      {% endif %}
-    </div>
+        {% endif %}
+      </div>
 
-    <!-- footer note -->
-    <div style="margin-top: 30px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 12px;">
-      <i class="fas fa-shield-alt" style="color:#06d6a0;"></i>
-      Secure admin access · Last sync <span id="current-time"></span>
-      <i class="fas fa-heart" style="color:#b5179e;"></i>
+      <!-- footer note -->
+      <div
+        style="margin-top: 30px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 12px;">
+        <i class="fas fa-shield-alt" style="color:#06d6a0;"></i>
+        Secure admin access · Last sync <span id="current-time"></span>
+        <i class="fas fa-heart" style="color:#b5179e;"></i>
+      </div>
     </div>
   </div>
-</div>
 
-<script>
-  // update current time
-  document.addEventListener('DOMContentLoaded', function() {
-    const timeEl = document.getElementById('current-time');
-    if (timeEl) {
-      timeEl.textContent = new Date().toLocaleString();
-    }
-  });
-</script>
+  <script>
+    // update current time
+    document.addEventListener('DOMContentLoaded', function () {
+      const timeEl = document.getElementById('current-time');
+      if (timeEl) {
+        timeEl.textContent = new Date().toLocaleString();
+      }
+    });
+  </script>
 
 </body>
+
 </html>

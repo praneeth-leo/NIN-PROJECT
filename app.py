@@ -721,16 +721,16 @@ def section_status():
         return redirect(url_for("login"))
 
     section_keys = {
-        "A": ["child_id_code", "profile_id_code", "dob", "age_completed", "sex", "birth_order", "siblings_count"],
-        "B": ["family_type", "family_members_total", "religion", "caste_category", "edu_head_family", "occupation_head_family", "monthly_income", "kuppuswamy_total_score", "ses_class"],
+        "A": ["child_id_code", "dob", "age_completed", "sex", "birth_order", "siblings_count"],
+        "B": ["family_type", "family_members", "religion", "caste", "edu_head", "occ_head", "income", "kupp_total", "ses_class"],
         "C": [],
         "D": [],
-        "E": ["low_birth_weight", "chronic_illness", "chronic_illness_specify", "worm_infestation", "deworming_tablet", "iron_supplementation"],
-        "F": ["diet_type", "iron_rich_food_frequency"],
-        "G": ["hb_measurement_datetime"],
-        "H": ["device_sequence", "masimo_reading_1", "masimo_reading_2", "masimo_reading_3", "masimo_avg_sphb", "capillary_hb_value", "capillary_attempts", "venous_hb_value", "child_response_score"],
-        "I": ["comfortable_testing_process", "preferred_method", "repeat_screening", "parent_total"],
-        "J": ["child_classification", "ifa_dose", "referral_advised", "referral_destination", "referral_other_specify", "investigator_signature", "referral_date"],
+        "E": ["lbw", "chronic_illness", "worm_infestation", "deworming", "iron_supplement"],
+        "F": ["diet_type", "iron_rich_freq"],
+        "G": ["prev_tested"],
+        "H": ["sequence", "masimo_reading", "poc_hb_value", "lab_hb_value"],
+        "I": ["parent_q_73", "parent_total"],
+        "J": ["child_classification", "ifa_dose", "referral_advised", "investigator_name", "referral_date"],
     }
 
     profiles = read_csv_as_dict_list(PROFILE_CSV)
