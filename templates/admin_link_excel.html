@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,7 +8,9 @@
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+    rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     * {
@@ -25,7 +28,7 @@
       --text-primary: #1e293b;
       --text-secondary: #4a40a0;
       --text-muted: #5f6caf;
-      
+
       /* Action colors - vibrant */
       --primary: #4361ee;
       --primary-dark: #3a56d4;
@@ -38,14 +41,14 @@
       --info: #0dcaf0;
       --info-dark: #0bacd0;
       --purple: #b5179e;
-      
+
       --gradient-primary: linear-gradient(145deg, #4361ee, #b5179e);
       --gradient-success: linear-gradient(145deg, #06d6a0, #1b9aaa);
       --gradient-warning: linear-gradient(145deg, #ff8800, #e67a00);
       --gradient-danger: linear-gradient(145deg, #ef4444, #dc2626);
       --gradient-info: linear-gradient(145deg, #0dcaf0, #0bacd0);
-      
-      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255,255,255,0.8) inset;
+
+      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
       --radius-card: 48px;
       --radius-button: 60px;
       --radius-dropdown: 30px;
@@ -77,8 +80,13 @@
     }
 
     @keyframes softFloat {
-      0% { transform: scale(1) rotate(0deg); }
-      100% { transform: scale(1.03) rotate(0.5deg); }
+      0% {
+        transform: scale(1) rotate(0deg);
+      }
+
+      100% {
+        transform: scale(1.03) rotate(0.5deg);
+      }
     }
 
     .container {
@@ -90,8 +98,15 @@
     }
 
     @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     /* main card */
@@ -102,7 +117,7 @@
       border: 2px solid rgba(255, 255, 255, 0.8);
       border-radius: var(--radius-card);
       padding: 40px;
-      box-shadow: 0 40px 70px -25px rgba(255, 136, 0, 0.2), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      box-shadow: 0 40px 70px -25px rgba(255, 136, 0, 0.2), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
       position: relative;
       overflow: hidden;
     }
@@ -156,13 +171,20 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 20px 30px -15px #ff8800;
-      border: 3px solid rgba(255,255,255,0.8);
+      border: 3px solid rgba(255, 255, 255, 0.8);
       animation: float 3s infinite ease-in-out;
     }
 
     @keyframes float {
-      0%,100%{ transform: translateY(0); }
-      50%{ transform: translateY(-5px); }
+
+      0%,
+      100% {
+        transform: translateY(0);
+      }
+
+      50% {
+        transform: translateY(-5px);
+      }
     }
 
     .title-icon i {
@@ -218,7 +240,7 @@
       left: -60%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
       transform: rotate(25deg);
       transition: left 0.6s ease;
     }
@@ -297,7 +319,7 @@
       left: -60%;
       width: 200%;
       height: 200%;
-      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
       transform: rotate(25deg);
       transition: left 0.6s ease;
     }
@@ -365,8 +387,15 @@
     }
 
     @keyframes slideDown {
-      from { opacity: 0; transform: translateY(-15px); }
-      to { opacity: 1; transform: translateY(0); }
+      from {
+        opacity: 0;
+        transform: translateY(-15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
     }
 
     .dropdown-content a {
@@ -418,8 +447,15 @@
     }
 
     @keyframes slideIn {
-      from { opacity: 0; transform: translateX(-15px); }
-      to { opacity: 1; transform: translateX(0); }
+      from {
+        opacity: 0;
+        transform: translateX(-15px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateX(0);
+      }
     }
 
     .alert-error {
@@ -438,8 +474,13 @@
       font-size: 1.3rem;
     }
 
-    .alert-error i { color: #ef4444; }
-    .alert-success i { color: #06d6a0; }
+    .alert-error i {
+      color: #ef4444;
+    }
+
+    .alert-success i {
+      color: #06d6a0;
+    }
 
     /* data section */
     .data-section {
@@ -499,7 +540,7 @@
       border-radius: 40px;
       background: white;
       padding: 4px;
-      box-shadow: 0 20px 40px -20px rgba(0,0,0,0.1);
+      box-shadow: 0 20px 40px -20px rgba(0, 0, 0, 0.1);
     }
 
     table {
@@ -511,7 +552,8 @@
       overflow: hidden;
     }
 
-    th, td {
+    th,
+    td {
       border-bottom: 1px solid rgba(255, 136, 0, 0.1);
       padding: 16px 14px;
       text-align: left;
@@ -568,24 +610,36 @@
 
     /* responsive */
     @media (max-width: 768px) {
-      body { padding: 16px; }
-      .main-card { padding: 24px; }
-      .header { 
-        flex-direction: column; 
+      body {
+        padding: 16px;
+      }
+
+      .main-card {
+        padding: 24px;
+      }
+
+      .header {
+        flex-direction: column;
         align-items: stretch;
         border-radius: 40px;
         padding: 20px;
       }
-      .title-text h2 { font-size: 1.6rem; }
-      .action-bar { 
-        flex-direction: column; 
+
+      .title-text h2 {
+        font-size: 1.6rem;
+      }
+
+      .action-bar {
+        flex-direction: column;
         align-items: stretch;
       }
-      .action-btn { 
+
+      .action-btn {
         justify-content: center;
         width: 100%;
       }
-      .dropdown-content { 
+
+      .dropdown-content {
         min-width: 100%;
         position: static;
         margin-top: 10px;
@@ -621,14 +675,15 @@
         <b>barcode</b>
         <b>barcode_id</b>
         <b>student_barcode</b>
+        <b>horiba</b>
         <i class="fas fa-tag" style="margin-left: 4px;"></i>
       </div>
 
       <!-- Action Buttons -->
       <div class="action-bar">
         <!-- Upload Button -->
-        <a href="/masimo" class="action-btn btn-upload">
-          <i class="fas fa-cloud-upload-alt"></i> Upload and Link Excel
+        <a href="/horiba" class="action-btn btn-upload">
+          <i class="fas fa-cloud-upload-alt"></i> Upload and Link Machine Data
         </a>
 
         <!-- Export Dropdown -->
@@ -709,7 +764,8 @@
         </div>
 
         <!-- footer note -->
-        <div style="margin-top: 24px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 15px;">
+        <div
+          style="margin-top: 24px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 15px;">
           <i class="fas fa-check-circle" style="color:#06d6a0;"></i>
           <span>Data successfully linked with barcode system</span>
           <i class="fas fa-heart" style="color:#b5179e;"></i>

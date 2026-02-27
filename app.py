@@ -287,7 +287,7 @@ def build_linked_view_data():
     # Ensure key machine columns are always visible
     preferred_order = [
         "profile_id", "profile_found", "name", "school", "class", "section",
-        "masimo", "hemocue", "horiba",
+        "horiba",
         "submitted_at", "response_id",
     ]
     all_keys = set()
@@ -308,7 +308,7 @@ def save_linked_rows(rows):
         rows,
         preferred=[
             "profile_id", "profile_found", "name", "school", "class", "section",
-            "masimo", "hemocue", "horiba", "submitted_at", "response_id",
+            "horiba", "submitted_at", "response_id",
         ],
     )
     normalized_rows = [{k: row.get(k, "") for k in fields} for row in rows]
@@ -1163,150 +1163,68 @@ def admin_link_excel():
     )
 
 
-@app.route("/masimo", methods=["GET", "POST"])
-def masimo():
-    redirect_response = machine_redirect_if_unauthorized()
-    if redirect_response:
-        return redirect_response
-
-    if request.method == "POST":
-        file = request.files.get("file")
-        if not file or file.filename == "":
-            flash("Error: No file selected for Masimo upload")
-            return redirect(url_for("masimo"))
-        try:
-            filename = (file.filename or "").lower()
-            if filename.endswith(".csv"):
-                df = pd.read_csv(file)
-            else:
-                df = pd.read_excel(file)
-
-            if df.empty:
-                flash("Error: Uploaded file is empty")
-                return redirect(url_for("masimo"))
-
-            df = _normalized_df_columns(df)
-            profile_col = _find_profile_id_column(df)
-            value_col = _find_machine_value_column(df, "masimo", profile_col) if profile_col else None
-
-            if not profile_col or not value_col:
-                flash("Error: Required columns missing. Need profile_id/barcode and masimo value column")
-                return redirect(url_for("masimo"))
-
-            linked_rows, _ = build_linked_view_data()
-            row_map = {(r.get("profile_id", "") or "").strip().upper(): r for r in linked_rows}
-            updates = 0
-            changed_ids = []
-
-            for _, raw in df.iterrows():
-                pid = str(raw.get(profile_col, "")).strip().upper()
-                if not pid or pid == "NAN":
-                    continue
-                val = raw.get(value_col)
-                if pd.isna(val):
-                    continue
-                if pid in row_map:
-                    row_map[pid]["masimo"] = str(val).strip()
-                    updates += 1
-                    changed_ids.append(pid)
-
-            if updates > 0:
-                save_linked_rows(list(row_map.values()))
-                sample_ids = ", ".join(changed_ids[:15])
-                append_investigator_audit(
-                    "machine_update",
-                    f"Masimo upload updated {updates} profiles from {file.filename}; profile_ids={sample_ids}",
-                )
-                flash(f"Masimo data updated for {updates} profiles")
-            else:
-                flash("No matching profiles found for Masimo upload")
-        except Exception as e:
-            flash(f"Error processing Masimo file: {e}")
-        return redirect(url_for("masimo"))
-
-    return render_template("masimo.html")
-
-
-@app.route("/hemocue", methods=["GET", "POST"])
-def hemocue():
-    redirect_response = machine_redirect_if_unauthorized()
-    if redirect_response:
-        return redirect_response
-
-    if request.method == "POST":
-        file = request.files.get("file")
-        if not file or file.filename == "":
-            flash("Error: No file selected for Hemocue upload")
-            return redirect(url_for("hemocue"))
-        try:
-            filename = (file.filename or "").lower()
-            if filename.endswith(".csv"):
-                df = pd.read_csv(file)
-            else:
-                df = pd.read_excel(file)
-
-            if df.empty:
-                flash("Error: Uploaded file is empty")
-                return redirect(url_for("hemocue"))
-
-            df = _normalized_df_columns(df)
-            profile_col = _find_profile_id_column(df)
-            value_col = _find_machine_value_column(df, "hemocue", profile_col) if profile_col else None
-
-            if not profile_col or not value_col:
-                flash("Error: Required columns missing. Need profile_id/barcode and hemocue value column")
-                return redirect(url_for("hemocue"))
-
-            linked_rows, _ = build_linked_view_data()
-            row_map = {(r.get("profile_id", "") or "").strip().upper(): r for r in linked_rows}
-            updates = 0
-            changed_ids = []
-
-            for _, raw in df.iterrows():
-                pid = str(raw.get(profile_col, "")).strip().upper()
-                if not pid or pid == "NAN":
-                    continue
-                val = raw.get(value_col)
-                if pd.isna(val):
-                    continue
-                if pid in row_map:
-                    row_map[pid]["hemocue"] = str(val).strip()
-                    updates += 1
-                    changed_ids.append(pid)
-
-            if updates > 0:
-                save_linked_rows(list(row_map.values()))
-                sample_ids = ", ".join(changed_ids[:15])
-                append_investigator_audit(
-                    "machine_update",
-                    f"Hemocue upload updated {updates} profiles from {file.filename}; profile_ids={sample_ids}",
-                )
-                flash(f"Hemocue data updated for {updates} profiles")
-            else:
-                flash("No matching profiles found for Hemocue upload")
-        except Exception as e:
-            flash(f"Error processing Hemocue file: {e}")
-        return redirect(url_for("hemocue"))
-
-    return render_template("hemocue.html")
-
-
-@app.route("/horiba")
+@app.route("/horiba", methods=["GET", "POST"])
 def horiba():
     redirect_response = machine_redirect_if_unauthorized()
     if redirect_response:
         return redirect_response
-    linked_data, _ = build_linked_view_data()
-    profiles = []
-    for row in linked_data:
-        profiles.append({
-            "profile_id": (row.get("profile_id", "") or "").strip().upper(),
-            "name": row.get("name", ""),
-            "masimo": row.get("masimo", ""),
-            "hemocue": row.get("hemocue", ""),
-            "horiba": row.get("horiba", ""),
-        })
-    return render_template("horiba.html", profiles=profiles)
+
+    if request.method == "POST":
+        file = request.files.get("file")
+        if not file or file.filename == "":
+            flash("Error: No file selected for Horiba upload")
+            return redirect(url_for("horiba"))
+        try:
+            filename = (file.filename or "").lower()
+            if filename.endswith(".csv"):
+                df = pd.read_csv(file)
+            else:
+                df = pd.read_excel(file)
+
+            if df.empty:
+                flash("Error: Uploaded file is empty")
+                return redirect(url_for("horiba"))
+
+            df = _normalized_df_columns(df)
+            profile_col = _find_profile_id_column(df)
+            value_col = _find_machine_value_column(df, "horiba", profile_col) if profile_col else None
+
+            if not profile_col or not value_col:
+                flash("Error: Required columns missing. Need profile_id/barcode and horiba value column")
+                return redirect(url_for("horiba"))
+
+            linked_rows, _ = build_linked_view_data()
+            row_map = {(r.get("profile_id", "") or "").strip().upper(): r for r in linked_rows}
+            updates = 0
+            changed_ids = []
+
+            for _, raw in df.iterrows():
+                pid = str(raw.get(profile_col, "")).strip().upper()
+                if not pid or pid == "NAN":
+                    continue
+                val = raw.get(value_col)
+                if pd.isna(val):
+                    continue
+                if pid in row_map:
+                    row_map[pid]["horiba"] = str(val).strip()
+                    updates += 1
+                    changed_ids.append(pid)
+
+            if updates > 0:
+                save_linked_rows(list(row_map.values()))
+                sample_ids = ", ".join(changed_ids[:15])
+                append_investigator_audit(
+                    "machine_update",
+                    f"Horiba upload updated {updates} profiles from {file.filename}; profile_ids={sample_ids}",
+                )
+                flash(f"Horiba data updated for {updates} profiles")
+            else:
+                flash("No matching profiles found for Horiba upload")
+        except Exception as e:
+            flash(f"Error processing Horiba file: {e}")
+        return redirect(url_for("horiba"))
+
+    return render_template("horiba.html")
 
 
 @app.route("/update-horiba", methods=["POST"])

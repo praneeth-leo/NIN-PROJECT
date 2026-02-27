@@ -121,6 +121,7 @@
     .save-indicator i {
       color: #10b981;
     }
+
     .top-actions {
       display: flex;
       align-items: center;
@@ -342,6 +343,7 @@
     #ifa_dose {
       background: rgba(0, 0, 0, 0.3);
     }
+
     .ifa-modal {
       position: fixed;
       inset: 0;
@@ -462,7 +464,8 @@
     </div>
 
     <div class="form-footer" style="margin-top: 0; margin-bottom: 20px;">
-      <button type="button" onclick="window.location.href='/section-status'"><i class="fas fa-table"></i> Generate Section Status Table</button>
+      <button type="button" onclick="window.location.href='/section-status'"><i class="fas fa-table"></i> Generate
+        Section Status Table</button>
     </div>
 
     <div class="ifa-modal" id="ifaModal">
@@ -523,7 +526,8 @@
         </select>
 
         <label>Investigator Name:</label>
-        <input type="text" name="investigator_name" value="{{ investigator_username }}" placeholder="Enter investigator name">
+        <input type="text" name="investigator_name" value="{{ investigator_username }}"
+          placeholder="Enter investigator name">
 
         <label>Investigator Login ID (Data Entry By):</label>
         <input type="text" name="investigator_username" value="{{ investigator_username }}" readonly>
@@ -805,211 +809,31 @@
         </select>
 
 
-        <!-- ===== MASIMO RAD-67 ===== -->
+        <!-- ===== REFERENCE LAB ===== -->
 
-        <h4>Masimo Rad-67 (Non-invasive)</h4>
+        <h4>Reference (Laboratory)</h4>
 
-        <label>26. Start time:</label>
-        <input type="text" name="masimo_start_time">
+        <label>57. Start time:</label>
+        <input type="text" name="lab_start_time">
 
-        <label>27. Reading (g/dL):</label>
-        <input type="number" step="0.1" name="masimo_reading">
+        <label>58. Venous Hb value:</label>
+        <input type="number" step="0.1" id="lab_hb_value" name="lab_hb_value">
 
-        <label>28. End time:</label>
-        <input type="text" name="masimo_end_time">
+        <label>Calculated anemia status (from Venous Hb):</label>
+        <input type="text" id="anemia_status" name="anemia_status" placeholder="Auto-calculated from Venous Hb"
+          readonly>
 
-        <h4>29. FLACC Scale</h4>
-
-        <table>
-          <tr>
-            <th>Component</th>
-            <th>Score</th>
-          </tr>
-          <tr>
-            <td>Face</td>
-            <td><select class="flacc_m" name="masimo_flacc_face">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>Legs</td>
-            <td><select class="flacc_m" name="masimo_flacc_legs">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>Activity</td>
-            <td><select class="flacc_m" name="masimo_flacc_activity">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>Cry</td>
-            <td><select class="flacc_m" name="masimo_flacc_cry">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>Consolability</td>
-            <td><select class="flacc_m" name="masimo_flacc_consolability">
-                <option value="0">0</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-              </select></td>
-          </tr>
-        </table>
-
-        <div class="score">
-          Total Score (29): <input name="masimo_flacc_total" id="flacc_total_masimo" readonly> /10
-        </div>
-
-
-        <h4>Operational Feasibility (30â€“40)</h4>
-
-        <table>
-          <tr>
-            <th>Q.No</th>
-            <th>Question</th>
-            <th>Response</th>
-          </tr>
-          <tr>
-            <td>30</td>
-            <td>Ease of operation</td>
-            <td><select name="masimo_ease">
-                <option>Very easy</option>
-                <option>Easy</option>
-                <option>Moderate</option>
-                <option>Difficult</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>31</td>
-            <td>Training required</td>
-            <td><select name="masimo_training">
-                <option>None</option>
-                <option>Minimal</option>
-                <option>Moderate</option>
-                <option>Extensive</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>32</td>
-            <td>Maintenance frequency</td>
-            <td><select name="masimo_maintenance">
-                <option>Daily</option>
-                <option>Weekly</option>
-                <option>Monthly</option>
-                <option>Rare</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>33</td>
-            <td>Operational suitability</td>
-            <td><select name="masimo_suitability">
-                <option>Yes</option>
-                <option>Partially</option>
-                <option>No</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>34</td>
-            <td>Reliability</td>
-            <td><select name="masimo_reliability">
-                <option>Always</option>
-                <option>Often</option>
-                <option>Sometimes</option>
-                <option>Rarely</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>35</td>
-            <td>Portability</td>
-            <td><select name="masimo_portability">
-                <option>Highly portable</option>
-                <option>Moderately portable</option>
-                <option>Not portable</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>36</td>
-            <td>Maintenance & calibration</td>
-            <td><select name="masimo_calibration">
-                <option>Easy</option>
-                <option>Moderate</option>
-                <option>Difficult</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>37</td>
-            <td>Data recording</td>
-            <td><select name="masimo_recording">
-                <option>Yes</option>
-                <option>Partially</option>
-                <option>No</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>38</td>
-            <td>Field practicality</td>
-            <td><select name="masimo_practicality">
-                <option>Yes</option>
-                <option>Partially</option>
-                <option>No</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>39</td>
-            <td>Device safety</td>
-            <td><select name="masimo_safety">
-                <option>Very safe</option>
-                <option>Safe</option>
-                <option>Moderately safe</option>
-                <option>Unsafe</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>40</td>
-            <td>Overall feasibility rating</td>
-            <td><select name="masimo_feasibility_rating">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
-              </select></td>
-          </tr>
-        </table>
-
-
-        <!-- ===== MINIMALLY INVASIVE POC ===== -->
-
-        <h4>Minimally Invasive POC Device</h4>
-
-        <label>41. Start time:</label>
-        <input type="text" name="poc_start_time">
-
-        <label>42. Capillary Hb value:</label>
-        <input type="number" step="0.1" name="poc_hb_value">
-
-        <label>43. Number of attempts:</label>
-        <select name="poc_attempts">
+        <label>59. Number of attempts:</label>
+        <select name="lab_attempts">
           <option>1</option>
           <option>2</option>
-          <option>â‰¥3</option>
+          <option>≥3</option>
         </select>
 
-        <label>44. End time:</label>
-        <input type="text" name="poc_end_time">
+        <label>60. End time:</label>
+        <input type="text" name="lab_end_time">
 
-        <h4>45. FLACC Scale</h4>
+        <h4>61. FLACC Scale</h4>
 
         <table>
           <tr>
@@ -1018,7 +842,7 @@
           </tr>
           <tr>
             <td>Face</td>
-            <td><select class="flacc_c" name="poc_flacc_face">
+            <td><select class="flacc_l" name="lab_flacc_face">
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -1026,7 +850,7 @@
           </tr>
           <tr>
             <td>Legs</td>
-            <td><select class="flacc_c" name="poc_flacc_legs">
+            <td><select class="flacc_l" name="lab_flacc_legs">
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -1034,7 +858,7 @@
           </tr>
           <tr>
             <td>Activity</td>
-            <td><select class="flacc_c" name="poc_flacc_activity">
+            <td><select class="flacc_l" name="lab_flacc_activity">
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -1042,7 +866,7 @@
           </tr>
           <tr>
             <td>Cry</td>
-            <td><select class="flacc_c" name="poc_flacc_cry">
+            <td><select class="flacc_l" name="lab_flacc_cry">
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -1050,7 +874,7 @@
           </tr>
           <tr>
             <td>Consolability</td>
-            <td><select class="flacc_c" name="poc_flacc_consolability">
+            <td><select class="flacc_l" name="lab_flacc_consolability">
                 <option value="0">0</option>
                 <option value="1">1</option>
                 <option value="2">2</option>
@@ -1059,11 +883,11 @@
         </table>
 
         <div class="score">
-          Total Score (45): <input name="poc_flacc_total" id="flacc_total_mini" readonly> /10
+          Total Score (61): <input name="lab_flacc_total" id="flacc_total_lab" readonly> /10
         </div>
 
 
-        <h4>Operational Feasibility (46â€“56)</h4>
+        <h4>Operational Feasibility (62–71)</h4>
 
         <table>
           <tr>
@@ -1072,9 +896,9 @@
             <th>Response</th>
           </tr>
           <tr>
-            <td>46</td>
+            <td>62</td>
             <td>Ease of operation</td>
-            <td><select name="poc_ease">
+            <td><select name="lab_ease">
                 <option>Very easy</option>
                 <option>Easy</option>
                 <option>Moderate</option>
@@ -1082,9 +906,9 @@
               </select></td>
           </tr>
           <tr>
-            <td>47</td>
+            <td>63</td>
             <td>Training required</td>
-            <td><select name="poc_training">
+            <td><select name="lab_training">
                 <option>None</option>
                 <option>Minimal</option>
                 <option>Moderate</option>
@@ -1092,9 +916,9 @@
               </select></td>
           </tr>
           <tr>
-            <td>48</td>
+            <td>64</td>
             <td>Maintenance frequency</td>
-            <td><select name="poc_maintenance">
+            <td><select name="lab_maintenance">
                 <option>Daily</option>
                 <option>Weekly</option>
                 <option>Monthly</option>
@@ -1102,18 +926,18 @@
               </select></td>
           </tr>
           <tr>
-            <td>49</td>
+            <td>65</td>
             <td>Operational suitability</td>
-            <td><select name="poc_suitability">
+            <td><select name="lab_suitability">
                 <option>Yes</option>
                 <option>Partially</option>
                 <option>No</option>
               </select></td>
           </tr>
           <tr>
-            <td>50</td>
+            <td>66</td>
             <td>Reliability</td>
-            <td><select name="poc_reliability">
+            <td><select name="lab_reliability">
                 <option>Always</option>
                 <option>Often</option>
                 <option>Sometimes</option>
@@ -1121,60 +945,49 @@
               </select></td>
           </tr>
           <tr>
-            <td>51</td>
+            <td>67</td>
             <td>Portability</td>
-            <td><select name="poc_portability">
+            <td><select name="lab_portability">
                 <option>Highly portable</option>
                 <option>Moderately portable</option>
                 <option>Not portable</option>
               </select></td>
           </tr>
           <tr>
-            <td>52</td>
+            <td>68</td>
             <td>Maintenance & calibration</td>
-            <td><select name="poc_calibration">
+            <td><select name="lab_calibration">
                 <option>Easy</option>
                 <option>Moderate</option>
                 <option>Difficult</option>
               </select></td>
           </tr>
           <tr>
-            <td>53</td>
+            <td>69</td>
             <td>Data recording</td>
-            <td><select name="poc_recording">
+            <td><select name="lab_recording">
                 <option>Yes</option>
                 <option>Partially</option>
                 <option>No</option>
               </select></td>
           </tr>
           <tr>
-            <td>54</td>
+            <td>70</td>
             <td>Field practicality</td>
-            <td><select name="poc_practicality">
+            <td><select name="lab_practicality">
                 <option>Yes</option>
                 <option>Partially</option>
                 <option>No</option>
               </select></td>
           </tr>
           <tr>
-            <td>55</td>
+            <td>71</td>
             <td>Device safety</td>
-            <td><select name="poc_safety">
+            <td><select name="lab_safety">
                 <option>Very safe</option>
                 <option>Safe</option>
                 <option>Moderately safe</option>
                 <option>Unsafe</option>
-              </select></td>
-          </tr>
-          <tr>
-            <td>56</td>
-            <td>Overall feasibility rating</td>
-            <td><select name="poc_feasibility_rating">
-                <option>1</option>
-                <option>2</option>
-                <option>3</option>
-                <option>4</option>
-                <option>5</option>
               </select></td>
           </tr>
         </table>
@@ -1191,7 +1004,8 @@
         <input type="number" step="0.1" id="lab_hb_value" name="lab_hb_value">
 
         <label>Calculated anemia status (from Venous Hb):</label>
-        <input type="text" id="anemia_status" name="anemia_status" placeholder="Auto-calculated from Venous Hb" readonly>
+        <input type="text" id="anemia_status" name="anemia_status" placeholder="Auto-calculated from Venous Hb"
+          readonly>
 
         <label>59. Number of attempts:</label>
         <select name="lab_attempts">
@@ -1523,7 +1337,8 @@
           <option>Non-anaemic</option>
         </select>
 
-        <label>83. Dose of IFA:</label> <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Auto-calculated from Weight + Venous Hb (editable)">
+        <label>83. Dose of IFA:</label> <input type="text" id="ifa_dose" name="ifa_dose"
+          placeholder="Auto-calculated from Weight + Venous Hb (editable)">
 
         <label>84. Referral advised?</label>
         <select name="referral_advised">
@@ -1618,20 +1433,17 @@
       const weightInput = document.getElementById("weight_input")
       const doseInput = document.getElementById("ifa_dose")
       const labHbInput = document.querySelector('input[name="lab_hb_value"]')
-      const pocHbInput = document.querySelector('input[name="poc_hb_value"]')
       if (!weightInput || !doseInput) return
 
       const w = parseFloat(weightInput.value)
-      // Prefer venous Hb; if empty, use capillary Hb as fallback.
-      const labHb = labHbInput ? parseFloat(labHbInput.value) : NaN
-      const pocHb = pocHbInput ? parseFloat(pocHbInput.value) : NaN
-      const hb = !Number.isNaN(labHb) ? labHb : pocHb
+      // Use venous Hb (Lab) for dosage calculation
+      const hb = labHbInput ? parseFloat(labHbInput.value) : NaN
 
       doseInput.value = calculateIfaDose(w, hb)
     }
 
     function calculateIfaDose(weight, hb) {
-      if (Number.isNaN(weight) || Number.isNaN(hb) || weight <= 0) return "Enter valid Weight + Horiba Hb"
+      if (Number.isNaN(weight) || Number.isNaN(hb) || weight <= 0) return "Enter valid Weight + Lab Hb"
       if (hb >= 11) return "No therapeutic syrup dose"
       if (hb < 5) return "5 to 7.5 ml/day (urgent referral)"
       if (hb < 7) return "7.5 to 9 ml/day (urgent referral)"
@@ -1646,15 +1458,13 @@
       if (e.target.id === "edu_head" || e.target.id === "occ_head" || e.target.id === "income") calcKupp()
       if (e.target.classList.contains("parent_score")) calcParent()
       if (e.target.name === "lab_hb_value") classify()
-      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value" || e.target.name === "poc_hb_value") dose()
-      if (e.target.classList.contains("flacc_m")) calcFlacc("flacc_m", "flacc_total_masimo")
-      if (e.target.classList.contains("flacc_c")) calcFlacc("flacc_c", "flacc_total_mini")
+      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value") dose()
       if (e.target.classList.contains("flacc_l")) calcFlacc("flacc_l", "flacc_total_lab")
     })
 
     document.addEventListener("input", e => {
       if (e.target.name === "lab_hb_value") classify()
-      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value" || e.target.name === "poc_hb_value") dose()
+      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value") dose()
     })
 
     function calcFlacc(className, outputId) {
@@ -1667,8 +1477,6 @@
     }
 
     function calcAllFlacc() {
-      calcFlacc("flacc_m", "flacc_total_masimo")
-      calcFlacc("flacc_c", "flacc_total_mini")
       calcFlacc("flacc_l", "flacc_total_lab")
     }
 
@@ -1682,13 +1490,12 @@
       const result = document.getElementById("ifaCalcResult")
       const formWeight = document.getElementById("weight_input")
       const formLabHb = document.querySelector('input[name="lab_hb_value"]')
-      const formPocHb = document.querySelector('input[name="poc_hb_value"]')
       const formDose = document.getElementById("ifa_dose")
 
       if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
           if (formWeight && calcWeight && !calcWeight.value) calcWeight.value = formWeight.value || ""
-          if (calcHb && !calcHb.value) calcHb.value = (formLabHb && formLabHb.value) || (formPocHb && formPocHb.value) || ""
+          if (calcHb && !calcHb.value) calcHb.value = (formLabHb && formLabHb.value) || ""
           modal.classList.add("show")
         })
       }
@@ -1717,4 +1524,3 @@
 </body>
 
 </html>
-
