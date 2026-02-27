@@ -3,90 +3,356 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro - Investigator Login</title>
+  <title>SurveyPro · Investigator Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { 
+      margin: 0; 
+      padding: 0; 
+      box-sizing: border-box; 
+    }
+
+    :root {
+      --bg-light: #f4f9ff;
+      --surface-glass: rgba(255, 255, 255, 0.75);
+      --surface-card: rgba(255, 255, 255, 0.6);
+      --border-soft: rgba(6, 214, 160, 0.2);
+      --border-active: #06d6a0;
+      --text-primary: #1e293b;
+      --text-secondary: #4a40a0;
+      --text-muted: #5f6caf;
+      --accent-mint: #06d6a0;
+      --accent-pink: #b5179e;
+      --accent-blue: #4361ee;
+      --accent-glow: rgba(6, 214, 160, 0.25);
+      --gradient-primary: linear-gradient(145deg, #4361ee, #b5179e);
+      --gradient-mint: linear-gradient(145deg, #06d6a0, #1b9aaa);
+      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.25), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      --radius-card: 48px;
+      --radius-input: 40px;
+    }
+
     body {
-      font-family: "Inter", sans-serif;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
-      background: #070b14;
-      color: #fff;
+      background: var(--bg-light);
+      color: var(--text-primary);
       padding: 20px;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* playful animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 10% 20%, #fbc8d5 0%, transparent 30%),
+        radial-gradient(circle at 90% 70%, #b8e1ff 0%, transparent 35%),
+        radial-gradient(circle at 30% 80%, #fde4c2 0%, transparent 40%),
+        radial-gradient(circle at 70% 25%, #d9cbff 0%, transparent 32%);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 0;
+      animation: softDrift 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes softDrift {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(1deg); }
+    }
+
     .box {
       width: 100%;
-      max-width: 420px;
-      background: rgba(12, 18, 28, 0.9);
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      border-radius: 24px;
-      padding: 36px 28px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+      max-width: 460px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-card);
+      padding: 48px 40px;
+      box-shadow: 0 40px 70px -25px rgba(6, 214, 160, 0.3), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      position: relative;
+      z-index: 10;
+      animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      overflow: hidden;
     }
+
+    .box::after {
+      content: "🔐";
+      position: absolute;
+      bottom: 20px;
+      right: 25px;
+      font-size: 4rem;
+      opacity: 0.06;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .box::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(500px circle at 80% 20%, rgba(6, 214, 160, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.92) translateY(15px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* investigator icon */
+    .investigator-icon {
+      width: 90px;
+      height: 90px;
+      background: var(--gradient-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 20px;
+      box-shadow: 0 20px 30px -12px #b5179e, 0 0 0 4px rgba(255,255,255,0.8);
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-6px); }
+    }
+
+    .investigator-icon i {
+      font-size: 44px;
+      color: white;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
     h2 {
       text-align: center;
-      margin-bottom: 8px;
-      font-size: 1.8rem;
+      margin-bottom: 6px;
+      font-size: 2.4rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #1e293b, #4361ee, #b5179e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
     }
+
     .sub {
       text-align: center;
-      color: #b1c3ff;
-      margin-bottom: 24px;
-      font-size: 0.95rem;
+      color: #4a40a0;
+      margin-bottom: 32px;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.6);
+      padding: 12px 24px;
+      border-radius: 60px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      border: 2px solid rgba(6, 214, 160, 0.2);
     }
+
+    .sub i {
+      color: #06d6a0;
+    }
+
     .input-group {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
+
     .input-group i {
       position: absolute;
       top: 50%;
-      left: 14px;
+      left: 20px;
       transform: translateY(-50%);
-      color: #7e8bb6;
+      color: #b5179e;
+      font-size: 1.2rem;
+      transition: all 0.2s;
+      z-index: 2;
     }
+
     input {
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-      color: #fff;
-      border-radius: 12px;
-      padding: 12px 14px 12px 40px;
-      font-size: 0.95rem;
+      border: 2px solid rgba(181, 23, 158, 0.15);
+      background: white;
+      color: #1e293b;
+      border-radius: 60px;
+      padding: 18px 24px 18px 52px;
+      font-size: 1rem;
+      font-weight: 500;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 20px -15px rgba(0,0,0,0.1);
     }
+
+    input::placeholder {
+      color: #a0b3cc;
+      font-weight: 400;
+    }
+
     input:focus {
       outline: none;
-      border-color: #6366f1;
+      border-color: #06d6a0;
+      box-shadow: 0 0 0 4px rgba(6, 214, 160, 0.2), 0 10px 20px -15px #06d6a0;
+      transform: scale(1.02);
     }
+
+    input:focus + i {
+      color: #06d6a0;
+      transform: translateY(-50%) scale(1.1);
+    }
+
+    .input-group:hover i {
+      color: #06d6a0;
+    }
+
     .login-btn {
       width: 100%;
       border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-weight: 600;
+      border-radius: 60px;
+      padding: 18px 24px;
+      font-weight: 700;
+      font-size: 1.1rem;
       cursor: pointer;
-      color: #fff;
-      background: linear-gradient(145deg, #6366f1, #8b5cf6);
-      margin-top: 4px;
+      color: white;
+      background: var(--gradient-primary);
+      margin-top: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      box-shadow: 0 20px 30px -14px #b5179e;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      position: relative;
+      overflow: hidden;
+      border: 2px solid rgba(255, 255, 255, 0.3);
     }
+
+    .login-btn i {
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .login-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .login-btn:hover {
+      transform: scale(1.03) translateY(-3px);
+      box-shadow: 0 28px 40px -16px #b5179e;
+    }
+
+    .login-btn:hover::after {
+      left: 120%;
+    }
+
+    .login-btn:hover i {
+      transform: translateX(4px) scale(1.1);
+    }
+
+    .login-btn:active {
+      transform: scale(0.98) translateY(2px);
+    }
+
     .error {
-      margin-top: 12px;
+      margin-top: 24px;
+      padding: 16px 24px;
       text-align: center;
-      color: #fecaca;
+      color: #b91c1c;
+      background: #fee2e2;
+      border-radius: 60px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border: 2px solid #fecaca;
+      box-shadow: 0 8px 20px -12px #ef4444;
+      animation: shake 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
+    /* footer note */
+    .note {
+      margin-top: 24px;
+      text-align: center;
+      color: #5f6caf;
       font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.5);
+      padding: 12px 20px;
+      border-radius: 60px;
+      border: 1px solid rgba(6, 214, 160, 0.2);
+    }
+
+    .note i {
+      color: #06d6a0;
+    }
+
+    /* responsive */
+    @media (max-width: 480px) {
+      .box {
+        padding: 36px 24px;
+      }
+      h2 {
+        font-size: 2rem;
+      }
+      .investigator-icon {
+        width: 70px;
+        height: 70px;
+      }
+      .investigator-icon i {
+        font-size: 34px;
+      }
     }
   </style>
 </head>
 <body>
   <div class="box">
+    <!-- investigator icon -->
+    <div class="investigator-icon">
+      <i class="fas fa-user-tie"></i>
+    </div>
+
     <h2>Investigator Login</h2>
-    <div class="sub">Access is separate from admin</div>
+    <div class="sub">
+      <i class="fas fa-shield-alt"></i>
+      Access is separate from admin
+      <i class="fas fa-fingerprint" style="color:#b5179e;"></i>
+    </div>
 
     <form method="POST" action="/investigator-login">
       <div class="input-group">
@@ -97,12 +363,25 @@
         <i class="fas fa-key"></i>
         <input type="password" name="password" placeholder="Password" required />
       </div>
-      <button type="submit" class="login-btn">Login</button>
+      <button type="submit" class="login-btn">
+        <span>Login</span>
+        <i class="fas fa-arrow-right-to-bracket"></i>
+      </button>
     </form>
 
     {% if error %}
-    <div class="error">{{ error }}</div>
+    <div class="error">
+      <i class="fas fa-circle-exclamation"></i>
+      {{ error }}
+    </div>
     {% endif %}
+
+    <!-- secure note -->
+    <div class="note">
+      <i class="fas fa-lock"></i>
+      Secure investigator access only
+      <i class="fas fa-check-circle" style="color:#06d6a0;"></i>
+    </div>
   </div>
 </body>
 </html>

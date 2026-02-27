@@ -7,3 +7,4 @@ flask-sqlalchemy
 pymysql
 cryptography
 python-dotenv
+

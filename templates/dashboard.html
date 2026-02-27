@@ -411,6 +411,13 @@
       transform: translateX(6px);
     }
 
+    .btn-upload {
+      margin-top: 12px;
+      font-size: 1rem;
+      background: linear-gradient(135deg, #0ea5a3, #0f766e);
+      box-shadow: 0 22px 30px -16px rgba(15, 118, 110, 0.45), 0 0 0 1px rgba(255,255,255,0.05);
+    }
+
     /* quick survey info grid */
     .info-grid {
       display: grid;
@@ -595,9 +602,13 @@
       </div>
 
       <!-- main CTA (no change to href) -->
-      <a class="btn" href="/form">
+      <a class="btn" href="{{ url_for('investigator_login', next=url_for('form')) }}">
         <span>Start survey</span>
         <i class="fas fa-arrow-right"></i>
+      </a>
+      <a class="btn btn-upload" href="{{ url_for('investigator_login', next=url_for('masimo')) }}">
+        <span>Investigator Upload</span>
+        <i class="fas fa-upload"></i>
       </a>
 
       <!-- micro draft info (ui only) -->

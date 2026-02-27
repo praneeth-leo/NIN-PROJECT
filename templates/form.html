@@ -477,7 +477,7 @@
             <input type="number" step="0.1" id="ifa_calc_weight" placeholder="Enter weight">
           </div>
           <div>
-            <label for="ifa_calc_hb">Horiba Hb (g/dL)</label>
+            <label for="ifa_calc_hb">Hb value (g/dL)</label>
             <input type="number" step="0.1" id="ifa_calc_hb" placeholder="Enter Hb value">
           </div>
         </div>
@@ -523,7 +523,13 @@
         </select>
 
         <label>Investigator Name:</label>
-        <input type="text" name="investigator_name" placeholder="Enter investigator name">
+        <input type="text" name="investigator_name" value="{{ investigator_username }}" placeholder="Enter investigator name">
+
+        <label>Investigator Login ID (Data Entry By):</label>
+        <input type="text" name="investigator_username" value="{{ investigator_username }}" readonly>
+
+        <label>Investigator Data Entry Note:</label>
+        <input type="text" name="investigator_entry_note" placeholder="Enter note about this data entry">
       </div>
       <!-- ================= SECTION A ================= -->
       <div class="section">
@@ -1182,7 +1188,10 @@
         <input type="text" name="lab_start_time">
 
         <label>58. Venous Hb value:</label>
-        <input type="number" step="0.1" name="lab_hb_value">
+        <input type="number" step="0.1" id="lab_hb_value" name="lab_hb_value">
+
+        <label>Calculated anemia status (from Venous Hb):</label>
+        <input type="text" id="anemia_status" name="anemia_status" placeholder="Auto-calculated from Venous Hb" readonly>
 
         <label>59. Number of attempts:</label>
         <select name="lab_attempts">
@@ -1514,7 +1523,7 @@
           <option>Non-anaemic</option>
         </select>
 
-        <label>83. Dose of IFA:</label> <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Enter dose">
+        <label>83. Dose of IFA:</label> <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Auto-calculated from Weight + Venous Hb (editable)">
 
         <label>84. Referral advised?</label>
         <select name="referral_advised">
@@ -1578,19 +1587,47 @@
 
     /* ANEMIA */
     function classify() {
-      let hb = parseFloat(hb_value.value)
-      if (hb >= 11) anemia_status.value = "Non-Anaemic"
-      else if (hb >= 10) anemia_status.value = "Mild"
-      else if (hb >= 7) anemia_status.value = "Moderate"
-      else anemia_status.value = "Severe"
+      const hbInput = document.querySelector('input[name="lab_hb_value"]')
+      const statusInput = document.getElementById("anemia_status")
+      const childClassification = document.querySelector('select[name="child_classification"]')
+      const hb = hbInput ? parseFloat(hbInput.value) : NaN
+      if (!statusInput) return
+
+      if (Number.isNaN(hb)) {
+        statusInput.value = ""
+        return
+      }
+
+      if (hb >= 11) {
+        statusInput.value = "Non-Anaemic"
+        if (childClassification) childClassification.value = "Non-anaemic"
+      } else if (hb >= 10) {
+        statusInput.value = "Mild"
+        if (childClassification) childClassification.value = "Anaemic"
+      } else if (hb >= 7) {
+        statusInput.value = "Moderate"
+        if (childClassification) childClassification.value = "Anaemic"
+      } else {
+        statusInput.value = "Severe"
+        if (childClassification) childClassification.value = "Anaemic"
+      }
     }
 
     /* IFA */
     function dose() {
-      let w = parseFloat(weight_input.value)
-      const hbInput = document.querySelector('input[name="lab_hb_value"]')
-      const hb = hbInput ? parseFloat(hbInput.value) : NaN
-      ifa_dose.value = calculateIfaDose(w, hb)
+      const weightInput = document.getElementById("weight_input")
+      const doseInput = document.getElementById("ifa_dose")
+      const labHbInput = document.querySelector('input[name="lab_hb_value"]')
+      const pocHbInput = document.querySelector('input[name="poc_hb_value"]')
+      if (!weightInput || !doseInput) return
+
+      const w = parseFloat(weightInput.value)
+      // Prefer venous Hb; if empty, use capillary Hb as fallback.
+      const labHb = labHbInput ? parseFloat(labHbInput.value) : NaN
+      const pocHb = pocHbInput ? parseFloat(pocHbInput.value) : NaN
+      const hb = !Number.isNaN(labHb) ? labHb : pocHb
+
+      doseInput.value = calculateIfaDose(w, hb)
     }
 
     function calculateIfaDose(weight, hb) {
@@ -1608,11 +1645,16 @@
     document.addEventListener("change", e => {
       if (e.target.id === "edu_head" || e.target.id === "occ_head" || e.target.id === "income") calcKupp()
       if (e.target.classList.contains("parent_score")) calcParent()
-      if (e.target.id === "hb_value") classify()
-      if (e.target.id === "weight_input") dose()
+      if (e.target.name === "lab_hb_value") classify()
+      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value" || e.target.name === "poc_hb_value") dose()
       if (e.target.classList.contains("flacc_m")) calcFlacc("flacc_m", "flacc_total_masimo")
       if (e.target.classList.contains("flacc_c")) calcFlacc("flacc_c", "flacc_total_mini")
       if (e.target.classList.contains("flacc_l")) calcFlacc("flacc_l", "flacc_total_lab")
+    })
+
+    document.addEventListener("input", e => {
+      if (e.target.name === "lab_hb_value") classify()
+      if (e.target.id === "weight_input" || e.target.name === "lab_hb_value" || e.target.name === "poc_hb_value") dose()
     })
 
     function calcFlacc(className, outputId) {
@@ -1630,22 +1672,23 @@
       calcFlacc("flacc_l", "flacc_total_lab")
     }
 
-    document.addEventListener("DOMContentLoaded", calcAllFlacc)
     document.addEventListener("DOMContentLoaded", () => {
       const openBtn = document.getElementById("openIfaCalculator")
       const closeBtn = document.getElementById("closeIfaCalculator")
       const modal = document.getElementById("ifaModal")
       const runBtn = document.getElementById("runIfaCalculator")
-      const weightInput = document.getElementById("ifa_calc_weight")
-      const hbInput = document.getElementById("ifa_calc_hb")
+      const calcWeight = document.getElementById("ifa_calc_weight")
+      const calcHb = document.getElementById("ifa_calc_hb")
       const result = document.getElementById("ifaCalcResult")
       const formWeight = document.getElementById("weight_input")
-      const formHb = document.querySelector('input[name="lab_hb_value"]')
+      const formLabHb = document.querySelector('input[name="lab_hb_value"]')
+      const formPocHb = document.querySelector('input[name="poc_hb_value"]')
+      const formDose = document.getElementById("ifa_dose")
 
       if (openBtn && modal) {
         openBtn.addEventListener("click", () => {
-          if (formWeight && !weightInput.value) weightInput.value = formWeight.value || ""
-          if (formHb && !hbInput.value) hbInput.value = formHb.value || ""
+          if (formWeight && calcWeight && !calcWeight.value) calcWeight.value = formWeight.value || ""
+          if (calcHb && !calcHb.value) calcHb.value = (formLabHb && formLabHb.value) || (formPocHb && formPocHb.value) || ""
           modal.classList.add("show")
         })
       }
@@ -1657,13 +1700,17 @@
       }
       if (runBtn) {
         runBtn.addEventListener("click", () => {
-          const w = parseFloat(weightInput.value)
-          const hb = parseFloat(hbInput.value)
+          const w = parseFloat(calcWeight?.value || "")
+          const hb = parseFloat(calcHb?.value || "")
           const out = calculateIfaDose(w, hb)
-          result.textContent = "Suggested Dose: " + out
-          if (typeof ifa_dose !== "undefined" && ifa_dose) ifa_dose.value = out
+          if (result) result.textContent = "Suggested Dose: " + out
+          if (formDose) formDose.value = out
         })
       }
+
+      calcAllFlacc()
+      classify()
+      dose()
     })
   </script>
 

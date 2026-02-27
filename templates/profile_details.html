@@ -3,56 +3,557 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Profile</title>
+  <title>Student Profile · SurveyPro</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    body { font-family: Inter, sans-serif; background: #0a0c15; color: #fff; margin: 0; padding: 24px; }
-    .wrap { max-width: 900px; margin: 0 auto; }
-    .card { background: rgba(18,24,38,0.85); border: 1px solid rgba(255,255,255,0.06); border-radius: 20px; padding: 24px; }
-    h1 { margin: 0 0 8px; font-size: 1.8rem; }
-    .sub { color: #9fb0e3; margin-bottom: 16px; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-    .item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 10px 12px; }
-    .k { color: #9fb0e3; font-size: 0.82rem; margin-bottom: 4px; text-transform: uppercase; }
-    .v { font-size: 0.98rem; }
-    .barcode { margin-top: 20px; text-align: center; }
-    .barcode img { max-width: 320px; width: 100%; background: #fff; border-radius: 8px; padding: 6px; }
-    .actions { margin-top: 20px; display: flex; gap: 10px; flex-wrap: wrap; }
-    .btn { text-decoration: none; color: #fff; padding: 11px 16px; border-radius: 10px; font-weight: 600; }
-    .primary { background: linear-gradient(145deg, #6366f1, #8b5cf6); }
-    .muted { background: linear-gradient(145deg, #475569, #334155); }
-    @media (max-width: 680px) { .grid { grid-template-columns: 1fr; } }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-light: #f4f9ff;
+      --surface-glass: rgba(255, 255, 255, 0.7);
+      --surface-card: rgba(255, 255, 255, 0.6);
+      --border-soft: rgba(6, 214, 160, 0.2);
+      --border-active: #06d6a0;
+      --text-primary: #1e293b;
+      --text-secondary: #4a40a0;
+      --text-muted: #5f6caf;
+      --accent-mint: #06d6a0;
+      --accent-pink: #b5179e;
+      --accent-purple: #7209b7;
+      --accent-blue: #4361ee;
+      --accent-glow: rgba(6, 214, 160, 0.2);
+      --gradient-primary: linear-gradient(145deg, #4361ee, #b5179e);
+      --gradient-secondary: linear-gradient(145deg, #06d6a0, #1b9aaa);
+      --gradient-muted: linear-gradient(145deg, #f59e0b, #d97706);
+      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      --radius-card: 40px;
+      --radius-item: 24px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-light);
+      min-height: 100vh;
+      margin: 0;
+      padding: 24px;
+      color: var(--text-primary);
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    /* playful animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      width: 100vw;
+      height: 100vh;
+      background: 
+        radial-gradient(circle at 15% 30%, #fbc8d5 0%, transparent 30%),
+        radial-gradient(circle at 85% 60%, #b8e1ff 0%, transparent 35%),
+        radial-gradient(circle at 40% 85%, #fde4c2 0%, transparent 40%),
+        radial-gradient(circle at 70% 25%, #d9cbff 0%, transparent 32%);
+      opacity: 0.4;
+      pointer-events: none;
+      z-index: 0;
+      animation: softFloat 20s infinite alternate ease-in-out;
+    }
+
+    @keyframes softFloat {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(1deg); }
+    }
+
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 10;
+      animation: fadeSlide 0.5s ease-out;
+    }
+
+    @keyframes fadeSlide {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* header with greeting */
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 24px;
+      background: rgba(255, 255, 255, 0.5);
+      backdrop-filter: blur(8px);
+      padding: 16px 28px;
+      border-radius: 60px;
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      box-shadow: 0 10px 25px -10px rgba(6, 214, 160, 0.2);
+    }
+
+    .avatar {
+      width: 64px;
+      height: 64px;
+      background: var(--gradient-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 28px;
+      color: white;
+      box-shadow: 0 12px 20px -10px #b5179e80;
+      border: 3px solid white;
+    }
+
+    .header-text h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #1e293b, #4361ee);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header-text p {
+      color: #4a40a0;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+
+    .header-text p i {
+      color: #06d6a0;
+    }
+
+    .badge {
+      background: white;
+      color: #b5179e;
+      padding: 6px 16px;
+      border-radius: 40px;
+      font-weight: 700;
+      font-size: 0.9rem;
+      border: 2px solid rgba(6, 214, 160, 0.3);
+      margin-left: auto;
+    }
+
+    /* main card */
+    .card {
+      background: rgba(255, 255, 255, 0.65);
+      backdrop-filter: blur(16px) saturate(180%);
+      -webkit-backdrop-filter: blur(16px) saturate(180%);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-card);
+      padding: 36px 32px;
+      box-shadow: var(--shadow-elevation);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px circle at 80% 20%, rgba(6, 214, 160, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    .card::before {
+      content: "👤";
+      position: absolute;
+      bottom: 20px;
+      right: 30px;
+      font-size: 5rem;
+      opacity: 0.06;
+      transform: rotate(5deg);
+      pointer-events: none;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin: 24px 0;
+      position: relative;
+      z-index: 2;
+    }
+
+    .item {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(4px);
+      border: 2px solid rgba(255, 255, 255, 0.9);
+      border-radius: var(--radius-item);
+      padding: 16px 18px;
+      transition: all 0.25s ease;
+      box-shadow: 0 8px 20px -12px rgba(0,0,0,0.1);
+    }
+
+    .item:hover {
+      transform: translateY(-4px) scale(1.02);
+      border-color: #06d6a0;
+      box-shadow: 0 15px 30px -12px #06d6a0;
+    }
+
+    .k {
+      color: #b5179e;
+      font-size: 0.8rem;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .k i {
+      font-size: 0.9rem;
+      color: #06d6a0;
+    }
+
+    .v {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #1e293b;
+      word-break: break-word;
+    }
+
+    /* barcode section */
+    .barcode-section {
+      margin-top: 32px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .barcode-card {
+      background: white;
+      border-radius: 40px;
+      padding: 28px;
+      border: 3px solid rgba(6, 214, 160, 0.3);
+      box-shadow: 0 25px 40px -20px rgba(6, 214, 160, 0.4);
+      transition: all 0.3s ease;
+    }
+
+    .barcode-card:hover {
+      border-color: #06d6a0;
+      transform: scale(1.01);
+    }
+
+    .barcode-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 20px;
+    }
+
+    .barcode-header i {
+      font-size: 2rem;
+      color: #06d6a0;
+      background: rgba(6, 214, 160, 0.1);
+      padding: 12px;
+      border-radius: 50%;
+    }
+
+    .barcode-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #1e293b;
+    }
+
+    .barcode-img-wrapper {
+      text-align: center;
+      background: #f8faff;
+      border-radius: 24px;
+      padding: 24px;
+      border: 2px dashed rgba(6, 214, 160, 0.3);
+    }
+
+    .barcode-img-wrapper img {
+      max-width: 360px;
+      width: 100%;
+      background: white;
+      border-radius: 16px;
+      padding: 10px;
+      box-shadow: 0 15px 30px -12px rgba(0,0,0,0.2);
+      transition: transform 0.3s;
+    }
+
+    .barcode-img-wrapper img:hover {
+      transform: scale(1.02) rotate(1deg);
+    }
+
+    .barcode-meta {
+      margin-top: 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: rgba(6, 214, 160, 0.05);
+      padding: 16px 24px;
+      border-radius: 60px;
+      font-weight: 600;
+    }
+
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .meta-item i {
+      color: #b5179e;
+    }
+
+    .meta-item strong {
+      color: #1e293b;
+      background: white;
+      padding: 4px 12px;
+      border-radius: 40px;
+      margin-left: 6px;
+    }
+
+    /* action buttons */
+    .actions {
+      margin-top: 32px;
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      position: relative;
+      z-index: 2;
+    }
+
+    .btn {
+      text-decoration: none;
+      color: white;
+      padding: 16px 28px;
+      border-radius: 60px;
+      font-weight: 700;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      border: none;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 25px -12px currentColor;
+      flex: 0 1 auto;
+    }
+
+    .btn i {
+      font-size: 1.1rem;
+      transition: transform 0.3s;
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.03) translateY(-3px);
+    }
+
+    .btn:hover::after {
+      left: 120%;
+    }
+
+    .btn:hover i {
+      transform: scale(1.1);
+    }
+
+    .primary {
+      background: var(--gradient-primary);
+    }
+
+    .secondary {
+      background: var(--gradient-secondary);
+    }
+
+    .muted {
+      background: var(--gradient-muted);
+    }
+
+    .primary:hover {
+      box-shadow: 0 25px 35px -14px #b5179e;
+    }
+
+    .secondary:hover {
+      box-shadow: 0 25px 35px -14px #06d6a0;
+    }
+
+    .muted:hover {
+      box-shadow: 0 25px 35px -14px #f59e0b;
+    }
+
+    /* responsive */
+    @media (max-width: 680px) {
+      .grid {
+        grid-template-columns: 1fr;
+      }
+      .profile-header {
+        flex-wrap: wrap;
+      }
+      .badge {
+        margin-left: 0;
+        width: 100%;
+        text-align: center;
+      }
+      .actions {
+        flex-direction: column;
+      }
+      .btn {
+        justify-content: center;
+      }
+      .barcode-meta {
+        flex-direction: column;
+        gap: 12px;
+      }
+      .card {
+        padding: 24px 18px;
+      }
+    }
+
+    /* loading shimmer for profile values (just for fun) */
+    .item {
+      position: relative;
+      overflow: hidden;
+    }
+
+    .item::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s;
+    }
+
+    .item:hover::after {
+      left: 150%;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <div class="card">
-      <h1>Student Profile</h1>
-      <div class="sub">Barcode scanned successfully: <strong>{{ profile_id }}</strong></div>
+    <!-- profile header with avatar -->
+    <div class="profile-header">
+      <div class="avatar">
+        <i class="fas fa-user-graduate"></i>
+      </div>
+      <div class="header-text">
+        <h1>Student Profile</h1>
+        <p>
+          <i class="fas fa-barcode"></i> 
+          Barcode scanned successfully
+        </p>
+      </div>
+      <div class="badge">
+        <i class="fas fa-check-circle" style="color:#06d6a0;"></i> ID: {{ profile_id }}
+      </div>
+    </div>
 
+    <!-- main card -->
+    <div class="card">
+      <!-- profile data grid -->
       <div class="grid">
-        <div class="item"><div class="k">Name</div><div class="v">{{ profile.get('name', '-') }}</div></div>
-        <div class="item"><div class="k">Surname</div><div class="v">{{ profile.get('surname', '-') }}</div></div>
-        <div class="item"><div class="k">DOB</div><div class="v">{{ profile.get('dob', '-') }}</div></div>
-        <div class="item"><div class="k">Age</div><div class="v">{{ profile.get('age', '-') }}</div></div>
-        <div class="item"><div class="k">Gender</div><div class="v">{{ profile.get('gender', '-') }}</div></div>
-        <div class="item"><div class="k">School</div><div class="v">{{ profile.get('school', '-') }}</div></div>
-        <div class="item"><div class="k">Location</div><div class="v">{{ profile.get('location', '-') }}</div></div>
-        <div class="item"><div class="k">Class</div><div class="v">{{ profile.get('class', '-') }}</div></div>
-        <div class="item"><div class="k">Section</div><div class="v">{{ profile.get('section', '-') }}</div></div>
+        <div class="item">
+          <div class="k"><i class="fas fa-user"></i> Name</div>
+          <div class="v">{{ profile.get('name', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-user"></i> Surname</div>
+          <div class="v">{{ profile.get('surname', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-calendar"></i> DOB</div>
+          <div class="v">{{ profile.get('dob', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-cake-candles"></i> Age</div>
+          <div class="v">{{ profile.get('age', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-venus-mars"></i> Gender</div>
+          <div class="v">{{ profile.get('gender', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-school"></i> School</div>
+          <div class="v">{{ profile.get('school', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-location-dot"></i> Location</div>
+          <div class="v">{{ profile.get('location', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-graduation-cap"></i> Class</div>
+          <div class="v">{{ profile.get('class', '-') }}</div>
+        </div>
+        <div class="item">
+          <div class="k"><i class="fas fa-layer-group"></i> Section</div>
+          <div class="v">{{ profile.get('section', '-') }}</div>
+        </div>
       </div>
 
+      <!-- barcode section (if exists) -->
       {% if barcode_path %}
-      <div class="barcode">
-        <img src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode">
+      <div class="barcode-section">
+        <div class="barcode-card">
+          <div class="barcode-header">
+            <i class="fas fa-qrcode"></i>
+            <h3>Your Barcode Credential</h3>
+          </div>
+          <div class="barcode-img-wrapper">
+            <img src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode">
+          </div>
+          <div class="barcode-meta">
+            <div class="meta-item">
+              <i class="fas fa-id-card"></i> Profile ID: <strong>{{ profile_id }}</strong>
+            </div>
+            <div class="meta-item">
+              <i class="fas fa-user-graduate"></i> Student: <strong>{{ profile.get('name', '-') }} {{ profile.get('surname', '-') }}</strong>
+            </div>
+          </div>
+        </div>
       </div>
       {% endif %}
 
+      <!-- action buttons -->
       <div class="actions">
-        <a class="btn primary" href="/dashboard">Continue to Dashboard</a>
-        <a class="btn muted" href="/login">Scan Another Barcode</a>
+        <a class="btn primary" href="/dashboard">
+          <i class="fas fa-arrow-right-to-bracket"></i> Continue to Dashboard
+        </a>
+        <a class="btn secondary" href="/profile">
+          <i class="fas fa-pen-to-square"></i> Edit Profile
+        </a>
+        <a class="btn muted" href="/login">
+          <i class="fas fa-barcode"></i> Scan Another Barcode
+        </a>
+      </div>
+
+      <!-- subtle footer note -->
+      <div style="margin-top: 24px; text-align: center; color: #5f6caf; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+        <i class="fas fa-shield" style="color:#06d6a0;"></i>
+        Profile data is securely stored
+        <i class="fas fa-heart" style="color:#b5179e;"></i>
       </div>
     </div>
   </div>

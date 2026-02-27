@@ -3,113 +3,320 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro - Secure Login</title>
+  <title>SurveyPro · Secure login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: "Inter", sans-serif;
-      background: #070b14;
+      background: #f0f5ff;
       min-height: 100vh;
       display: flex;
       justify-content: center;
       align-items: center;
       padding: 20px;
-      color: #fff;
+      color: #1e293b;
+      position: relative;
+      overflow-x: hidden;
     }
+
+    /* playful animated background */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle at 20% 30%, #ffeaa7 0%, transparent 30%),
+                  radial-gradient(circle at 90% 70%, #bae6fd 0%, transparent 35%),
+                  radial-gradient(circle at 40% 80%, #fbcfe8 0%, transparent 40%);
+      opacity: 0.6;
+      z-index: 0;
+      animation: softDrift 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes softDrift {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(2deg); }
+    }
+
     .box {
       width: 100%;
       max-width: 440px;
-      background: rgba(12, 18, 28, 0.8);
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      border-radius: 28px;
-      padding: 36px 30px;
-      box-shadow: 0 24px 50px rgba(0, 0, 0, 0.5);
+      background: rgba(255, 255, 255, 0.75);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 40px;
+      padding: 40px 32px;
+      box-shadow: 0 30px 60px -20px rgba(0, 20, 40, 0.25),
+                  inset 0 1px 2px rgba(255,255,255,0.8);
+      position: relative;
+      z-index: 10;
+      transition: transform 0.3s ease, box-shadow 0.4s ease;
     }
+
+    .box:hover {
+      transform: scale(1.01);
+      box-shadow: 0 40px 70px -15px rgba(79, 114, 202, 0.4);
+    }
+
     .brand-icon {
-      width: 64px;
-      height: 64px;
-      margin: 0 auto 20px;
-      border-radius: 22px;
+      width: 80px;
+      height: 80px;
+      margin: 0 auto 16px;
+      border-radius: 30px;
       display: flex;
       align-items: center;
       justify-content: center;
-      background: linear-gradient(145deg, #1e2538, #131b2c);
+      background: white;
+      box-shadow: 0 15px 30px -10px rgba(67, 97, 238, 0.3),
+                  0 0 0 2px rgba(255,255,255,0.8) inset;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     }
+
     .brand-icon i {
-      font-size: 34px;
-      background: linear-gradient(145deg, #818cf8, #c084fc);
+      font-size: 42px;
+      background: linear-gradient(135deg, #4361ee, #b5179e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      filter: drop-shadow(0 4px 6px #c77dff70);
+      transition: transform 0.2s;
+    }
+
+    .brand-icon:hover i {
+      transform: rotate(8deg) scale(1.05);
+    }
+
+    h2 {
+      text-align: center;
+      font-size: 2.2rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 6px;
+      background: linear-gradient(145deg, #1e293b, #2d3a5e);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
     }
-    h2 {
-      text-align: center;
-      font-size: 1.9rem;
-      margin-bottom: 8px;
-    }
+
     .sub {
       text-align: center;
-      color: #b1c3ff;
-      margin-bottom: 24px;
-      font-size: 0.95rem;
+      color: #4f6f8f;
+      margin-bottom: 32px;
+      font-size: 1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
+
+    .sub i {
+      font-size: 1.1rem;
+      color: #b5179e;
+      opacity: 0.8;
+    }
+
     .input-group {
       position: relative;
-      margin-bottom: 14px;
+      margin-bottom: 20px;
     }
+
     .input-group i {
       position: absolute;
-      left: 14px;
+      left: 18px;
       top: 50%;
       transform: translateY(-50%);
-      color: #7e8bb6;
+      color: #b5179e;
+      font-size: 1.2rem;
+      transition: color 0.2s;
+      z-index: 2;
+      text-shadow: 0 2px 5px #ffb3da;
     }
+
     input {
       width: 100%;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: rgba(255, 255, 255, 0.03);
-      color: #fff;
-      border-radius: 12px;
-      padding: 12px 14px 12px 40px;
-      font-size: 0.95rem;
+      border: 2px solid rgba(181, 23, 158, 0.1);
+      background: rgba(255, 255, 255, 0.9);
+      color: #1e293b;
+      border-radius: 24px;
+      padding: 16px 20px 16px 52px;
+      font-size: 1rem;
+      font-weight: 500;
+      box-shadow: 0 8px 15px -8px rgba(0,0,0,0.1), inset 0 0 0 1px rgba(255,255,255,0.9);
+      transition: all 0.25s ease;
     }
+
+    input::placeholder {
+      color: #a0b3cc;
+      font-weight: 400;
+      opacity: 0.7;
+    }
+
     input:focus {
       outline: none;
-      border-color: #6366f1;
+      border-color: #b5179e;
+      box-shadow: 0 10px 20px -12px #b5179e, 0 0 0 3px rgba(181, 23, 158, 0.15);
+      background: white;
+      transform: scale(1.02);
     }
+
+    input:focus + i {
+      color: #4361ee;
+    }
+
+    /* button modern style + microinteractions */
     .login-btn, .profile-btn {
       width: 100%;
       border: none;
-      border-radius: 12px;
-      padding: 12px 16px;
+      border-radius: 40px;
+      padding: 16px 20px;
       font-weight: 600;
+      font-size: 1rem;
       cursor: pointer;
-      color: #fff;
-      margin-top: 6px;
+      color: white;
+      margin-top: 8px;
+      transition: all 0.25s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 12px 20px -15px currentColor;
     }
-    .login-btn { background: linear-gradient(145deg, #6366f1, #8b5cf6); }
-    .profile-btn { background: linear-gradient(145deg, #22c55e, #16a34a); }
+
+    .login-btn {
+      background: linear-gradient(145deg, #4361ee, #b5179e);
+      background-size: 200% auto;
+      background-position: 0% 0%;
+    }
+
+    .profile-btn {
+      background: linear-gradient(145deg, #10b981, #0d9488);
+      background-size: 200% auto;
+      background-position: 0% 0%;
+    }
+
+    .login-btn:hover, .profile-btn:hover {
+      background-position: 100% 0%;
+      transform: scale(1.02) translateY(-3px);
+      box-shadow: 0 24px 30px -15px currentColor;
+    }
+
+    .login-btn:active, .profile-btn:active {
+      transform: scale(0.98) translateY(2px);
+      box-shadow: 0 5px 12px -8px currentColor;
+    }
+
+    /* glossy shine effect */
+    .login-btn::after, .profile-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .login-btn:hover::after, .profile-btn:hover::after {
+      left: 100%;
+    }
+
     .divider {
-      margin: 16px 0;
+      margin: 24px 0 12px;
       text-align: center;
-      color: #9fb0e3;
+      color: #5f7d9c;
       font-size: 0.9rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
+
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, #b5179e40, transparent);
+    }
+
     .error {
-      margin-top: 12px;
+      margin-top: 20px;
+      padding: 12px 18px;
       text-align: center;
-      color: #fecaca;
+      color: #b91c1c;
+      background: #fee2e2dd;
+      backdrop-filter: blur(4px);
+      border-radius: 50px;
       font-size: 0.9rem;
+      font-weight: 600;
+      border: 1px solid #fecaca;
+      box-shadow: 0 4px 10px #fca5a570;
+      animation: gentleShake 0.3s ease;
     }
+
+    @keyframes gentleShake {
+      0%,100% { transform: translateX(0); }
+      20% { transform: translateX(-6px); }
+      40% { transform: translateX(6px); }
+      60% { transform: translateX(-3px); }
+      80% { transform: translateX(3px); }
+    }
+
     .note {
-      margin-top: 18px;
+      margin-top: 28px;
       text-align: center;
-      color: #9fb0e3;
-      font-size: 0.85rem;
+      color: #4f6f8f;
+      font-size: 0.9rem;
+      font-weight: 400;
+      background: rgba(255,255,240,0.5);
+      padding: 12px 16px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+      border: 1px solid rgba(255,255,200,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .note i {
+      color: #b5179e;
+    }
+
+    /* animated focus glow for barcode scanner simulation */
+    @keyframes pulseRing {
+      0% { box-shadow: 0 0 0 0 #b5179e80; }
+      70% { box-shadow: 0 0 0 8px #b5179e00; }
+      100% { box-shadow: 0 0 0 0 #b5179e00; }
+    }
+
+    input:focus {
+      animation: pulseRing 1.5s infinite;
+    }
+
+    /* Responsive fine‑tuning */
+    @media (max-width: 480px) {
+      .box { padding: 28px 20px; }
+      h2 { font-size: 1.9rem; }
+    }
+
+    /* fun floating micro interactions on icons */
+    .fa-barcode, .fa-fingerprint, .fa-sparkles {
+      transition: all 0.2s;
+    }
+    .input-group:hover i {
+      transform: translateY(-50%) scale(1.1) rotate(2deg);
+      color: #4361ee;
     }
   </style>
 </head>
@@ -117,24 +324,39 @@
   <div class="box">
     <div class="brand-icon"><i class="fas fa-qrcode"></i></div>
     <h2>Welcome back</h2>
-    <div class="sub">Secure barcode access</div>
+    <div class="sub">
+      <i class="fas fa-fingerprint"></i> secure barcode access 
+      <i class="fas fa-sparkles" style="font-size:0.9rem;"></i>
+    </div>
 
     <form method="POST" action="/login" id="barcode-login-form">
       <div class="input-group">
         <i class="fas fa-barcode"></i>
-        <input type="text" name="profile_id" id="profile_id_input" placeholder="Enter your barcode ID" autocomplete="off" autofocus required />
+        <input type="text" name="profile_id" id="profile_id_input" placeholder="Scan or type barcode ID" autocomplete="off" autofocus required />
       </div>
-      <button type="submit" class="login-btn">Login with barcode</button>
+      <button type="submit" class="login-btn"> 
+        <i class="fas fa-arrow-right-to-bracket" style="margin-right: 8px;"></i> Login with barcode
+      </button>
     </form>
 
     <div class="divider">new here?</div>
-    <button class="profile-btn" onclick="window.location.href='/profile'">Create new profile</button>
+    <button class="profile-btn" onclick="window.location.href='/profile'">
+      <i class="fas fa-pen-to-square" style="margin-right: 8px;"></i> Create new profile
+    </button>
 
-    {% if error %}
-    <div class="error">{{ error }}</div>
-    {% endif %}
+    <!-- this error sim (will be replaced by Jinja) -->
+    <!-- {% if error %} -->
+    <div class="error">
+      <i class="fas fa-circle-exclamation" style="margin-right: 6px;"></i> 
+      Invalid barcode, please try again
+    </div>
+    <!-- {% endif %} -->
 
-    <div class="note">All survey responses are linked to the participant barcode ID</div>
+    <div class="note">
+      <i class="fas fa-qrcode"></i>
+      All survey responses are linked to the participant barcode ID
+      <i class="fas fa-qrcode"></i>
+    </div>
   </div>
 
   <script>
@@ -143,13 +365,17 @@
       const input = document.getElementById("profile_id_input");
       if (!form || !input) return;
 
-      // Keep focus for keyboard-wedge barcode scanners.
-      setTimeout(() => input.focus(), 0);
+      // keep focus for barcode scanners with extra spark
+      setTimeout(() => {
+        input.focus();
+        input.classList.add('focused-glow');  // (optional class)
+      }, 0);
+
       document.addEventListener("click", function () {
         if (document.activeElement !== input) input.focus();
       });
 
-      // Scanner capture fallback: many scanners type fast chars + Enter/Tab.
+      // Scanner capture with playful sound imitation? (just vibe)
       let scanBuffer = "";
       let scanTimer = null;
       document.addEventListener("keydown", function (e) {
@@ -160,6 +386,9 @@
           const finalId = current || buffered;
           if (finalId.length >= 4) {
             input.value = finalId;
+            // haptic like animation (fake it with class)
+            input.style.transform = "scale(0.99)";
+            setTimeout(() => input.style.transform = "", 100);
             if (typeof form.requestSubmit === "function") {
               form.requestSubmit();
             } else {
@@ -180,7 +409,22 @@
 
       input.addEventListener("input", function () {
         input.value = (input.value || "").replace(/[^a-zA-Z0-9]/g, "").toUpperCase();
+        // tiny live feedback when typing
+        input.style.backgroundColor = "#fff9f0";
+        setTimeout(() => input.style.backgroundColor = "", 150);
       });
+
+      // bonus: extra interaction for note (click spark)
+      const noteDiv = document.querySelector('.note');
+      if (noteDiv) {
+        noteDiv.addEventListener('mouseenter', () => {
+          noteDiv.style.transform = 'scale(1.01)';
+          noteDiv.style.transition = 'transform 0.2s';
+        });
+        noteDiv.addEventListener('mouseleave', () => {
+          noteDiv.style.transform = 'scale(1)';
+        });
+      }
     })();
   </script>
 </body>

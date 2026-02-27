@@ -445,8 +445,18 @@ def home():
 
 @app.route("/investigator-login", methods=["GET", "POST"])
 def investigator_login():
-    if investigator_required():
-        return redirect(url_for("masimo"))
+    next_url = request.args.get("next", "").strip()
+    if next_url and not next_url.startswith("/"):
+        next_url = ""
+    default_next = url_for("form") if session.get("profile_id") else url_for("dashboard")
+    force_reauth_for_form = (next_url == url_for("form"))
+
+    if force_reauth_for_form and request.method == "GET":
+        session.pop("investigator_logged_in", None)
+        session.pop("investigator_username", None)
+
+    if investigator_required() and not force_reauth_for_form:
+        return redirect(next_url or default_next)
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
@@ -461,7 +471,7 @@ def investigator_login():
             session["investigator_logged_in"] = True
             session["investigator_username"] = username
             append_investigator_audit("login", "Investigator logged in")
-            return redirect(url_for("masimo"))
+            return redirect(next_url or default_next)
         return render_template("investigator_login.html", error="Invalid investigator credentials")
 
     return render_template("investigator_login.html")
@@ -613,7 +623,8 @@ def profile():
         return render_template(
             "profile_view.html",
             profile_id=profile_id,
-            barcode_path=barcode_path
+            barcode_path=barcode_path,
+            profile_name=f"{profile_row.get('name', '').strip()} {profile_row.get('surname', '').strip()}".strip()
         )
 
     return render_template("profile.html")
@@ -622,11 +633,18 @@ def profile():
 @app.route("/form", methods=["GET", "POST"])
 def form():
     profile_id = session.get("profile_id")
+    investigator_username = (session.get("investigator_username") or "").strip()
     if not profile_id:
         return redirect(url_for("login"))
+    if not investigator_required():
+        return redirect(url_for("investigator_login", next=url_for("form")))
 
     if request.method == "POST":
         answers = request.form.to_dict()
+        if not (answers.get("investigator_username", "") or "").strip():
+            answers["investigator_username"] = investigator_username
+        if not (answers.get("investigator_name", "") or "").strip():
+            answers["investigator_name"] = investigator_username
 
         # response unique id
         answers["response_id"] = str(uuid.uuid4())
@@ -655,7 +673,7 @@ def form():
     if not profile:
         return redirect(url_for("login"))
 
-    return render_template("form.html", profile=profile)
+    return render_template("form.html", profile=profile, investigator_username=investigator_username)
 
 
 def _section_status(response, keys):
@@ -671,6 +689,30 @@ def _section_status(response, keys):
     if filled == len(keys):
         return "green"
     return "orange"
+
+
+@app.route("/resume-profile/<profile_id>")
+def resume_profile(profile_id):
+    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    if not pid:
+        return redirect(url_for("section_status"))
+
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    selected_profile = None
+    for row in profiles:
+        if (row.get("profile_id", "") or "").strip().upper() == pid:
+            selected_profile = row
+            break
+
+    if not selected_profile:
+        return redirect(url_for("section_status"))
+
+    session["profile_id"] = pid
+    session["scanned_profile"] = selected_profile
+
+    if not investigator_required():
+        return redirect(url_for("investigator_login", next=url_for("form")))
+    return redirect(url_for("form"))
 
 
 @app.route("/section-status")

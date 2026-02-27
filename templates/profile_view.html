@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro · profile created</title>
+  <title>SurveyPro · ✨ profile created ✨</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -17,29 +17,31 @@
     }
 
     :root {
-      --bg-deep: #0a0c15;
-      --surface: rgba(18, 24, 38, 0.9);
-      --surface-card: rgba(22, 28, 45, 0.85);
-      --border-subtle: rgba(255, 255, 255, 0.05);
-      --border-active: rgba(40, 167, 69, 0.4);
-      --text-primary: #ffffff;
-      --text-secondary: #cbd5e1;
-      --text-muted: #94a3b8;
-      --accent-success: #28a745;
-      --accent-success-glow: rgba(40, 167, 69, 0.3);
-      --accent-primary: #007bff;
-      --accent-primary-glow: rgba(0, 123, 255, 0.3);
-      --gradient-success: linear-gradient(145deg, #28a745, #1e7e34);
-      --gradient-primary: linear-gradient(145deg, #007bff, #0056b3);
-      --gradient-print: linear-gradient(145deg, #6c757d, #495057);
-      --shadow-elevation: 0 30px 60px -15px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.02);
-      --radius-card: 36px;
-      --radius-barcode: 24px;
+      /* vibrant light palette for celebration */
+      --bg-light: #f0f9ff;
+      --surface-glass: rgba(255, 255, 255, 0.75);
+      --surface-card: rgba(255, 255, 255, 0.6);
+      --border-soft: rgba(6, 214, 160, 0.3);
+      --border-active: #06d6a0;
+      --text-primary: #1e293b;
+      --text-secondary: #4a40a0;
+      --text-muted: #5f6caf;
+      --accent-green: #06d6a0;
+      --accent-pink: #b5179e;
+      --accent-purple: #7209b7;
+      --accent-blue: #4361ee;
+      --accent-glow-green: rgba(6, 214, 160, 0.3);
+      --gradient-success: linear-gradient(145deg, #06d6a0, #1b9aaa);
+      --gradient-primary: linear-gradient(145deg, #4361ee, #b5179e);
+      --gradient-print: linear-gradient(145deg, #f59e0b, #d97706);
+      --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+      --radius-card: 48px;
+      --radius-barcode: 32px;
     }
 
     body {
       font-family: "Inter", system-ui, -apple-system, sans-serif;
-      background: var(--bg-deep);
+      background: var(--bg-light);
       min-height: 100vh;
       display: flex;
       justify-content: center;
@@ -51,43 +53,64 @@
       color: var(--text-primary);
     }
 
-    /* animated celebration background */
+    /* animated confetti/celebration background */
     body::before {
       content: "";
       position: fixed;
       width: 100vw;
       height: 100vh;
       background: 
-        radial-gradient(circle at 20% 30%, rgba(40, 167, 69, 0.15) 0%, transparent 40%),
-        radial-gradient(circle at 90% 70%, rgba(0, 123, 255, 0.12) 0%, transparent 45%),
-        radial-gradient(circle at 40% 80%, rgba(255, 193, 7, 0.08) 0%, transparent 50%),
-        repeating-linear-gradient(45deg, rgba(255,255,255,0.01) 0px, rgba(255,255,255,0.01) 1px, transparent 1px, transparent 20px);
+        radial-gradient(circle at 10% 20%, #fbc8d5 0%, transparent 25%),
+        radial-gradient(circle at 95% 30%, #b8e1ff 0%, transparent 30%),
+        radial-gradient(circle at 40% 90%, #fde4c2 0%, transparent 35%),
+        radial-gradient(circle at 75% 80%, #d9cbff 0%, transparent 28%),
+        radial-gradient(circle at 25% 70%, #a7f0e0 0%, transparent 32%);
+      opacity: 0.5;
       pointer-events: none;
       z-index: 0;
+      animation: celebrateDrift 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes celebrateDrift {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.1) rotate(2deg); }
+    }
+
+    /* floating emojis/particles */
+    body::after {
+      content: "✨🎉🎊✅🎯🔖🎫";
+      position: fixed;
+      font-size: 40px;
+      bottom: 10px;
+      right: 10px;
+      opacity: 0.1;
+      transform: rotate(-10deg);
+      pointer-events: none;
+      white-space: pre;
     }
 
     .success-container {
       width: 100%;
-      max-width: 560px;
+      max-width: 620px;
       position: relative;
       z-index: 10;
-      animation: fadeUp 0.6s ease-out;
+      animation: popIn 0.6s cubic-bezier(0.2, 0.9, 0.3, 1.2);
     }
 
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.9) translateY(20px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
     }
 
-    /* main card */
+    /* main card - ultra modern glass */
     .box {
-      background: rgba(18, 24, 38, 0.8);
-      backdrop-filter: blur(16px) saturate(180%);
-      -webkit-backdrop-filter: blur(16px) saturate(180%);
-      border: 1px solid rgba(255, 255, 255, 0.03);
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 2px solid rgba(255, 255, 255, 0.8);
       border-radius: var(--radius-card);
-      padding: 48px 40px;
-      box-shadow: var(--shadow-elevation);
+      padding: 52px 44px;
+      box-shadow: 0 40px 70px -25px rgba(6, 214, 160, 0.4), 0 0 0 1px rgba(255,255,255,0.8) inset;
       position: relative;
       overflow: hidden;
       text-align: center;
@@ -97,237 +120,372 @@
       content: "";
       position: absolute;
       inset: 0;
-      background: radial-gradient(500px circle at 50% 20%, rgba(40, 167, 69, 0.1), transparent 70%);
+      background: radial-gradient(600px circle at 70% 20%, rgba(6, 214, 160, 0.1), transparent 70%);
       pointer-events: none;
     }
 
-    /* success icon */
+    .box::before {
+      content: "🎉";
+      position: absolute;
+      top: 20px;
+      left: 20px;
+      font-size: 3rem;
+      opacity: 0.1;
+      transform: rotate(-15deg);
+    }
+
+    /* success icon with confetti effect */
     .success-icon {
-      width: 80px;
-      height: 80px;
+      width: 100px;
+      height: 100px;
       background: var(--gradient-success);
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       margin: 0 auto 24px;
-      box-shadow: 0 20px 30px -10px var(--accent-success-glow);
-      animation: pulse 2s infinite;
+      box-shadow: 0 20px 30px -8px #06d6a0, 0 0 0 4px rgba(255,255,255,0.8);
+      animation: pulseGlow 2s infinite, float 3s infinite ease-in-out;
+      position: relative;
     }
 
-    @keyframes pulse {
-      0% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.5); }
-      70% { box-shadow: 0 0 0 15px rgba(40, 167, 69, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(40, 167, 69, 0); }
+    .success-icon::after {
+      content: "";
+      position: absolute;
+      width: 120%;
+      height: 120%;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(6,214,160,0.4) 0%, transparent 70%);
+      z-index: -1;
+      animation: ringPulse 2s infinite;
+    }
+
+    @keyframes float {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-6px); }
+    }
+
+    @keyframes ringPulse {
+      0% { transform: scale(0.8); opacity: 0.5; }
+      70% { transform: scale(1.2); opacity: 0; }
+      100% { transform: scale(0.8); opacity: 0; }
+    }
+
+    @keyframes pulseGlow {
+      0% { box-shadow: 0 20px 30px -8px #06d6a0, 0 0 0 4px rgba(255,255,255,0.8); }
+      50% { box-shadow: 0 30px 40px -6px #06d6a0, 0 0 0 6px rgba(255,255,255,0.9); }
+      100% { box-shadow: 0 20px 30px -8px #06d6a0, 0 0 0 4px rgba(255,255,255,0.8); }
     }
 
     .success-icon i {
-      font-size: 40px;
+      font-size: 48px;
       color: white;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
     }
 
     h2 {
-      font-size: 2.2rem;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-      margin-bottom: 16px;
-      background: linear-gradient(135deg, #ffffff, #a5d6b6);
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+      background: linear-gradient(135deg, #1e293b, #06d6a0, #b5179e);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-    }
-
-    .subtitle {
-      color: var(--text-secondary);
-      margin-bottom: 32px;
-      font-size: 1rem;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 10px;
+    }
+
+    h2 i {
+      font-size: 2.2rem;
+      background: linear-gradient(135deg, #06d6a0, #b5179e);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .subtitle {
+      color: #4a40a0;
+      margin-bottom: 36px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      background: rgba(255,255,255,0.6);
+      backdrop-filter: blur(4px);
+      padding: 12px 28px;
+      border-radius: 60px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      border: 1px solid rgba(6, 214, 160, 0.2);
     }
 
     .subtitle i {
-      color: var(--accent-success);
+      color: #06d6a0;
+      animation: bounce 2s infinite;
     }
 
-    /* barcode id display */
+    @keyframes bounce {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-3px); }
+    }
+
+    /* barcode id display - stylish */
     .id-label {
       font-size: 0.9rem;
-      color: var(--text-muted);
+      color: #b5179e;
       margin-bottom: 8px;
       text-transform: uppercase;
-      letter-spacing: 1px;
+      letter-spacing: 2px;
+      font-weight: 700;
     }
 
     .id {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: white;
+      border: 2px solid rgba(6, 214, 160, 0.3);
       border-radius: 60px;
-      padding: 16px 24px;
-      margin: 8px 0 24px;
-      font-size: 1.4rem;
-      font-weight: 700;
-      color: white;
-      letter-spacing: 2px;
+      padding: 18px 28px;
+      margin: 8px auto 28px;
+      font-size: 1.8rem;
+      font-weight: 800;
+      color: #1e293b;
+      letter-spacing: 3px;
       display: inline-block;
-      backdrop-filter: blur(4px);
-      box-shadow: inset 0 4px 12px rgba(0, 0, 0, 0.3);
-      font-family: monospace;
+      box-shadow: 0 10px 25px -10px #06d6a0, inset 0 1px 4px white;
+      font-family: 'Inter', monospace;
+      transition: all 0.2s;
+    }
+
+    .id:hover {
+      transform: scale(1.02);
+      border-color: #06d6a0;
+      box-shadow: 0 15px 30px -8px #06d6a0;
     }
 
     /* barcode image */
     .barcode-wrapper {
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.05);
+      background: white;
+      border: 3px solid rgba(255, 255, 255, 0.9);
       border-radius: var(--radius-barcode);
-      padding: 24px;
+      padding: 28px;
       margin: 24px 0 28px;
       position: relative;
       backdrop-filter: blur(4px);
+      box-shadow: 0 20px 40px -15px rgba(6, 214, 160, 0.3);
     }
 
     .barcode-wrapper::before {
-      content: "";
+      content: "⬇️⬇️⬇️";
       position: absolute;
-      top: 0;
-      left: 10%;
-      right: 10%;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, rgba(40, 167, 69, 0.3), transparent);
+      top: -18px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: white;
+      padding: 4px 16px;
+      border-radius: 60px;
+      font-size: 0.8rem;
+      color: #06d6a0;
+      border: 2px solid rgba(6, 214, 160, 0.3);
+      font-weight: 600;
     }
 
     #barcode-img {
       width: 100%;
-      max-width: 360px;
-      border-radius: 10px;
+      max-width: 380px;
+      border-radius: 16px;
       background: white;
-      padding: 5px;
-      box-shadow: 0 20px 30px -10px rgba(0, 0, 0, 0.5);
-      transition: transform 0.3s ease;
+      padding: 8px;
+      box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
+      transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     }
 
     #barcode-img:hover {
-      transform: scale(1.02);
+      transform: scale(1.03) rotate(1deg);
+      box-shadow: 0 25px 40px -15px #06d6a0;
+    }
+
+    .barcode-meta {
+      margin-top: 16px;
+      margin-bottom: 20px;
+      text-align: center;
+      color: #5f6caf;
+      font-weight: 600;
+      line-height: 1.6;
+      background: rgba(255,255,255,0.5);
+      padding: 12px;
+      border-radius: 60px;
+      backdrop-filter: blur(4px);
+    }
+
+    .barcode-meta strong {
+      color: #b5179e;
+      background: rgba(255,255,255,0.7);
+      padding: 4px 12px;
+      border-radius: 40px;
+      margin-left: 4px;
     }
 
     /* action buttons container */
     .action-buttons {
       display: flex;
-      gap: 12px;
-      margin: 20px 0 10px;
+      gap: 16px;
+      margin: 28px 0 20px;
     }
 
     .action-buttons .btn {
       flex: 1;
     }
 
-    /* button base */
+    /* button base - modern and playful */
     .btn {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      padding: 16px 20px;
+      gap: 12px;
+      padding: 18px 24px;
       border-radius: 60px;
       text-decoration: none;
-      font-size: 1rem;
-      font-weight: 600;
+      font-size: 1.1rem;
+      font-weight: 700;
       color: white;
-      border: 1px solid rgba(255, 255, 255, 0.05);
-      transition: all 0.25s ease;
+      border: none;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
       cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 25px -12px currentColor;
     }
 
     .btn i {
-      font-size: 1.1rem;
-      transition: transform 0.2s;
+      font-size: 1.2rem;
+      transition: transform 0.3s, filter 0.3s;
+      filter: drop-shadow(0 2px 4px rgba(255,255,255,0.5));
+    }
+
+    .btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .btn:hover {
+      transform: scale(1.03) translateY(-3px);
+    }
+
+    .btn:hover::after {
+      left: 120%;
+    }
+
+    .btn:hover i {
+      transform: scale(1.1);
     }
 
     .btn-primary {
       background: var(--gradient-primary);
-      box-shadow: 0 22px 30px -16px var(--accent-primary-glow);
+      box-shadow: 0 22px 30px -16px #b5179e80;
     }
 
     .btn-primary:hover {
-      background: linear-gradient(145deg, #0056b3, #004085);
-      transform: scale(1.02);
-      box-shadow: 0 28px 40px -14px #0056b3;
+      background: linear-gradient(145deg, #b5179e, #4361ee);
+      box-shadow: 0 28px 40px -14px #b5179e;
     }
 
     .btn-success {
       background: var(--gradient-success);
-      box-shadow: 0 22px 30px -16px var(--accent-success-glow);
+      box-shadow: 0 22px 30px -16px #06d6a0;
     }
 
     .btn-success:hover {
-      background: linear-gradient(145deg, #1e7e34, #155d27);
-      transform: scale(1.02);
-      box-shadow: 0 28px 40px -14px #1e7e34;
+      background: linear-gradient(145deg, #1b9aaa, #06d6a0);
+      box-shadow: 0 28px 40px -14px #1b9aaa;
     }
 
     .btn-secondary {
       background: var(--gradient-print);
-      box-shadow: 0 22px 30px -16px rgba(108, 117, 125, 0.4);
+      box-shadow: 0 22px 30px -16px #f59e0b;
     }
 
     .btn-secondary:hover {
-      background: linear-gradient(145deg, #5a6268, #343a40);
-      transform: scale(1.02);
-      box-shadow: 0 28px 40px -14px #495057;
-    }
-
-    .btn:hover i {
-      transform: translateX(4px);
+      background: linear-gradient(145deg, #d97706, #f59e0b);
+      box-shadow: 0 28px 40px -14px #d97706;
     }
 
     .btn-success:hover i, .btn-secondary:hover i {
-      transform: translateY(-2px);
+      transform: translateY(-3px) scale(1.1);
+    }
+
+    .btn-primary:hover i {
+      transform: translateX(6px) scale(1.1);
     }
 
     /* note */
     .note {
-      margin-top: 24px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
+      margin-top: 28px;
+      font-size: 0.95rem;
+      color: #5f6caf;
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      background: rgba(255, 255, 255, 0.02);
-      padding: 14px 20px;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(8px);
+      padding: 16px 24px;
       border-radius: 60px;
-      border: 1px solid rgba(255, 255, 255, 0.02);
+      border: 2px solid rgba(6, 214, 160, 0.2);
+      font-weight: 500;
     }
 
     .note i {
-      color: #ffc107;
+      color: #06d6a0;
+      font-size: 1.2rem;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 0.7; transform: scale(1); }
     }
 
     /* mobile */
     @media (max-width: 480px) {
       .box {
-        padding: 32px 24px;
+        padding: 32px 20px;
       }
       h2 {
-        font-size: 1.8rem;
+        font-size: 2rem;
       }
       .id {
-        font-size: 1.2rem;
-        padding: 12px 16px;
+        font-size: 1.4rem;
+        padding: 14px 18px;
       }
       .action-buttons {
         flex-direction: column;
+        gap: 12px;
+      }
+      .btn {
+        padding: 16px 20px;
       }
     }
 
-    /* print styles */
+    /* print styles (preserved) */
     @media print {
       body {
         background: white;
         padding: 0;
       }
-      body::before {
+      body::before, body::after {
         display: none;
       }
       .success-container {
@@ -342,15 +500,15 @@
         box-shadow: none;
         padding: 30px;
       }
-      .box::after {
+      .box::after, .box::before {
         display: none;
       }
-      .success-icon, .action-buttons, .note, .subtitle i, .btn, .download-hint {
+      .success-icon, .action-buttons, .note, .subtitle i, .btn {
         display: none !important;
       }
       h2 {
-        color: #28a745;
-        -webkit-text-fill-color: #28a745;
+        color: #06d6a0;
+        -webkit-text-fill-color: #06d6a0;
         background: none;
       }
       .id {
@@ -376,24 +534,31 @@
 <body>
   <div class="success-container">
     <div class="box">
-      <!-- success icon -->
+      <!-- success icon with celebration -->
       <div class="success-icon">
         <i class="fas fa-check"></i>
       </div>
 
-      <h2>Profile Created!</h2>
+      <h2>
+        <i class="fas fa-sparkles"></i> Profile Created!
+      </h2>
       <div class="subtitle">
         <i class="fas fa-barcode"></i>
         <span>Your unique identifier is ready</span>
+        <i class="fas fa-face-grin-stars"></i>
       </div>
 
       <!-- barcode id display (dynamic) -->
-      <div class="id-label">BARCODE ID</div>
+      <div class="id-label">🎯 BARCODE ID 🎯</div>
       <div class="id" id="barcode-id">{{ profile_id }}</div>
 
       <!-- barcode image -->
       <div class="barcode-wrapper">
         <img id="barcode-img" src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode" />
+      </div>
+      <div class="barcode-meta">
+        <div>🔖 Profile ID: <strong>{{ profile_id }}</strong></div>
+        <div>👤 Student: <strong>{{ profile_name or '-' }}</strong></div>
       </div>
 
       <!-- action buttons: Download and Print -->
@@ -416,6 +581,7 @@
       <div class="note">
         <i class="fas fa-shield-alt"></i>
         <span>Save this barcode. You'll need it every time to login.</span>
+        <i class="fas fa-heart" style="color:#b5179e;"></i>
       </div>
     </div>
   </div>
@@ -427,6 +593,7 @@
       const printBtn = document.getElementById('printBtn');
       const barcodeImg = document.getElementById('barcode-img');
       const barcodeId = document.getElementById('barcode-id')?.textContent || '{{ profile_id }}';
+      const studentName = {{ (profile_name or '')|tojson }};
       
       // Download functionality
       downloadBtn.addEventListener('click', function() {
@@ -438,24 +605,31 @@
         canvas.width = 600;
         canvas.height = 400;
         
-        // Fill background
-        ctx.fillStyle = '#ffffff';
+        // Fill background with gradient
+        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        gradient.addColorStop(0, '#f0f9ff');
+        gradient.addColorStop(0.5, '#ffffff');
+        gradient.addColorStop(1, '#e6f7f0');
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw border
-        ctx.strokeStyle = '#28a745';
-        ctx.lineWidth = 2;
+        // Draw decorative border
+        ctx.strokeStyle = '#06d6a0';
+        ctx.lineWidth = 4;
         ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
         
-        // Add title
-        ctx.fillStyle = '#28a745';
-        ctx.font = 'bold 24px Inter, Arial, sans-serif';
+        // Add title with gradient
+        const titleGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
+        titleGrad.addColorStop(0, '#06d6a0');
+        titleGrad.addColorStop(1, '#b5179e');
+        ctx.fillStyle = titleGrad;
+        ctx.font = 'bold 28px Inter, Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('SurveyPro Barcode ID', canvas.width / 2, 60);
+        ctx.fillText('✨ SurveyPro Barcode ✨', canvas.width / 2, 60);
         
         // Add barcode ID
-        ctx.fillStyle = '#333333';
-        ctx.font = 'bold 28px monospace';
+        ctx.fillStyle = '#1e293b';
+        ctx.font = 'bold 30px monospace';
         ctx.fillText(barcodeId, canvas.width / 2, 120);
         
         // Load and draw the barcode image
@@ -467,13 +641,22 @@
           // Draw barcode image
           const imgWidth = 300;
           const imgHeight = 150;
-          ctx.drawImage(img, (canvas.width - imgWidth) / 2, 150, imgWidth, imgHeight);
+          ctx.drawImage(img, (canvas.width - imgWidth) / 2, 140, imgWidth, imgHeight);
+
+          ctx.fillStyle = '#b5179e';
+          ctx.font = 'bold 20px Inter, Arial, sans-serif';
+          ctx.fillText('👤 ' + (studentName || '-'), canvas.width / 2, 315);
           
           // Add footer
-          ctx.fillStyle = '#666666';
-          ctx.font = '14px Inter, Arial, sans-serif';
-          ctx.fillText('Save this barcode for future logins', canvas.width / 2, 330);
-          ctx.fillText('Generated on ' + new Date().toLocaleDateString(), canvas.width / 2, 360);
+          ctx.fillStyle = '#5f6caf';
+          ctx.font = '16px Inter, Arial, sans-serif';
+          ctx.fillText('🔖 Save for login · ' + new Date().toLocaleDateString(), canvas.width / 2, 350);
+          
+          // Add tiny sparkles
+          ctx.fillStyle = '#06d6a0';
+          ctx.font = '20px Arial';
+          ctx.fillText('✨', canvas.width - 60, 380);
+          ctx.fillText('✨', 40, 380);
           
           // Create download link
           const link = document.createElement('a');
@@ -486,10 +669,10 @@
         img.onerror = function() {
           // Draw placeholder
           ctx.fillStyle = '#f0f0f0';
-          ctx.fillRect((canvas.width - 300) / 2, 150, 300, 150);
-          ctx.fillStyle = '#999999';
-          ctx.font = '16px Inter, Arial, sans-serif';
-          ctx.fillText('Barcode: ' + barcodeId, canvas.width / 2, 230);
+          ctx.fillRect((canvas.width - 300) / 2, 140, 300, 150);
+          ctx.fillStyle = '#06d6a0';
+          ctx.font = 'bold 20px Inter, Arial, sans-serif';
+          ctx.fillText('Barcode: ' + barcodeId, canvas.width / 2, 220);
           
           const link = document.createElement('a');
           link.download = `barcode-${barcodeId}.png`;
@@ -510,25 +693,58 @@
             <style>
               body {
                 text-align: center;
-                padding: 12px;
-                background: white;
+                padding: 30px 20px;
+                background: linear-gradient(135deg, #f0f9ff, #ffffff);
                 margin: 0;
+                font-family: 'Inter', sans-serif;
+              }
+              .barcode-card {
+                background: white;
+                border-radius: 40px;
+                padding: 30px;
+                box-shadow: 0 20px 40px rgba(6,214,160,0.2);
+                max-width: 500px;
+                margin: 0 auto;
+                border: 2px solid #06d6a0;
               }
               .barcode-img {
                 width: 420px;
                 max-width: 96vw;
                 height: auto;
                 display: block;
-                margin: 0 auto;
+                margin: 20px auto;
+                border-radius: 20px;
+              }
+              .meta {
+                margin-top: 20px;
+                font-size: 18px;
+                color: #1e293b;
+                font-weight: 700;
+              }
+              .meta strong {
+                color: #b5179e;
+                background: #f0f0ff;
+                padding: 4px 12px;
+                border-radius: 30px;
+              }
+              h2 {
+                color: #06d6a0;
               }
               @media print {
-                @page { margin: 6mm; }
-                body { padding: 0; }
+                @page { margin: 8mm; }
+                body { padding: 0; background: white; }
+                .barcode-card { box-shadow: none; border: 1px solid #ccc; }
               }
             </style>
           </head>
           <body>
-            <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
+            <div class="barcode-card">
+              <h2>✨ SurveyPro Barcode ✨</h2>
+              <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
+              <div class="meta">🎯 Profile ID: <strong>${barcodeId}</strong></div>
+              <div class="meta">👤 Student Name: <strong>${studentName || '-'}</strong></div>
+              <div class="meta">📅 ${new Date().toLocaleDateString()}</div>
+            </div>
             
             <script>
               window.onload = function() {

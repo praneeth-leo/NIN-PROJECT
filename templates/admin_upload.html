@@ -1,37 +1,511 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Admin Upload</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SurveyPro · Admin Upload ✦</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg-light: #f4f9ff;
+      --surface-glass: rgba(255, 255, 255, 0.75);
+      --surface-card: rgba(255, 255, 255, 0.7);
+      --border-soft: rgba(255, 136, 0, 0.2);
+      --border-active: #ff8800;
+      --text-primary: #1e293b;
+      --text-secondary: #4a40a0;
+      --text-muted: #5f6caf;
+      
+      /* Upload theme colors */
+      --upload-orange: #ff8800;
+      --upload-orange-dark: #e67a00;
+      --upload-blue: #4361ee;
+      --upload-pink: #b5179e;
+      --upload-mint: #06d6a0;
+      
+      --gradient-upload: linear-gradient(145deg, #ff8800, #e67a00);
+      --gradient-back: linear-gradient(145deg, #4361ee, #b5179e);
+      
+      --shadow-elevation: 0 30px 60px -20px rgba(255, 136, 0, 0.25), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      --radius-card: 48px;
+      --radius-input: 40px;
+      --radius-button: 60px;
+    }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: var(--bg-light);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0;
+      padding: 20px;
+      position: relative;
+    }
+
+    /* playful animated background */
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(circle at 10% 20%, #fbc8d5 0%, transparent 30%),
+        radial-gradient(circle at 90% 70%, #b8e1ff 0%, transparent 35%),
+        radial-gradient(circle at 30% 80%, #fde4c2 0%, transparent 40%),
+        radial-gradient(circle at 70% 25%, #d9cbff 0%, transparent 32%);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 0;
+      animation: softDrift 18s infinite alternate ease-in-out;
+    }
+
+    @keyframes softDrift {
+      0% { transform: scale(1) rotate(0deg); }
+      100% { transform: scale(1.05) rotate(1deg); }
+    }
+
+    .upload-container {
+      width: 100%;
+      max-width: 650px;
+      position: relative;
+      z-index: 10;
+      animation: popIn 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2);
+    }
+
+    @keyframes popIn {
+      0% { opacity: 0; transform: scale(0.95) translateY(15px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+
+    /* main card */
+    .upload-card {
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      border-radius: var(--radius-card);
+      padding: 48px 44px;
+      box-shadow: 0 40px 70px -25px rgba(255, 136, 0, 0.3), 0 0 0 1px rgba(255,255,255,0.8) inset;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-card::after {
+      content: "📤";
+      position: absolute;
+      bottom: 25px;
+      right: 35px;
+      font-size: 5rem;
+      opacity: 0.05;
+      transform: rotate(10deg);
+      pointer-events: none;
+    }
+
+    .upload-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(600px circle at 70% 20%, rgba(255, 136, 0, 0.1), transparent 70%);
+      pointer-events: none;
+    }
+
+    /* header icon */
+    .upload-icon {
+      width: 90px;
+      height: 90px;
+      background: var(--gradient-upload);
+      border-radius: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      box-shadow: 0 20px 30px -12px #ff8800, 0 0 0 4px rgba(255,255,255,0.8);
+      animation: float 3s infinite ease-in-out;
+    }
+
+    @keyframes float {
+      0%,100%{ transform: translateY(0); }
+      50%{ transform: translateY(-6px); }
+    }
+
+    .upload-icon i {
+      font-size: 42px;
+      color: white;
+      filter: drop-shadow(0 4px 6px rgba(0,0,0,0.1));
+    }
+
+    h2 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      text-align: center;
+      background: linear-gradient(135deg, #1e293b, #ff8800, #b5179e);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 12px;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #4a40a0;
+      margin-bottom: 36px;
+      font-size: 1.1rem;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.6);
+      padding: 14px 28px;
+      border-radius: 60px;
+      width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+      border: 2px solid rgba(255, 136, 0, 0.2);
+    }
+
+    .subtitle i {
+      color: #ff8800;
+    }
+
+    /* allowed files box */
+    .allowed-files {
+      background: white;
+      border: 2px solid rgba(255, 136, 0, 0.2);
+      border-radius: 60px;
+      padding: 18px 28px;
+      margin-bottom: 32px;
+      color: #4a40a0;
+      font-size: 0.95rem;
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      box-shadow: 0 10px 25px -15px #ff8800;
+    }
+
+    .allowed-files i {
+      color: #ff8800;
+      font-size: 1.3rem;
+    }
+
+    .file-badges {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .file-badge {
+      background: rgba(255, 136, 0, 0.1);
+      border: 1px solid rgba(255, 136, 0, 0.3);
+      border-radius: 40px;
+      padding: 6px 16px;
+      font-weight: 600;
+      color: #ff8800;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .file-badge:hover {
+      background: #ff8800;
+      color: white;
+      transform: scale(1.05);
+    }
+
+    .file-badge i {
+      margin-right: 4px;
+      font-size: 0.8rem;
+    }
+
+    /* form */
+    .upload-form {
+      margin-bottom: 30px;
+    }
+
+    .file-input-wrapper {
+      position: relative;
+      margin-bottom: 24px;
+    }
+
+    .file-input-wrapper i {
+      position: absolute;
+      left: 24px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #b5179e;
+      font-size: 1.2rem;
+      z-index: 2;
+    }
+
+    input[type="file"] {
+      width: 100%;
+      padding: 20px 24px 20px 60px;
+      background: white;
+      border: 2px solid rgba(181, 23, 158, 0.15);
+      border-radius: 60px;
+      font-size: 1rem;
+      font-family: "Inter", sans-serif;
+      color: #1e293b;
+      transition: all 0.25s ease;
+      cursor: pointer;
+      box-shadow: 0 8px 20px -15px rgba(0,0,0,0.1);
+    }
+
+    input[type="file"]:hover {
+      border-color: #ff8800;
+      background: rgba(255, 255, 255, 0.9);
+    }
+
+    input[type="file"]:focus {
+      outline: none;
+      border-color: #ff8800;
+      box-shadow: 0 0 0 4px rgba(255, 136, 0, 0.2), 0 10px 20px -15px #ff8800;
+    }
+
+    input[type="file"]::file-selector-button {
+      background: var(--gradient-upload);
+      border: none;
+      padding: 10px 24px;
+      margin-right: 20px;
+      border-radius: 40px;
+      color: white;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+    }
+
+    input[type="file"]::file-selector-button:hover {
+      transform: scale(1.05);
+      filter: brightness(1.1);
+    }
+
+    /* upload button */
+    .upload-btn {
+      width: 100%;
+      padding: 20px 28px;
+      border: none;
+      border-radius: 60px;
+      font-size: 1.2rem;
+      font-weight: 800;
+      cursor: pointer;
+      background: var(--gradient-upload);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      box-shadow: 0 20px 30px -14px #ff8800;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .upload-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .upload-btn:hover {
+      transform: scale(1.03) translateY(-3px);
+      box-shadow: 0 28px 40px -16px #ff8800;
+    }
+
+    .upload-btn:hover::after {
+      left: 120%;
+    }
+
+    .upload-btn i {
+      font-size: 1.2rem;
+      transition: transform 0.3s;
+    }
+
+    .upload-btn:hover i {
+      transform: translateY(-4px) scale(1.1);
+    }
+
+    .upload-btn:active {
+      transform: scale(0.98) translateY(2px);
+    }
+
+    /* back button */
+    .back-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 16px 28px;
+      background: var(--gradient-back);
+      border-radius: 60px;
+      color: white;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 1.1rem;
+      transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.2);
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      position: relative;
+      overflow: hidden;
+      box-shadow: 0 15px 25px -12px #b5179e;
+      width: fit-content;
+    }
+
+    .back-btn::after {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -60%;
+      width: 200%;
+      height: 200%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.5), transparent);
+      transform: rotate(25deg);
+      transition: left 0.6s ease;
+    }
+
+    .back-btn:hover {
+      transform: translateX(-4px) scale(1.03);
+      box-shadow: 0 25px 35px -14px #b5179e;
+    }
+
+    .back-btn:hover::after {
+      left: 120%;
+    }
+
+    .back-btn i {
+      transition: transform 0.3s;
+    }
+
+    .back-btn:hover i {
+      transform: translateX(-4px) scale(1.1);
+    }
+
+    /* warning note */
+    .warning-note {
+      margin-top: 30px;
+      text-align: center;
+      color: #5f6caf;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: white;
+      padding: 14px 24px;
+      border-radius: 60px;
+      border: 2px solid rgba(255, 136, 0, 0.2);
+    }
+
+    .warning-note i {
+      color: #ff8800;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.7; transform: scale(1); }
+      50% { opacity: 1; transform: scale(1.1); }
+      100% { opacity: 0.7; transform: scale(1); }
+    }
+
+    /* responsive */
+    @media (max-width: 600px) {
+      .upload-card {
+        padding: 36px 28px;
+      }
+      h2 {
+        font-size: 2.2rem;
+      }
+      .upload-icon {
+        width: 70px;
+        height: 70px;
+      }
+      .upload-icon i {
+        font-size: 32px;
+      }
+      .allowed-files {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .back-btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+  </style>
 </head>
-<body style="font-family: Arial; background:#f4f6f9;">
+<body>
 
-  <div style="width:600px;margin:60px auto;background:white;padding:25px;border-radius:12px;box-shadow:0 5px 15px rgba(0,0,0,0.2);">
+  <div class="upload-container">
+    <div class="upload-card">
+      <!-- upload icon -->
+      <div class="upload-icon">
+        <i class="fas fa-cloud-upload-alt"></i>
+      </div>
 
-    <h2>Upload / Replace File</h2>
+      <h2>Upload / Replace File</h2>
+      <div class="subtitle">
+        <i class="fas fa-file-import"></i>
+        <span>Replace existing data files</span>
+        <i class="fas fa-rotate" style="color:#b5179e;"></i>
+      </div>
 
-    <p style="color:#666;">
-      Allowed files:
-      <b>profiles.csv</b>, <b>responses.csv</b>, <b>profiles.xlsx</b>, <b>responses.xlsx</b>
-    </p>
+      <!-- allowed files box -->
+      <div class="allowed-files">
+        <i class="fas fa-check-circle"></i>
+        <span>Allowed files:</span>
+        <div class="file-badges">
+          <span class="file-badge"><i class="fas fa-file-csv"></i> profiles.csv</span>
+          <span class="file-badge"><i class="fas fa-file-csv"></i> responses.csv</span>
+          <span class="file-badge"><i class="fas fa-file-excel"></i> profiles.xlsx</span>
+          <span class="file-badge"><i class="fas fa-file-excel"></i> responses.xlsx</span>
+        </div>
+      </div>
 
-    <form method="POST" enctype="multipart/form-data">
-      <input type="file" name="file" required
-             style="width:100%;padding:10px;border:1px solid #ccc;border-radius:8px;">
-      <br><br>
+      <!-- upload form -->
+      <form method="POST" enctype="multipart/form-data" class="upload-form">
+        <div class="file-input-wrapper">
+          <i class="fas fa-paperclip"></i>
+          <input type="file" name="file" required accept=".csv,.xlsx">
+        </div>
 
-      <button type="submit"
-              style="width:100%;padding:12px;background:#ff8800;color:white;border:none;border-radius:10px;font-weight:bold;">
-        Upload
-      </button>
-    </form>
+        <button type="submit" class="upload-btn">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <span>Upload File</span>
+          <i class="fas fa-arrow-right"></i>
+        </button>
+      </form>
 
-    <br>
+      <!-- back button -->
+      <div style="display: flex; justify-content: center;">
+        <a href="/admin-dashboard" class="back-btn">
+          <i class="fas fa-arrow-left"></i> Back to Dashboard
+        </a>
+      </div>
 
-    <a href="/admin-dashboard"
-       style="display:inline-block;padding:10px 14px;background:#007bff;color:white;text-decoration:none;border-radius:10px;">
-      Back
-    </a>
-
+      <!-- warning note -->
+      <div class="warning-note">
+        <i class="fas fa-exclamation-triangle"></i>
+        <span>Uploading a file will replace existing data · This action cannot be undone</span>
+        <i class="fas fa-heart" style="color:#b5179e;"></i>
+      </div>
+    </div>
   </div>
 
 </body>
