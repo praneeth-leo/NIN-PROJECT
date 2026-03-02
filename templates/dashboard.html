@@ -114,27 +114,51 @@
       background-clip: text;
     }
 
-    /* logout button */
-    .logout-btn {
-      background: rgba(239, 68, 68, 0.12);
-      backdrop-filter: blur(8px);
-      color: #fecaca;
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .header-btn {
       padding: 12px 22px;
       border-radius: 40px;
       text-decoration: none;
       font-size: 0.95rem;
       font-weight: 600;
-      border: 1px solid rgba(239, 68, 68, 0.25);
       transition: all 0.25s ease;
       display: flex;
       align-items: center;
       gap: 10px;
       letter-spacing: -0.2px;
-      box-shadow: 0 10px 18px -12px rgba(239, 68, 68, 0.4);
     }
 
-    .logout-btn i {
+    .header-btn i {
       font-size: 1rem;
+    }
+
+    .admin-btn {
+      background: rgba(99, 102, 241, 0.16);
+      backdrop-filter: blur(8px);
+      color: #dbe4ff;
+      border: 1px solid rgba(99, 102, 241, 0.35);
+      box-shadow: 0 10px 18px -12px rgba(99, 102, 241, 0.45);
+    }
+
+    .admin-btn:hover {
+      background: rgba(99, 102, 241, 0.3);
+      border-color: rgba(99, 102, 241, 0.55);
+      transform: translateY(-2px);
+      box-shadow: 0 18px 24px -12px rgba(99, 102, 241, 0.6);
+    }
+
+    /* logout button */
+    .logout-btn {
+      background: rgba(239, 68, 68, 0.12);
+      backdrop-filter: blur(8px);
+      color: #fecaca;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      box-shadow: 0 10px 18px -12px rgba(239, 68, 68, 0.4);
     }
 
     .logout-btn:hover {
@@ -547,9 +571,14 @@
       </div>
       <h2>SurveyPro</h2>
     </div>
-    <a class="logout-btn" href="/logout">
-      <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
-    </a>
+    <div class="header-actions">
+      <a class="header-btn admin-btn" href="{{ url_for('admin_login') }}">
+        <i class="fas fa-user-shield"></i> <span>Admin</span>
+      </a>
+      <a class="header-btn logout-btn" href="/logout">
+        <i class="fas fa-sign-out-alt"></i> <span>Logout</span>
+      </a>
+    </div>
   </header>
 
   <main class="container">
@@ -617,6 +646,10 @@
         <a class="btn" href="{{ url_for('investigator_login', next=url_for('form')) }}">
           <span>Start survey</span>
           <i class="fas fa-arrow-right"></i>
+        </a>
+        <a class="btn btn-upload" href="{{ url_for('investigator_login', next=url_for('horiba')) }}">
+          <span>Upload Horiba Data</span>
+          <i class="fas fa-microscope"></i>
         </a>
 
         <!-- micro draft info (ui only) -->

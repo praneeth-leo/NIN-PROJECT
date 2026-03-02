@@ -502,7 +502,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
             <label>Study ID:</label>
-            <input type="text" name="study_id" placeholder="Enter Study ID">
+            <input type="text" id="study_id" name="study_id" value="{{ profile_id }}" readonly>
           </div>
           <div>
             <label>Name:</label>
@@ -511,6 +511,10 @@
           <div>
             <label>Date:</label>
             <input type="date" name="study_date" value="{{ today_date }}">
+          </div>
+          <div>
+            <label>Date & Time:</label>
+            <input type="text" id="study_datetime" name="study_datetime" value="{{ current_datetime }}" readonly>
           </div>
           <div>
             <label>Height (Cms):</label>
@@ -546,20 +550,15 @@
       <div class="section">
         <h3>Section A: Participant Identification</h3>
         <label>1. Child ID Code:</label>
-        <input type="text" name="child_id_code" placeholder="Enter Child ID">
+        <input type="text" id="child_id_code" name="child_id_code" value="{{ profile_id }}" readonly>
 
         <label>2. DOB:</label>
-        <input type="date" name="dob" value="{{ profile.dob }}">
+        <input type="date" id="dob_input" name="dob" value="{{ profile.dob }}">
 
-        <label>Age (completed years):</label>
-        <div style="display: flex; gap: 20px;">
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="age_completed"
-              value="3" style="width: auto;"> 3</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="age_completed"
-              value="4" style="width: auto;"> 4</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="age_completed"
-              value="5" style="width: auto;"> 5</label>
-        </div>
+        <label>Age (Years / Months / Days):</label>
+        <input type="text" id="age_detail" name="age_full" readonly placeholder="Auto-calculated from DOB">
+        <input type="hidden" id="age_as_on" name="age_calculated_at" value="{{ current_datetime }}">
+        <input type="hidden" id="age_completed_hidden" name="age_completed" value="">
 
         <label>3. Sex:</label>
         <div style="display: flex; gap: 20px;">
@@ -1383,15 +1382,15 @@
           </thead>
           <tbody>
             {% set statements = [
-            (73, 'I was comfortable with this Hb test for my child'),
-            (74, 'My child appeared calm during the test'),
+            (73, 'I was comfortable with this Hb test for my child', ''),
+            (74, 'My child appeared calm during the test', ''),
             (75, 'The test caused pain or distress to my child', 'reverse'),
-            (76, 'I believe this test is safe for young children'),
-            (77, 'I trust the Hb result obtained from this test'),
-            (78, 'The test was completed quickly'),
-            (79, 'This test is acceptable for children aged 3–5 years'),
-            (80, 'I would allow this test again for my child'),
-            (81, 'I would recommend this test to other parents')
+            (76, 'I believe this test is safe for young children', ''),
+            (77, 'I trust the Hb result obtained from this test', ''),
+            (78, 'The test was completed quickly', ''),
+            (79, 'This test is acceptable for children aged 3–5 years', ''),
+            (80, 'I would allow this test again for my child', ''),
+            (81, 'I would recommend this test to other parents', '')
             ] %}
             {% for no, text, type in statements %}
             <tr>
@@ -1551,11 +1550,96 @@
       if (output) output.value = total;
     }
 
+    function updateAgeDetails() {
+      const dobInput = document.getElementById('dob_input');
+      const ageDetailInput = document.getElementById('age_detail');
+      const ageAsOnInput = document.getElementById('age_as_on');
+      if (!dobInput || !ageDetailInput || !ageAsOnInput) return;
+
+      const dobValue = dobInput.value;
+      if (!dobValue) {
+        ageDetailInput.value = "";
+        return;
+      }
+
+      const birthDate = new Date(dobValue + "T00:00:00");
+      const now = new Date();
+      if (Number.isNaN(birthDate.getTime())) {
+        ageDetailInput.value = "";
+        return;
+      }
+
+      let years = now.getFullYear() - birthDate.getFullYear();
+      let months = now.getMonth() - birthDate.getMonth();
+      let days = now.getDate() - birthDate.getDate();
+
+      if (days < 0) {
+        months -= 1;
+        const prevMonthDays = new Date(now.getFullYear(), now.getMonth(), 0).getDate();
+        days += prevMonthDays;
+      }
+      if (months < 0) {
+        years -= 1;
+        months += 12;
+      }
+
+      ageDetailInput.value = `${years} years ${months} months ${days} days`;
+      ageAsOnInput.value = now.toLocaleString();
+
+      const ageCompletedHidden = document.getElementById('age_completed_hidden');
+      if (ageCompletedHidden) ageCompletedHidden.value = String(years);
+    }
+
+    function setupIfaCalculatorModal() {
+      const openBtn = document.getElementById('openIfaCalculator');
+      const closeBtn = document.getElementById('closeIfaCalculator');
+      const runBtn = document.getElementById('runIfaCalculator');
+      const modal = document.getElementById('ifaModal');
+      const result = document.getElementById('ifaCalcResult');
+      const weightCalcInput = document.getElementById('ifa_calc_weight');
+      const hbCalcInput = document.getElementById('ifa_calc_hb');
+      const mainWeightInput = document.getElementById('weight_input');
+      const mainHbInput = document.getElementsByName('lab_hb_value')[0];
+      const doseInput = document.getElementById('ifa_dose');
+
+      if (!openBtn || !closeBtn || !runBtn || !modal || !result) return;
+
+      openBtn.addEventListener('click', () => {
+        modal.classList.add('show');
+      });
+
+      closeBtn.addEventListener('click', () => {
+        modal.classList.remove('show');
+      });
+
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.classList.remove('show');
+      });
+
+      runBtn.addEventListener('click', () => {
+        const weight = parseFloat(weightCalcInput.value);
+        const hb = parseFloat(hbCalcInput.value);
+        if (Number.isNaN(weight) || Number.isNaN(hb)) {
+          result.textContent = "Enter both weight and Hb to calculate dose.";
+          return;
+        }
+
+        const dose = calculateIfaDose(weight, hb);
+        result.textContent = `Recommended IFA dose: ${dose}`;
+        if (doseInput) doseInput.value = dose;
+
+        if (mainWeightInput && !mainWeightInput.value) mainWeightInput.value = String(weight);
+        if (mainHbInput && !mainHbInput.value) mainHbInput.value = String(hb);
+        updateClinicalCalculations();
+      });
+    }
+
     /* EVENT LISTENERS */
     document.addEventListener("change", e => {
       if (['edu_head', 'occ_head', 'income'].includes(e.target.id)) calcKupp();
       if (e.target.classList.contains("parent_score")) calcParent();
       if (e.target.name === "lab_hb_value" || e.target.id === "weight_input") updateClinicalCalculations();
+      if (e.target.id === "dob_input") updateAgeDetails();
 
       if (e.target.classList.contains("flacc_masimo")) calcFlaccGroup("flacc_masimo", "masimo_flacc_total");
       if (e.target.classList.contains("flacc_poc")) calcFlaccGroup("flacc_poc", "poc_flacc_total");
@@ -1571,6 +1655,8 @@
       calcKupp();
       calcParent();
       updateClinicalCalculations();
+      updateAgeDetails();
+      setupIfaCalculatorModal();
       calcFlaccGroup("flacc_masimo", "masimo_flacc_total");
       calcFlaccGroup("flacc_poc", "poc_flacc_total");
       calcFlaccGroup("flacc_lab", "lab_flacc_total");

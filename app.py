@@ -445,7 +445,7 @@ def home():
 
 @app.route("/investigator-login", methods=["GET", "POST"])
 def investigator_login():
-    next_url = request.args.get("next", "").strip()
+    next_url = (request.args.get("next", "") or request.form.get("next", "")).strip()
     if next_url and not next_url.startswith("/"):
         next_url = ""
     default_next = url_for("form") if session.get("profile_id") else url_for("dashboard")
@@ -673,7 +673,15 @@ def form():
     if not profile:
         return redirect(url_for("login"))
 
-    return render_template("form.html", profile=profile, investigator_username=investigator_username)
+    now = datetime.now()
+    return render_template(
+        "form.html",
+        profile=profile,
+        investigator_username=investigator_username,
+        profile_id=profile_id,
+        today_date=now.strftime("%Y-%m-%d"),
+        current_datetime=now.strftime("%Y-%m-%d %H:%M:%S"),
+    )
 
 
 def _section_status(response, keys):
@@ -840,7 +848,7 @@ def admin_dashboard():
 def admin_logout():
     session.pop("admin_logged_in", None)
     session.pop("admin_username", None)
-    return redirect(url_for("admin_login"))
+    return redirect(url_for("dashboard"))
 
 
 @app.route("/investigator-logout")
