@@ -16,3 +16,7 @@ timestamp,actor_type,actor,event,details
 2026-02-27 18:00:43,investigator,Jahnavi,login,Investigator logged in
 2026-02-27 22:24:42,admin,admin,machine_update,"Horiba upload updated 5 profiles from linked_data.xlsx; profile_ids=RACI0001, RACI0002, LECI0003, PRCI0004, MUSR0008"
 2026-03-02 21:51:12,investigator,Jahnavi,login,Investigator logged in
+2026-03-03 19:08:09,investigator,Jahnavi,login,Investigator logged in
+2026-03-04 22:06:54,investigator,Jahnavi,login,Investigator logged in
+2026-03-04 22:24:36,investigator,Jahnavi,login,Investigator logged in
+2026-03-04 22:27:16,investigator,Jahnavi,login,Investigator logged in

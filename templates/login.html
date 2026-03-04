@@ -330,6 +330,7 @@
     </div>
 
     <form method="POST" action="/login" id="barcode-login-form">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <div class="input-group">
         <i class="fas fa-barcode"></i>
         <input type="text" name="profile_id" id="profile_id_input" placeholder="Scan or type barcode ID" autocomplete="off" autofocus required />

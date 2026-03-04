@@ -1,14 +1,16 @@
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_file, jsonify, flash
+    session, send_file, jsonify, flash, abort
 )
 import csv
 import os
 import re
+import secrets
 import pandas as pd
 from barcode import Code128
 from barcode.writer import ImageWriter
 from datetime import datetime
+from flask_talisman import Talisman
 import uuid
 
 
@@ -16,7 +18,107 @@ import uuid
 # App setup
 # --------------------------------------------------
 app = Flask(__name__)
-app.secret_key = "survey_secret_key"
+# ----------------------------
+# ADD CSP CONFIG HERE
+# ----------------------------
+
+csp = {
+    "default-src": ["'self'"],
+
+    "script-src": [
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com"
+    ],
+
+    "style-src": [
+        "'self'",
+        "'unsafe-inline'",
+        "https://cdn.jsdelivr.net",
+        "https://cdnjs.cloudflare.com",
+        "https://fonts.googleapis.com"
+    ],
+
+    "font-src": [
+        "'self'",
+        "data:",
+        "https://fonts.gstatic.com",
+        "https://cdnjs.cloudflare.com",
+        "https://cdn.jsdelivr.net"
+    ],
+
+    "img-src": [
+        "'self'",
+        "data:"
+    ],
+
+    "object-src": ["'none'"],
+    "base-uri": ["'self'"],
+    "frame-ancestors": ["'none'"],
+    "form-action": ["'self'"]
+}
+
+Talisman(
+    app,
+    content_security_policy=csp,
+    force_https=False
+)
+
+_env_secret = (os.environ.get("FLASK_SECRET_KEY") or "").strip()
+app.secret_key = _env_secret or "change-this-in-production"
+app.config.update(
+    SESSION_COOKIE_HTTPONLY=True,
+    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "0") == "1",
+)
+
+
+def generate_csrf_token():
+    token = session.get("_csrf_token")
+    if not token:
+        token = secrets.token_urlsafe(32)
+        session["_csrf_token"] = token
+    return token
+
+
+app.jinja_env.globals["csrf_token"] = generate_csrf_token
+
+
+@app.before_request
+def enforce_csrf():
+    if request.method != "POST":
+        return
+
+    # Allow standard form posts and JS clients that send the header.
+    provided = request.form.get("_csrf_token") or request.headers.get("X-CSRF-Token")
+    expected = session.get("_csrf_token")
+    if not expected or not provided or not secrets.compare_digest(expected, provided):
+        abort(400, "CSRF token missing or invalid.")
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
+    response.headers["Content-Security-Policy"] = (
+        "default-src 'self'; "
+        "img-src 'self' data:; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
+        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
+        "connect-src 'self'; "
+        "frame-ancestors 'none'; "
+        "base-uri 'self'; "
+        "form-action 'self'"
+    )
+    if request.is_secure:
+        response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+    response.headers["Pragma"] = "no-cache"
+    return response
 
 # ---------------- INVESTIGATOR SETTINGS ----------------
 INVESTIGATOR_CREDENTIALS = [
@@ -1278,4 +1380,4 @@ def update_horiba():
 if __name__ == "__main__":
     os.makedirs(BARCODE_FOLDER, exist_ok=True)
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
-    app.run(debug=True)
+    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1")

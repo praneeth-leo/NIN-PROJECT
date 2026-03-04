@@ -291,7 +291,8 @@
       backdrop-filter: blur(4px);
     }
 
-    .score input[readonly] {
+    .score input[readonly],
+    .score select {
       background: rgba(0, 0, 0, 0.3);
       border: 1px solid rgba(37, 99, 235, 0.3);
       width: auto;
@@ -555,7 +556,7 @@
         <label>2. DOB:</label>
         <input type="date" id="dob_input" name="dob" value="{{ profile.dob }}">
 
-        <label>Age (Years / Months / Days):</label>
+        <label>Age (completed years):</label>
         <input type="text" id="age_detail" name="age_full" readonly placeholder="Auto-calculated from DOB">
         <input type="hidden" id="age_as_on" name="age_calculated_at" value="{{ current_datetime }}">
         <input type="hidden" id="age_completed_hidden" name="age_completed" value="">
@@ -588,7 +589,7 @@
 
       <!-- ================= SECTION B ================= -->
       <div class="section">
-        <h3>Section B: Socio Demographic & Socio Economic Details</h3>
+        <h3>Section B: SocioDemographic & SocioEconomic Details</h3>
         <h4>B1. Family Characteristics</h4>
         <label>6. Type of family:</label>
         <div style="display: flex; gap: 20px;">
@@ -671,7 +672,16 @@
         <div class="score">
           <span>13. Total Score: <input name="kuppuswamy_total_score" id="kupp_total" readonly></span>
           <span style="color: var(--text-muted);">|</span>
-          <span>14. SES Class: <input name="ses_class" id="ses_class" readonly></span>
+          <span>14. SES Class:
+            <select name="ses_class" id="ses_class">
+              <option value="">Select SES Class</option>
+              <option value="Upper">Upper (26-29)</option>
+              <option value="Upper Middle">Upper Middle (16-25)</option>
+              <option value="Lower Middle">Lower Middle (11-15)</option>
+              <option value="Upper Lower">Upper Lower (5-10)</option>
+              <option value="Lower">Lower (&lt;5)</option>
+            </select>
+          </span>
         </div>
       </div>
 
@@ -770,12 +780,14 @@
       <!-- ================= SECTION G ================= -->
       <div class="section">
         <h3>Section G: History of Hemoglobin testing</h3>
-        <label>22. Did the child previously get tested for hemoglobin?</label>
+        <label>22. Did the child previously got tested for hemoglobin?</label>
         <div style="display: flex; gap: 20px;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="hb_previously_tested"
               value="Yes" style="width: auto;"> Yes</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="hb_previously_tested"
               value="No" style="width: auto;"> No</label>
+          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="hb_previously_tested"
+              value="I don’t remember" style="width: auto;"> I don’t remember</label>
         </div>
 
         <div id="prev_hb_details" class="mt-3">
@@ -826,13 +838,24 @@
             <label>25. Reading: _____ g/dL</label>
             <input type="number" step="0.1" name="masimo_reading" placeholder="Hb value">
           </div>
+          <div>
+            <label>26. Number of attempts:</label>
+            <div style="display: flex; gap: 20px;">
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="masimo_attempts"
+                  value="1" style="width: auto;"> 1</label>
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="masimo_attempts"
+                  value="2" style="width: auto;"> 2</label>
+              <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="masimo_attempts"
+                  value=">=3" style="width: auto;"> ≥3</label>
+            </div>
+          </div>
           <div style="grid-column: span 2;">
-            <label>26. End time:</label>
+            <label>27. End time:</label>
             <input type="time" name="masimo_end_time">
           </div>
         </div>
 
-        <label class="mt-3">27. FLACC Scale (Masimo):</label>
+        <label class="mt-3">28. FLACC Scale (Masimo):</label>
         <table>
           <thead>
             <tr>
@@ -885,261 +908,19 @@
         </table>
         <div class="score">Total score: <input name="masimo_flacc_total" id="masimo_flacc_total" readonly> /10</div>
 
-        <h5 class="mt-4">Operational Feasibility Questions (Masimo)</h5>
-        <table>
-          <thead>
-            <tr>
-              <th>Section</th>
-              <th>Question</th>
-              <th>Options</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>28. Ease of Operation & Workflow</td>
-              <td>Is the device easy to operate by routine healthcare staff?</td>
-              <td><select name="m_feas_28_a">
-                  <option>Very easy</option>
-                  <option>Easy</option>
-                  <option>Moderate</option>
-                  <option>Difficult</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Does the device fit well into existing clinical workflow?</td>
-              <td><select name="m_feas_28_b">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>29. Training & Skill Requirements</td>
-              <td>Level of training required to operate the device</td>
-              <td><select name="m_feas_29_a">
-                  <option>None</option>
-                  <option>Minimal</option>
-                  <option>Moderate</option>
-                  <option>Extensive</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Is the device operator-dependent?</td>
-              <td><select name="m_feas_29_b">
-                  <option>Low</option>
-                  <option>Moderate</option>
-                  <option>High</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>30. Maintenance & Technical Support</td>
-              <td>Frequency of maintenance required</td>
-              <td><select name="m_feas_30_a">
-                  <option>Daily</option>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Rare</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Availability of technical support and spare parts</td>
-              <td><select name="m_feas_30_b">
-                  <option>Easily available</option>
-                  <option>Limited</option>
-                  <option>Not available</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>31. Operational Time Suitability</td>
-              <td>Can this device be used effectively in daily clinical operations?</td>
-              <td><select name="m_feas_31_a">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Does this device save time or fit within real clinical time constraints?</td>
-              <td><select name="m_feas_31_b">
-                  <option>Yes</option>
-                  <option>Neutral</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Average time required to obtain a result:</td>
-              <td><select name="m_feas_31_c">
-                  <option>&lt;1 min</option>
-                  <option>1–3 min</option>
-                  <option>&gt;3 min</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>32. Reliability in Daily Use</td>
-              <td>Does the device provide consistent results in routine clinical use?</td>
-              <td><select name="m_feas_32_a">
-                  <option>Always</option>
-                  <option>Often</option>
-                  <option>Sometimes</option>
-                  <option>Rarely</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Is the device affected by environmental factors?</td>
-              <td><select name="m_feas_32_b">
-                  <option>Not affected</option>
-                  <option>Slightly affected</option>
-                  <option>Highly affected</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>33. Portability & Power Requirement</td>
-              <td>Is the device portable for field use?</td>
-              <td><select name="m_feas_33_a">
-                  <option>Highly portable</option>
-                  <option>Moderately portable</option>
-                  <option>Not portable</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Power requirement of the device</td>
-              <td><select name="m_feas_33_b">
-                  <option>Battery operated</option>
-                  <option>Mains power</option>
-                  <option>Both</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>34. Maintenance & Calibration</td>
-              <td>Ease of routine maintenance and calibration</td>
-              <td><select name="m_feas_34_a">
-                  <option>Easy</option>
-                  <option>Moderate</option>
-                  <option>Difficult</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Frequency of calibration required</td>
-              <td><select name="m_feas_34_b">
-                  <option>Daily</option>
-                  <option>Weekly</option>
-                  <option>Monthly</option>
-                  <option>Rare</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>35. Data Recording & Integration</td>
-              <td>Does the device allow easy recording of results?</td>
-              <td><select name="m_feas_35_a">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Can the device integrate with hospital information systems?</td>
-              <td><select name="m_feas_35_b">
-                  <option>Yes</option>
-                  <option>No</option>
-                  <option>Not applicable</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>36. Field Practicality</td>
-              <td>Is the device suitable for use in peripheral/rural/field settings?</td>
-              <td><select name="m_feas_36_a">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Does the device function reliably under non-laboratory conditions?</td>
-              <td><select name="m_feas_36_b">
-                  <option>Always</option>
-                  <option>Often</option>
-                  <option>Sometimes</option>
-                  <option>Rarely</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>37. Device Safety</td>
-              <td>Is the device safe for routine clinical use?</td>
-              <td><select name="m_feas_37_a">
-                  <option>Very safe</option>
-                  <option>Safe</option>
-                  <option>Moderately safe</option>
-                  <option>Unsafe</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Does the device reduce risk of infection or biohazard exposure?</td>
-              <td><select name="m_feas_37_b">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Have any safety issues or malfunctions been observed?</td>
-              <td><select name="m_feas_37_c">
-                  <option>None</option>
-                  <option>Rare</option>
-                  <option>Occasional</option>
-                  <option>Frequent</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Is the device suitable for use in vulnerable patients?</td>
-              <td><select name="m_feas_37_d">
-                  <option>Yes</option>
-                  <option>Partially</option>
-                  <option>No</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>38. Overall Operational Feasibility</td>
-              <td>Rate overall operational feasibility</td>
-              <td><select name="m_feas_38_a">{% for i in range(1,6) %}<option>{{ i }}</option>{% endfor %}</select></td>
-            </tr>
-            <tr>
-              <td></td>
-              <td>Would you recommend this device for routine clinical use?</td>
-              <td><select name="m_feas_38_b">
-                  <option>Yes</option>
-                  <option>No</option>
-                  <option>Conditional</option>
-                </select></td>
-            </tr>
-          </tbody>
-        </table>
-
         <!-- Minimally Invasive POC Device -->
         <h4 class="mt-5 text-success">Minimally Invasive POC Device</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
-            <label>39. Start time:</label>
+            <label>29. Start time:</label>
             <input type="time" name="poc_start_time">
           </div>
           <div>
-            <label>40. Capillary Hb value: _____ g/dL</label>
+            <label>30. Capillary Hb value: _____ g/dL</label>
             <input type="number" step="0.1" name="poc_hb_value" placeholder="Hb value">
           </div>
           <div>
-            <label>41. Number of attempts:</label>
+            <label>31. Number of attempts:</label>
             <div style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="poc_attempts"
                   value="1" style="width: auto;"> 1</label>
@@ -1150,12 +931,12 @@
             </div>
           </div>
           <div>
-            <label>42. End time:</label>
+            <label>32. End time:</label>
             <input type="time" name="poc_end_time">
           </div>
         </div>
 
-        <label class="mt-3">43. FLACC Scale (POC):</label>
+        <label class="mt-3">33. FLACC Scale (POC):</label>
         <table>
           <thead>
             <tr>
@@ -1165,7 +946,7 @@
           </thead>
           <tbody>
             <tr>
-              <td>Face</td>
+              <td>Face: 0=Relaxed, 1=Occasional grimace/frown, 2=Frequent/constant quivering chin or clenched jaw</td>
               <td><select name="poc_flacc_face" class="flacc_poc">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1173,7 +954,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Legs</td>
+              <td>Legs: 0=Normal/relaxed, 1=Uneasy/restless, 2=Kicking or drawn up</td>
               <td><select name="poc_flacc_legs" class="flacc_poc">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1181,7 +962,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Activity</td>
+              <td>Activity: 0=Quiet/lying still, 1=Squirming/shifting/tense, 2=Arched/rigid/jerking</td>
               <td><select name="poc_flacc_activity" class="flacc_poc">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1189,7 +970,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Cry</td>
+              <td>Cry: 0=No cry, 1=Moans/whimpers/occasional, 2=Steady crying/screaming/frequent complaints</td>
               <td><select name="poc_flacc_cry" class="flacc_poc">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1197,7 +978,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Consolability</td>
+              <td>Consolability: 0=Content/relaxed, 1=Reassured by touching/talking, 2=Difficult to console/comfort</td>
               <td><select name="poc_flacc_consolability" class="flacc_poc">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1208,57 +989,19 @@
         </table>
         <div class="score">Total score: <input name="poc_flacc_total" id="poc_flacc_total" readonly> /10</div>
 
-        <h5 class="mt-4">Operational Feasibility Questions (POC)</h5>
-        <table>
-          <thead>
-            <tr>
-              <th>Section</th>
-              <th>Question</th>
-              <th>Response</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>44. Ease of Operation & Workflow</td>
-              <td>Is it easy to operate?</td>
-              <td><select name="poc_feas_44_a">
-                  <option>Very easy</option>
-                  <option>Easy</option>
-                  <option>Moderate</option>
-                  <option>Difficult</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>47. Average time required to obtain a result:</td>
-              <td>Hemocue 301</td>
-              <td><select name="poc_feas_47_c">
-                  <option>&lt;1 min</option>
-                  <option>1–3 min</option>
-                  <option>&gt;3 min</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>54. Overall Operational Feasibility</td>
-              <td>Rate overall feasibility</td>
-              <td><select name="poc_overall_feas">{% for i in range(1,6) %}<option>{{ i }}</option>{% endfor %}</select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
         <!-- Reference (Laboratory) -->
         <h4 class="mt-5 text-warning">Reference (Laboratory)</h4>
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
-            <label>55. Start time:</label>
+            <label>34. Start time:</label>
             <input type="time" name="lab_start_time">
           </div>
           <div>
-            <label>56. Venous Hb value (ABX Micros ES 60): _____ g/dL</label>
+            <label>35. Venous Hb value (ABX Micros ES 60): _____ g/dL</label>
             <input type="number" step="0.1" name="lab_hb_value" placeholder="Hb value">
           </div>
           <div>
-            <label>57. Number of attempts:</label>
+            <label>36. Number of attempts:</label>
             <div style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="lab_attempts"
                   value="1" style="width: auto;"> 1</label>
@@ -1269,12 +1012,12 @@
             </div>
           </div>
           <div>
-            <label>58. End time:</label>
+            <label>37. End time:</label>
             <input type="time" name="lab_end_time">
           </div>
         </div>
 
-        <label class="mt-3">59. FLACC Scale (Lab):</label>
+        <label class="mt-3">38. FLACC Scale (Lab):</label>
         <table>
           <thead>
             <tr>
@@ -1284,7 +1027,7 @@
           </thead>
           <tbody>
             <tr>
-              <td>Face</td>
+              <td>Face: 0=Relaxed, 1=Occasional grimace/frown, 2=Frequent/constant quivering chin or clenched jaw</td>
               <td><select name="lab_flacc_face" class="flacc_lab">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1292,7 +1035,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Legs</td>
+              <td>Legs: 0=Normal/relaxed, 1=Uneasy/restless, 2=Kicking or drawn up</td>
               <td><select name="lab_flacc_legs" class="flacc_lab">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1300,7 +1043,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Activity</td>
+              <td>Activity: 0=Quiet/lying still, 1=Squirming/shifting/tense, 2=Arched/rigid/jerking</td>
               <td><select name="lab_flacc_activity" class="flacc_lab">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1308,7 +1051,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Cry</td>
+              <td>Cry: 0=No cry, 1=Moans/whimpers/occasional, 2=Steady crying/screaming/frequent complaints</td>
               <td><select name="lab_flacc_cry" class="flacc_lab">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1316,7 +1059,7 @@
                 </select></td>
             </tr>
             <tr>
-              <td>Consolability</td>
+              <td>Consolability: 0=Content/relaxed, 1=Reassured by touching/talking, 2=Difficult to console/comfort</td>
               <td><select name="lab_flacc_consolability" class="flacc_lab">
                   <option value="0">0</option>
                   <option value="1">1</option>
@@ -1327,87 +1070,44 @@
         </table>
         <div class="score">Total score: <input name="lab_flacc_total" id="lab_flacc_total" readonly> /10</div>
 
-        <h5 class="mt-4">Operational Feasibility Questions (Reference Lab)</h5>
-        <table>
-          <thead>
-            <tr>
-              <th>Section</th>
-              <th>Question</th>
-              <th>Response</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>60. Ease of Operation & Workflow</td>
-              <td>Is it easy to operate?</td>
-              <td><select name="lab_feas_60_a">
-                  <option>Very easy</option>
-                  <option>Easy</option>
-                  <option>Moderate</option>
-                  <option>Difficult</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>63. Average time required to obtain a result:</td>
-              <td>Horiba Device</td>
-              <td><select name="lab_feas_63_c">
-                  <option>&lt;1 min</option>
-                  <option>1–3 min</option>
-                  <option>&gt;3 min</option>
-                </select></td>
-            </tr>
-            <tr>
-              <td>70. Overall Operational Feasibility</td>
-              <td>Rate overall feasibility</td>
-              <td><select name="lab_overall_feas">{% for i in range(1,6) %}<option>{{ i }}</option>{% endfor %}</select>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-
       </div>
 
       <!-- ================= SECTION I ================= -->
       <div class="section">
-        <h3>Section I: Parental Acceptability (Scale 1–5)</h3>
-        <p class="text-muted mb-3">1 = Strongly Disagree, 2 = Disagree, 3 = Neutral, 4 = Agree, 5 = Strongly Agree</p>
+        <h3>Section I: Parental Acceptability (Exit Questions)</h3>
 
         <table>
           <thead>
             <tr>
               <th>No.</th>
               <th>Statement</th>
-              <th>Score (1–5)</th>
+              <th>Masimo</th>
+              <th>Hemocue</th>
+              <th>Horiba</th>
             </tr>
           </thead>
           <tbody>
             {% set statements = [
-            (73, 'I was comfortable with this Hb test for my child', ''),
-            (74, 'My child appeared calm during the test', ''),
-            (75, 'The test caused pain or distress to my child', 'reverse'),
-            (76, 'I believe this test is safe for young children', ''),
-            (77, 'I trust the Hb result obtained from this test', ''),
-            (78, 'The test was completed quickly', ''),
-            (79, 'This test is acceptable for children aged 3–5 years', ''),
-            (80, 'I would allow this test again for my child', ''),
-            (81, 'I would recommend this test to other parents', '')
+            (39, 'I was comfortable with this Hb test for my child'),
+            (40, 'My child appeared calm during this test'),
+            (41, 'This test caused pain or distress to my child'),
+            (42, 'I believe this test is safe for young children'),
+            (43, 'Which test was completed quickly?'),
+            (44, 'Which test is acceptable for children aged 3–5 years'),
+            (45, 'I would allow this test again for my child'),
+            (46, 'Which test do you recommend to other parents?')
             ] %}
-            {% for no, text, type in statements %}
+            {% for no, text in statements %}
             <tr>
               <td>{{ no }}</td>
-              <td>{{ text }}{% if type == 'reverse' %} (Reverse Scored){% endif %}</td>
-              <td>
-                <select name="parent_q_{{ no }}" class="parent_score" {% if type=='reverse' %}data-reverse="true" {%
-                  endif %}>
-                  {% for i in range(1,6) %}<option value="{{ i }}">{{ i }}</option>{% endfor %}
-                </select>
-              </td>
+              <td>{{ text }}</td>
+              <td><input type="radio" name="parent_q_{{ no }}" value="Masimo"></td>
+              <td><input type="radio" name="parent_q_{{ no }}" value="Hemocue"></td>
+              <td><input type="radio" name="parent_q_{{ no }}" value="Horiba"></td>
             </tr>
             {% endfor %}
           </tbody>
         </table>
-        <div class="score">Total Parental Acceptability Score: <input id="parent_total" name="parent_total" readonly>
-          /45</div>
       </div>
 
       <!-- ================= SECTION J ================= -->
@@ -1416,25 +1116,27 @@
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
-            <label>82. Child classified as:</label>
-            <input type="text" id="child_classification" name="child_classification" readonly
-              placeholder="Auto-calculated from Lab Hb">
-          </div>
-          <div>
-            <label>83. Dose of IFA:</label>
-            <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Auto-calculated (Editable)">
-          </div>
-          <div>
-            <label>84. Referral advised?</label>
-            <select name="referral_advised">
-              <option>No</option>
-              <option>Yes</option>
+            <label>47. Child classified as:</label>
+            <select id="child_classification" name="child_classification">
+              <option value=""></option>
+              <option>Anaemic</option>
+              <option>Non-anaemic</option>
             </select>
           </div>
           <div>
-            <label>85. Referral destination:</label>
+            <label>48. Dose of IFA (Formula = 3*body weight/4 per day):</label>
+            <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Calculated dose">
+          </div>
+          <div>
+            <label>49. Referral advised?</label>
+            <select name="referral_advised">
+              <option>Yes</option>
+              <option>No</option>
+            </select>
+          </div>
+          <div>
+            <label>50. Referral destination (Multiple options):</label>
             <select name="referral_destination">
-              <option>None</option>
               <option>PHC</option>
               <option>UHC</option>
               <option>Govt. Hospital</option>

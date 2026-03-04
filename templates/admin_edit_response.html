@@ -516,6 +516,7 @@
 
     <!-- edit form -->
     <form method="POST">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <div class="form-grid">
         {% for key, val in r.items() %}
           {% if key != "response_id" and key != "profile_id" %}

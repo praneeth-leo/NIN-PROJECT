@@ -381,6 +381,7 @@
     </div>
 
     <form method="POST" action="{{ url_for('investigator_login', next=request.args.get('next', '')) }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <input type="hidden" name="next" value="{{ request.args.get('next', '') }}">
       <div class="input-group">
         <i class="fas fa-user"></i>
