@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro Â· Secure login</title>
+  <title>SurveyPro · Secure login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -203,6 +203,9 @@
     /* button modern style + microinteractions */
     .login-btn, .profile-btn {
       width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       border: none;
       border-radius: 40px;
       padding: 16px 20px;
@@ -215,6 +218,7 @@
       position: relative;
       overflow: hidden;
       box-shadow: 0 12px 20px -15px currentColor;
+      text-decoration: none;
     }
 
     .login-btn {
@@ -330,7 +334,7 @@
       animation: pulseRing 1.5s infinite;
     }
 
-    /* Responsive fineâ€‘tuning */
+    /* Responsive fine‑tuning */
     @media (max-width: 480px) {
       .box { padding: 28px 20px; }
       h2 { font-size: 1.9rem; }
@@ -370,9 +374,9 @@
     </form>
 
     <div class="divider">new here?</div>
-    <button class="profile-btn" onclick="window.location.href='/profile'">
+    <a class="profile-btn" href="/profile">
       <i class="fas fa-pen-to-square" style="margin-right: 8px;"></i> Create new profile
-    </button>
+    </a>
 
     <!-- this error sim (will be replaced by Jinja) -->
     <!-- {% if error %} -->
@@ -459,5 +463,6 @@
   </script>
 </body>
 </html>
+
 
 

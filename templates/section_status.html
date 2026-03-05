@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SurveyPro Â· Section Status Dashboard</title>
+  <title>SurveyPro · Section Status Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
@@ -106,7 +106,7 @@
     }
 
     .section::before {
-      content: "ðŸ“Š";
+      content: "📊";
       position: absolute;
       bottom: 20px;
       right: 30px;
@@ -396,15 +396,15 @@
       <div class="legend">
         <div class="legend-item">
           <span class="legend-color legend-green"></span>
-          <span>Filled <span style="color:#06d6a0;">â—</span></span>
+          <span>Filled <span style="color:#06d6a0;">●</span></span>
         </div>
         <div class="legend-item">
           <span class="legend-color legend-orange"></span>
-          <span>Partial <span style="color:#f59e0b;">â—</span></span>
+          <span>Partial <span style="color:#f59e0b;">●</span></span>
         </div>
         <div class="legend-item">
           <span class="legend-color legend-red"></span>
-          <span>Not Filled <span style="color:#ef4444;">â—</span></span>
+          <span>Not Filled <span style="color:#ef4444;">●</span></span>
         </div>
         <div class="legend-item">
           <i class="fas fa-star" style="color:#06d6a0;"></i>
@@ -458,7 +458,7 @@
       <!-- summary footer -->
       <div style="margin-top: 24px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
         <i class="fas fa-chart-simple" style="color:#06d6a0;"></i>
-        {{ rows|length }} profile(s) Â· Last updated <span id="current-time"></span>
+        {{ rows|length }} profile(s) · Last updated <span id="current-time"></span>
         <i class="fas fa-heart" style="color:#b5179e;"></i>
       </div>
     </div>
@@ -470,4 +470,5 @@
   </script>
 </body>
 </html>
+
 

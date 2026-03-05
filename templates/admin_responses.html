@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SurveyPro Â· Admin Responses âœ¦</title>
+  <title>SurveyPro · Admin Responses ✦</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -106,7 +106,7 @@
     }
 
     .panel::after {
-      content: "ðŸ“‹";
+      content: "📋";
       position: absolute;
       bottom: 30px;
       right: 40px;
@@ -599,7 +599,7 @@
                     <i class="fas fa-edit"></i> Edit Response
                   </a>
                   <form method="POST" action="/admin/delete-response/{{ row['response_id'] }}" 
-                        onsubmit="return confirm('âš ï¸ Are you sure? This will permanently delete this response.\n\nResponse ID: {{ row['response_id'] }}\n\nThis action cannot be undone!');">
+                        onsubmit="return confirm('⚠️ Are you sure? This will permanently delete this response.\n\nResponse ID: {{ row['response_id'] }}\n\nThis action cannot be undone!');">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-delete" type="submit">
                       <i class="fas fa-trash-alt"></i> Delete
@@ -610,9 +610,9 @@
                 <!-- Response data fields -->
                 {% for key in headers %}
                   {% set val = row.get(key, '') %}
-                  <td class="data-cell" title="{{ val if val else 'â€”' }}">
+                  <td class="data-cell" title="{{ val if val else '—' }}">
                     {% if val is none or val == '' %}
-                      <span class="null-value">â€”</span>
+                      <span class="null-value">—</span>
                     {% else %}
                       {{ val }}
                     {% endif %}
@@ -628,7 +628,7 @@
     <!-- footer note -->
     <div class="footer-note">
       <i class="fas fa-shield-alt"></i>
-      <span>Secure admin access Â· All deletions are permanent</span>
+      <span>Secure admin access · All deletions are permanent</span>
       <i class="fas fa-heart" style="color:#b5179e;"></i>
     </div>
   </div>
@@ -636,5 +636,6 @@
 
 </body>
 </html>
+
 
 
