@@ -514,6 +514,7 @@
     </div>
 
     <form method="POST" action="/form">
+        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <!-- ================= STUDY DETAILS ================= -->
       <div class="section">
         <h3><i class="fas fa-file-lines"></i> Field Questionnaire</h3>

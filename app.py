@@ -71,7 +71,8 @@ app.secret_key = _env_secret or "change-this-in-production"
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "0") == "1",
+    SESSION_COOKIE_SECURE=False,
+    SESSION_COOKIE_PATH="/"
 )
 
 
