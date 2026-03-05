@@ -1314,6 +1314,40 @@
       });
     }
 
+    function setupToggleableRadios() {
+      function getRadioFromTarget(target) {
+        if (!target) return null;
+        if (target.matches && target.matches('input[type="radio"]')) return target;
+
+        const label = target.closest ? target.closest("label") : null;
+        if (!label) return null;
+
+        const nested = label.querySelector('input[type="radio"]');
+        if (nested) return nested;
+
+        const forId = label.getAttribute("for");
+        if (!forId) return null;
+        const linked = document.getElementById(forId);
+        return linked && linked.type === "radio" ? linked : null;
+      }
+
+      document.addEventListener("pointerdown", (e) => {
+        const radio = getRadioFromTarget(e.target);
+        if (!radio) return;
+        radio.dataset.wasChecked = radio.checked ? "true" : "false";
+      });
+
+      document.addEventListener("click", (e) => {
+        const radio = getRadioFromTarget(e.target);
+        if (!radio) return;
+        if (radio.dataset.wasChecked === "true") {
+          radio.checked = false;
+          radio.dispatchEvent(new Event("change", { bubbles: true }));
+        }
+        delete radio.dataset.wasChecked;
+      });
+    }
+
     /* KUPPUSWAMY CALCULATIONS */
     function calcKupp() {
       const edu = parseInt(document.getElementById('edu_head').value) || 0;
@@ -1505,6 +1539,7 @@
       }
       updateStudyDateTimeIso();
       setupTimeNowButtons();
+      setupToggleableRadios();
       calcKupp();
       calcParent();
       updateClinicalCalculations();
