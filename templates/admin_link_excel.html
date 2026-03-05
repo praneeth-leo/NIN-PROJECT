@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SurveyPro · Link Excel with Barcode</title>
+  <title>SurveyPro Â· Link Excel with Barcode</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" integrity="sha384-iw3OoTErCYJJB9mCa8LNS2hbsQ7M3C0EpIsO/H5+EGAkPGc6rk+V8i04oW/K5xq0" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
     * {
       margin: 0;
       padding: 0;
@@ -123,7 +123,7 @@
     }
 
     .main-card::after {
-      content: "📊";
+      content: "ðŸ“Š";
       position: absolute;
       bottom: 30px;
       right: 40px;
@@ -689,7 +689,7 @@
         <!-- Export Dropdown -->
         <div class="dropdown">
           <div class="action-btn btn-export" id="exportBtn" onclick="toggleDropdown()">
-            <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">▼</span>
+            <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">â–¼</span>
           </div>
           <div class="dropdown-content" id="exportDropdown">
             <a href="/admin/download/linked_data.xlsx">
@@ -751,7 +751,7 @@
                 {% for key in headers %}
                 <td>
                   {% if row.get(key) is none or row.get(key) == '' %}
-                  <span class="null-value">—</span>
+                  <span class="null-value">â€”</span>
                   {% else %}
                   {{ row.get(key) }}
                   {% endif %}
@@ -775,7 +775,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="{{ csp_nonce() }}">
     function toggleDropdown() {
       const dropdown = document.getElementById("exportDropdown");
       const caret = document.getElementById("caret");
@@ -801,3 +801,4 @@
 </body>
 
 </html>
+

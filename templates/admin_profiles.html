@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SurveyPro · Profile Management ✦</title>
+  <title>SurveyPro Â· Profile Management âœ¦</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-5e2ESR8Ycmos6g3gAKr1Jvwye8sW4U1u/cAKulfVJnkakCcMqhOudbtPnvJ+nbv7" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
     * {
       margin: 0;
       padding: 0;
@@ -108,7 +108,7 @@
     }
 
     .panel::after {
-      content: "📇";
+      content: "ðŸ“‡";
       position: absolute;
       bottom: 30px;
       right: 40px;
@@ -651,7 +651,7 @@
                     <i class="fas fa-file-excel"></i> Export Excel
                   </a>
                   <form method="POST" action="/admin/delete-profile/{{ row['profile_id'] }}" 
-                        onsubmit="return confirm('⚠️ Are you sure? This will permanently delete:\n\n• Profile\n• Barcode image\n• All associated responses\n\nThis action cannot be undone!');">
+                        onsubmit="return confirm('âš ï¸ Are you sure? This will permanently delete:\n\nâ€¢ Profile\nâ€¢ Barcode image\nâ€¢ All associated responses\n\nThis action cannot be undone!');">
                     <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-delete" type="submit">
                       <i class="fas fa-trash-alt"></i> Delete Profile
@@ -661,9 +661,9 @@
 
                 <!-- Profile data fields -->
                 {% for val in row.values() %}
-                  <td class="data-cell" title="{{ val if val else '—' }}">
+                  <td class="data-cell" title="{{ val if val else 'â€”' }}">
                     {% if val is none or val == '' %}
-                      <span class="null-value">—</span>
+                      <span class="null-value">â€”</span>
                     {% else %}
                       {{ val }}
                     {% endif %}
@@ -679,7 +679,7 @@
     <!-- footer note -->
     <div class="footer-note">
       <i class="fas fa-shield-alt"></i>
-      <span>Secure admin access · All actions are logged</span>
+      <span>Secure admin access Â· All actions are logged</span>
       <i class="fas fa-heart" style="color:#b5179e;"></i>
     </div>
   </div>
@@ -687,3 +687,5 @@
 
 </body>
 </html>
+
+

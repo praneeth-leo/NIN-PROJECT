@@ -11,8 +11,11 @@ from barcode import Code128
 from barcode.writer import ImageWriter
 from datetime import datetime
 from flask_talisman import Talisman
+from dotenv import load_dotenv
+from werkzeug.security import check_password_hash
 import uuid
 
+load_dotenv()
 
 # --------------------------------------------------
 # App setup
@@ -27,14 +30,12 @@ csp = {
 
     "script-src": [
         "'self'",
-        "'unsafe-inline'",
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com"
     ],
 
     "style-src": [
         "'self'",
-        "'unsafe-inline'",
         "https://cdn.jsdelivr.net",
         "https://cdnjs.cloudflare.com",
         "https://fonts.googleapis.com"
@@ -42,7 +43,6 @@ csp = {
 
     "font-src": [
         "'self'",
-        "data:",
         "https://fonts.gstatic.com",
         "https://cdnjs.cloudflare.com",
         "https://cdn.jsdelivr.net"
@@ -62,15 +62,16 @@ csp = {
 Talisman(
     app,
     content_security_policy=csp,
+    content_security_policy_nonce_in=['script-src', 'style-src'],
     force_https=False
 )
 
-_env_secret = (os.environ.get("FLASK_SECRET_KEY") or "").strip()
+_env_secret = (os.getenv("FLASK_SECRET_KEY") or "").strip()
 app.secret_key = _env_secret or "change-this-in-production"
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
     SESSION_COOKIE_SAMESITE="Lax",
-    SESSION_COOKIE_SECURE=os.environ.get("SESSION_COOKIE_SECURE", "0") == "1",
+    SESSION_COOKIE_SECURE=os.getenv("SESSION_COOKIE_SECURE", "0") == "1",
 )
 
 
@@ -103,82 +104,46 @@ def set_security_headers(response):
     response.headers["X-Content-Type-Options"] = "nosniff"
     response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
     response.headers["Permissions-Policy"] = "geolocation=(), camera=(), microphone=()"
-    response.headers["Content-Security-Policy"] = (
-        "default-src 'self'; "
-        "img-src 'self' data:; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
-        "font-src 'self' https://fonts.gstatic.com https://cdnjs.cloudflare.com; "
-        "script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://cdn.jsdelivr.net; "
-        "connect-src 'self'; "
-        "frame-ancestors 'none'; "
-        "base-uri 'self'; "
-        "form-action 'self'"
-    )
+    # Let Flask-Talisman own the CSP header so per-request nonces are preserved.
     if request.is_secure:
         response.headers["Strict-Transport-Security"] = "max-age=31536000; includeSubDomains"
+    # Best-effort removal; production should run behind a server/proxy that suppresses this.
+    response.headers.pop("Server", None)
     response.headers["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
     response.headers["Pragma"] = "no-cache"
     return response
 
 # ---------------- INVESTIGATOR SETTINGS ----------------
-INVESTIGATOR_CREDENTIALS = [
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_1", "Jahnavi").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_1", "jah123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_2", "Yeshwanth").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_2", "yes123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_3", "Shailaja").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_3", "sha123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_4", "Samhita").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_4", "sam123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_5", "Kriti").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_5", "kri123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_6", "Nandini").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_6", "nan123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_7", "Ameeta").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_7", "ame123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_8", "Varshini").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_8", "var123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_9", "Sri Teja").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_9", "sri123").strip(),
-    ),
-    (
-        os.environ.get("INVESTIGATOR_USERNAME_10", "valcap").strip(),
-        os.environ.get("INVESTIGATOR_PASSWORD_10", "valcap123").strip(),
-    ),
-]
+def load_investigator_credentials():
+    creds = []
+    for idx in range(1, 51):
+        username = (os.getenv(f"INVESTIGATOR_USERNAME_{idx}") or "").strip()
+        password_hash = (os.getenv(f"INVESTIGATOR_PASSWORD_HASH_{idx}") or "").strip()
+        if username and password_hash:
+            creds.append((username, password_hash))
+    return creds
+
+
+INVESTIGATOR_CREDENTIALS = load_investigator_credentials()
 
 # ---------------- ADMIN SETTINGS ----------------
-ADMIN_CREDENTIALS = [
-    (
-        os.environ.get("ADMIN_USERNAME_1", "admin").strip(),
-        os.environ.get("ADMIN_PASSWORD_1", "admin123").strip(),
-    ),
-    (
-        os.environ.get("ADMIN_USERNAME_2", "admin2").strip(),
-        os.environ.get("ADMIN_PASSWORD_2", "admin234").strip(),
-    ),
-    (
-        os.environ.get("ADMIN_USERNAME_3", "admin3").strip(),
-        os.environ.get("ADMIN_PASSWORD_3", "admin345").strip(),
-    ),
-]
+ADMIN_USERNAME = (os.getenv("ADMIN_USERNAME") or "").strip()
+ADMIN_PASSWORD_HASH = (os.getenv("ADMIN_PASSWORD_HASH") or "").strip()
+
+
+def load_admin_credentials():
+    creds = []
+    if ADMIN_USERNAME and ADMIN_PASSWORD_HASH:
+        creds.append((ADMIN_USERNAME, ADMIN_PASSWORD_HASH))
+    for idx in range(1, 51):
+        username = (os.getenv(f"ADMIN_USERNAME_{idx}") or "").strip()
+        password_hash = (os.getenv(f"ADMIN_PASSWORD_HASH_{idx}") or "").strip()
+        if username and password_hash:
+            creds.append((username, password_hash))
+    return creds
+
+
+ADMIN_CREDENTIALS = load_admin_credentials()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -565,9 +530,9 @@ def investigator_login():
         password = request.form.get("password", "").strip()
 
         valid = any(
-            username == inv_user and password == inv_pass
-            for inv_user, inv_pass in INVESTIGATOR_CREDENTIALS
-            if inv_user and inv_pass
+            username == inv_user and check_password_hash(inv_pass_hash, password)
+            for inv_user, inv_pass_hash in INVESTIGATOR_CREDENTIALS
+            if inv_user and inv_pass_hash
         )
         if valid:
             session["investigator_logged_in"] = True
@@ -909,9 +874,9 @@ def admin_login():
         password = request.form.get("password", "").strip()
 
         valid = any(
-            username == admin_user and password == admin_pass
-            for admin_user, admin_pass in ADMIN_CREDENTIALS
-            if admin_user and admin_pass
+            username == admin_user and check_password_hash(admin_pass_hash, password)
+            for admin_user, admin_pass_hash in ADMIN_CREDENTIALS
+            if admin_user and admin_pass_hash
         )
         if valid:
             session["admin_logged_in"] = True
@@ -1380,4 +1345,4 @@ def update_horiba():
 if __name__ == "__main__":
     os.makedirs(BARCODE_FOLDER, exist_ok=True)
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
-    app.run(debug=os.environ.get("FLASK_DEBUG", "0") == "1")
+    app.run(debug=os.getenv("FLASK_DEBUG", "0") == "1")

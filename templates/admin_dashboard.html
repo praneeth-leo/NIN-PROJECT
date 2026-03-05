@@ -1,18 +1,18 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro · Admin Dashboard ✦</title>
+  <title>SurveyPro Â· Admin Dashboard âœ¦</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-5e2ESR8Ycmos6g3gAKr1Jvwye8sW4U1u/cAKulfVJnkakCcMqhOudbtPnvJ+nbv7" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
     * {
       margin: 0;
       padding: 0;
@@ -132,7 +132,7 @@
     }
 
     .main-card::before {
-      content: "📊";
+      content: "ðŸ“Š";
       position: absolute;
       bottom: 30px;
       right: 40px;
@@ -617,7 +617,7 @@
                 {% for key in profile_headers %}
                 <td>
                   {% if row.get(key) is none or row.get(key) == '' %}
-                  <span class="null-value">—</span>
+                  <span class="null-value">â€”</span>
                   {% else %}
                   {{ row.get(key) }}
                   {% endif %}
@@ -659,7 +659,7 @@
                 {% for key in response_headers %}
                 <td>
                   {% if row.get(key) is none or row.get(key) == '' %}
-                  <span class="null-value">—</span>
+                  <span class="null-value">â€”</span>
                   {% else %}
                   {{ row.get(key) }}
                   {% endif %}
@@ -677,13 +677,13 @@
       <div
         style="margin-top: 30px; text-align: center; color: #5f6caf; font-size: 0.9rem; display: flex; align-items: center; justify-content: center; gap: 12px;">
         <i class="fas fa-shield-alt" style="color:#06d6a0;"></i>
-        Secure admin access · Last sync <span id="current-time"></span>
+        Secure admin access Â· Last sync <span id="current-time"></span>
         <i class="fas fa-heart" style="color:#b5179e;"></i>
       </div>
     </div>
   </div>
 
-  <script>
+  <script nonce="{{ csp_nonce() }}">
     // update current time
     document.addEventListener('DOMContentLoaded', function () {
       const timeEl = document.getElementById('current-time');
@@ -696,3 +696,5 @@
 </body>
 
 </html>
+
+

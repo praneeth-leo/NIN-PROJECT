@@ -1,15 +1,15 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>SurveyPro · ✨ profile created ✨</title>
+  <title>SurveyPro Â· âœ¨ profile created âœ¨</title>
   <!-- Font Awesome 6 + Google Inter font -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-5e2ESR8Ycmos6g3gAKr1Jvwye8sW4U1u/cAKulfVJnkakCcMqhOudbtPnvJ+nbv7" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
     * {
       margin: 0;
       padding: 0;
@@ -78,7 +78,7 @@
 
     /* floating emojis/particles */
     body::after {
-      content: "✨🎉🎊✅🎯🔖🎫";
+      content: "âœ¨ðŸŽ‰ðŸŽŠâœ…ðŸŽ¯ðŸ”–ðŸŽ«";
       position: fixed;
       font-size: 40px;
       bottom: 10px;
@@ -125,7 +125,7 @@
     }
 
     .box::before {
-      content: "🎉";
+      content: "ðŸŽ‰";
       position: absolute;
       top: 20px;
       left: 20px;
@@ -280,7 +280,7 @@
     }
 
     .barcode-wrapper::before {
-      content: "⬇️⬇️⬇️";
+      content: "â¬‡ï¸â¬‡ï¸â¬‡ï¸";
       position: absolute;
       top: -18px;
       left: 50%;
@@ -549,7 +549,7 @@
       </div>
 
       <!-- barcode id display (dynamic) -->
-      <div class="id-label">🎯 BARCODE ID 🎯</div>
+      <div class="id-label">ðŸŽ¯ BARCODE ID ðŸŽ¯</div>
       <div class="id" id="barcode-id">{{ profile_id }}</div>
 
       <!-- barcode image -->
@@ -557,8 +557,8 @@
         <img id="barcode-img" src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode" />
       </div>
       <div class="barcode-meta">
-        <div>🔖 Profile ID: <strong>{{ profile_id }}</strong></div>
-        <div>👤 Student: <strong>{{ profile_name or '-' }}</strong></div>
+        <div>ðŸ”– Profile ID: <strong>{{ profile_id }}</strong></div>
+        <div>ðŸ‘¤ Student: <strong>{{ profile_name or '-' }}</strong></div>
       </div>
 
       <!-- action buttons: Download and Print -->
@@ -586,7 +586,7 @@
     </div>
   </div>
 
-  <script>
+  <script nonce="{{ csp_nonce() }}">
     document.addEventListener('DOMContentLoaded', function() {
       // Get elements
       const downloadBtn = document.getElementById('downloadBtn');
@@ -625,7 +625,7 @@
         ctx.fillStyle = titleGrad;
         ctx.font = 'bold 28px Inter, Arial, sans-serif';
         ctx.textAlign = 'center';
-        ctx.fillText('✨ SurveyPro Barcode ✨', canvas.width / 2, 60);
+        ctx.fillText('âœ¨ SurveyPro Barcode âœ¨', canvas.width / 2, 60);
         
         // Add barcode ID
         ctx.fillStyle = '#1e293b';
@@ -645,18 +645,18 @@
 
           ctx.fillStyle = '#b5179e';
           ctx.font = 'bold 20px Inter, Arial, sans-serif';
-          ctx.fillText('👤 ' + (studentName || '-'), canvas.width / 2, 315);
+          ctx.fillText('ðŸ‘¤ ' + (studentName || '-'), canvas.width / 2, 315);
           
           // Add footer
           ctx.fillStyle = '#5f6caf';
           ctx.font = '16px Inter, Arial, sans-serif';
-          ctx.fillText('🔖 Save for login · ' + new Date().toLocaleDateString(), canvas.width / 2, 350);
+          ctx.fillText('ðŸ”– Save for login Â· ' + new Date().toLocaleDateString(), canvas.width / 2, 350);
           
           // Add tiny sparkles
           ctx.fillStyle = '#06d6a0';
           ctx.font = '20px Arial';
-          ctx.fillText('✨', canvas.width - 60, 380);
-          ctx.fillText('✨', 40, 380);
+          ctx.fillText('âœ¨', canvas.width - 60, 380);
+          ctx.fillText('âœ¨', 40, 380);
           
           // Create download link
           const link = document.createElement('a');
@@ -690,7 +690,7 @@
           <html>
           <head>
             <title>Barcode - ${barcodeId}</title>
-            <style>
+            <style nonce="{{ csp_nonce() }}">
               body {
                 text-align: center;
                 padding: 30px 20px;
@@ -739,14 +739,14 @@
           </head>
           <body>
             <div class="barcode-card">
-              <h2>✨ SurveyPro Barcode ✨</h2>
+              <h2>âœ¨ SurveyPro Barcode âœ¨</h2>
               <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
-              <div class="meta">🎯 Profile ID: <strong>${barcodeId}</strong></div>
-              <div class="meta">👤 Student Name: <strong>${studentName || '-'}</strong></div>
-              <div class="meta">📅 ${new Date().toLocaleDateString()}</div>
+              <div class="meta">ðŸŽ¯ Profile ID: <strong>${barcodeId}</strong></div>
+              <div class="meta">ðŸ‘¤ Student Name: <strong>${studentName || '-'}</strong></div>
+              <div class="meta">ðŸ“… ${new Date().toLocaleDateString()}</div>
             </div>
             
-            <script>
+            <script nonce="{{ csp_nonce() }}">
               window.onload = function() {
                 window.print();
               };
@@ -761,3 +761,4 @@
   </script>
 </body>
 </html>
+

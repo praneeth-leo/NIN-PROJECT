@@ -11,8 +11,8 @@
   <link
     href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
     rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-  <style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-5e2ESR8Ycmos6g3gAKr1Jvwye8sW4U1u/cAKulfVJnkakCcMqhOudbtPnvJ+nbv7" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
     /* === DARK THEME ENHANCEMENTS (preserving all original functionality) === */
     * {
       margin: 0;
@@ -211,6 +211,27 @@
       color: var(--text-secondary);
       margin-top: 18px;
       margin-bottom: 8px;
+    }
+
+    .option-group {
+      display: flex;
+      align-items: center;
+      gap: 16px 24px;
+      flex-wrap: wrap;
+    }
+
+    .option-group label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin: 0;
+      white-space: nowrap;
+    }
+
+    .option-group input[type="radio"],
+    .option-group input[type="checkbox"] {
+      width: auto;
+      margin: 0;
     }
 
     /* inputs & selects */
@@ -562,17 +583,14 @@
         <input type="hidden" id="age_completed_hidden" name="age_completed" value="">
 
         <label>3. Sex:</label>
-        <div style="display: flex; gap: 20px;">
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="sex" value="Male"
-              style="width: auto;"> Male</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="sex" value="Female"
-              style="width: auto;"> Female</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="sex" value="Other"
-              style="width: auto;"> Other</label>
+        <div class="option-group">
+          <label><input type="radio" name="sex" value="Male"> Male</label>
+          <label><input type="radio" name="sex" value="Female"> Female</label>
+          <label><input type="radio" name="sex" value="Other"> Other</label>
         </div>
 
         <label>4. Birth Order of Child:</label>
-        <div style="display: flex; gap: 20px;">
+        <div class="option-group" style="display: flex; gap: 20px;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="birth_order" value="1"
               style="width: auto;"> 1</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="birth_order" value="2"
@@ -592,7 +610,7 @@
         <h3>Section B: SocioDemographic & SocioEconomic Details</h3>
         <h4>B1. Family Characteristics</h4>
         <label>6. Type of family:</label>
-        <div style="display: flex; gap: 20px;">
+        <div class="option-group" style="display: flex; gap: 20px;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="family_type"
               value="Nuclear" style="width: auto;"> Nuclear</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="family_type"
@@ -605,7 +623,7 @@
         <input type="number" name="family_members_total" placeholder="Enter count">
 
         <label>8. Religion:</label>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="option-group" style="display: flex; gap: 15px; flex-wrap: wrap;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="religion" value="Hindu"
               style="width: auto;"> Hindu</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="religion"
@@ -619,7 +637,7 @@
         </div>
 
         <label>9. Caste / Social category:</label>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="option-group" style="display: flex; gap: 15px; flex-wrap: wrap;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="social_category"
               value="SC" style="width: auto;"> SC</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="social_category"
@@ -689,7 +707,7 @@
       <div class="section">
         <h3>Section E: Child Health & Nutrition History</h3>
         <label>15. History of low birth weight (<2.5 kg)?</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="low_birth_weight"
                   value="Yes" style="width: auto;"> Yes</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="low_birth_weight"
@@ -699,7 +717,7 @@
             </div>
 
             <label>16. Any known chronic illness (heart disease, kidney disease, TB, etc.)?</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="chronic_illness"
                   value="Yes" style="width: auto;"> Yes</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="chronic_illness"
@@ -708,7 +726,7 @@
             <input type="text" name="chronic_illness_specify" placeholder="If yes, specify">
 
             <label>17. History of worm infestation in last 6 months?</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="worm_infestation"
                   value="Yes" style="width: auto;"> Yes</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="worm_infestation"
@@ -718,7 +736,7 @@
             </div>
 
             <label>18. Has the child received deworming tablet in the last 6 months?</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="deworming_tablet"
                   value="Yes" style="width: auto;"> Yes</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="deworming_tablet"
@@ -728,7 +746,7 @@
             </div>
 
             <label>19. Is the child currently receiving iron supplementation (IFA syrup/tablet)?</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio"
                   name="iron_supplementation" value="Yes" style="width: auto;"> Yes</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio"
@@ -742,7 +760,7 @@
       <div class="section">
         <h3>Section F: Dietary Practices</h3>
         <label>20. Type of diet:</label>
-        <div style="display: flex; gap: 20px;">
+        <div class="option-group" style="display: flex; gap: 20px;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="diet_type"
               value="Vegetarian" style="width: auto;"> Vegetarian</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="diet_type"
@@ -781,7 +799,7 @@
       <div class="section">
         <h3>Section G: History of Hemoglobin testing</h3>
         <label>22. Did the child previously got tested for hemoglobin?</label>
-        <div style="display: flex; gap: 20px;">
+        <div class="option-group" style="display: flex; gap: 20px;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="hb_previously_tested"
               value="Yes" style="width: auto;"> Yes</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="hb_previously_tested"
@@ -795,7 +813,7 @@
           <input type="text" name="prev_hb_result" placeholder="Hb result">
 
           <label>Device used:</label>
-          <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+          <div class="option-group" style="display: flex; gap: 15px; flex-wrap: wrap;">
             <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="prev_hb_device"
                 value="Non-invasive" style="width: auto;"> 1. Non-invasive</label>
             <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="prev_hb_device"
@@ -817,7 +835,7 @@
         <h3>Section H: Haemoglobin Measurement Results (To be filled after testing)</h3>
 
         <label>23. Device sequence used:</label>
-        <div style="display: flex; gap: 15px; flex-wrap: wrap;">
+        <div class="option-group" style="display: flex; gap: 15px; flex-wrap: wrap;">
           <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" name="device_seq"
               value="Masimo Rad-67" style="width: auto;"> Masimo Rad-67</label>
           <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" name="device_seq"
@@ -832,7 +850,10 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
             <label>24. Start time:</label>
-            <input type="time" name="masimo_start_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="masimo_start_time" name="masimo_start_time">
+              <button type="button" class="time-now-btn" data-target="masimo_start_time">Now</button>
+            </div>
           </div>
           <div>
             <label>25. Reading: _____ g/dL</label>
@@ -840,7 +861,7 @@
           </div>
           <div>
             <label>26. Number of attempts:</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="masimo_attempts"
                   value="1" style="width: auto;"> 1</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="masimo_attempts"
@@ -851,7 +872,10 @@
           </div>
           <div style="grid-column: span 2;">
             <label>27. End time:</label>
-            <input type="time" name="masimo_end_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="masimo_end_time" name="masimo_end_time">
+              <button type="button" class="time-now-btn" data-target="masimo_end_time">Now</button>
+            </div>
           </div>
         </div>
 
@@ -913,7 +937,10 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
             <label>29. Start time:</label>
-            <input type="time" name="poc_start_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="poc_start_time" name="poc_start_time">
+              <button type="button" class="time-now-btn" data-target="poc_start_time">Now</button>
+            </div>
           </div>
           <div>
             <label>30. Capillary Hb value: _____ g/dL</label>
@@ -921,7 +948,7 @@
           </div>
           <div>
             <label>31. Number of attempts:</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="poc_attempts"
                   value="1" style="width: auto;"> 1</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="poc_attempts"
@@ -932,7 +959,10 @@
           </div>
           <div>
             <label>32. End time:</label>
-            <input type="time" name="poc_end_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="poc_end_time" name="poc_end_time">
+              <button type="button" class="time-now-btn" data-target="poc_end_time">Now</button>
+            </div>
           </div>
         </div>
 
@@ -994,7 +1024,10 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
           <div>
             <label>34. Start time:</label>
-            <input type="time" name="lab_start_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="lab_start_time" name="lab_start_time">
+              <button type="button" class="time-now-btn" data-target="lab_start_time">Now</button>
+            </div>
           </div>
           <div>
             <label>35. Venous Hb value (ABX Micros ES 60): _____ g/dL</label>
@@ -1002,7 +1035,7 @@
           </div>
           <div>
             <label>36. Number of attempts:</label>
-            <div style="display: flex; gap: 20px;">
+            <div class="option-group" style="display: flex; gap: 20px;">
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="lab_attempts"
                   value="1" style="width: auto;"> 1</label>
               <label style="display: flex; align-items: center; gap: 8px;"><input type="radio" name="lab_attempts"
@@ -1013,7 +1046,10 @@
           </div>
           <div>
             <label>37. End time:</label>
-            <input type="time" name="lab_end_time">
+            <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
+              <input type="time" id="lab_end_time" name="lab_end_time">
+              <button type="button" class="time-now-btn" data-target="lab_end_time">Now</button>
+            </div>
           </div>
         </div>
 
@@ -1171,7 +1207,49 @@
     </form>
   </div>
 
-  <script>
+  <script nonce="{{ csp_nonce() }}">
+    function pad2(value) {
+      return String(value).padStart(2, "0");
+    }
+
+    function formatTime24(date) {
+      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+    }
+
+    function formatIso8601WithOffset(date) {
+      const y = date.getFullYear();
+      const m = pad2(date.getMonth() + 1);
+      const d = pad2(date.getDate());
+      const hh = pad2(date.getHours());
+      const mm = pad2(date.getMinutes());
+      const ss = pad2(date.getSeconds());
+      const tzOffsetMinutes = -date.getTimezoneOffset();
+      const sign = tzOffsetMinutes >= 0 ? "+" : "-";
+      const absOffset = Math.abs(tzOffsetMinutes);
+      const tzH = pad2(Math.floor(absOffset / 60));
+      const tzM = pad2(absOffset % 60);
+      return `${y}-${m}-${d}T${hh}:${mm}:${ss}${sign}${tzH}:${tzM}`;
+    }
+
+    function updateStudyDateTimeIso() {
+      const studyDateTimeInput = document.getElementById("study_datetime");
+      if (!studyDateTimeInput) return;
+      studyDateTimeInput.value = formatIso8601WithOffset(new Date());
+    }
+
+    function setupTimeNowButtons() {
+      document.querySelectorAll(".time-now-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const targetId = btn.getAttribute("data-target");
+          const input = targetId ? document.getElementById(targetId) : null;
+          if (!input) return;
+          input.value = formatTime24(new Date());
+          input.dispatchEvent(new Event("change", { bubbles: true }));
+          updateStudyDateTimeIso();
+        });
+      });
+    }
+
     /* KUPPUSWAMY CALCULATIONS */
     function calcKupp() {
       const edu = parseInt(document.getElementById('edu_head').value) || 0;
@@ -1286,7 +1364,7 @@
       }
 
       ageDetailInput.value = `${years} years ${months} months ${days} days`;
-      ageAsOnInput.value = now.toLocaleString();
+      ageAsOnInput.value = formatIso8601WithOffset(now);
 
       const ageCompletedHidden = document.getElementById('age_completed_hidden');
       if (ageCompletedHidden) ageCompletedHidden.value = String(years);
@@ -1354,6 +1432,8 @@
 
     // Initialize on load
     document.addEventListener("DOMContentLoaded", () => {
+      updateStudyDateTimeIso();
+      setupTimeNowButtons();
       calcKupp();
       calcParent();
       updateClinicalCalculations();
@@ -1368,3 +1448,7 @@
 </body>
 
 </html>
+
+
+
+
