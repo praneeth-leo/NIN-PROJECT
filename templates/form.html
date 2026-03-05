@@ -486,7 +486,7 @@
     </div>
 
     <div class="form-footer" style="margin-top: 0; margin-bottom: 20px;">
-      <button type="button" onclick="window.location.href='/section-status'"><i class="fas fa-table"></i> Generate
+      <button type="button" id="openSectionStatusBtn"><i class="fas fa-table"></i> Generate
         Section Status Table</button>
     </div>
 
@@ -1432,6 +1432,12 @@
 
     // Initialize on load
     document.addEventListener("DOMContentLoaded", () => {
+      const openSectionStatusBtn = document.getElementById("openSectionStatusBtn");
+      if (openSectionStatusBtn) {
+        openSectionStatusBtn.addEventListener("click", () => {
+          window.location.href = "/section-status";
+        });
+      }
       updateStudyDateTimeIso();
       setupTimeNowButtons();
       calcKupp();
