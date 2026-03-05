@@ -234,6 +234,32 @@
       margin: 0;
     }
 
+    .flash-message {
+      margin: 0 0 16px 0;
+      padding: 10px 14px;
+      border-radius: 10px;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+      background: rgba(16, 185, 129, 0.12);
+      color: #9af6ce;
+      font-weight: 600;
+    }
+
+    .flacc-options {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .flacc-options label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin: 0;
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+
     /* inputs & selects */
     input,
     select {
@@ -513,8 +539,14 @@
       </div>
     </div>
 
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div class="flash-message">{{ messages[0][1] }}</div>
+    {% endif %}
+    {% endwith %}
+
     <form method="POST" action="/form">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
+      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <!-- ================= STUDY DETAILS ================= -->
       <div class="section">
         <h3><i class="fas fa-file-lines"></i> Field Questionnaire</h3>
@@ -852,7 +884,7 @@
           <div>
             <label>24. Start time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="masimo_start_time" name="masimo_start_time">
+              <input type="time" id="masimo_start_time" name="masimo_start_time" step="1">
               <button type="button" class="time-now-btn" data-target="masimo_start_time">Now</button>
             </div>
           </div>
@@ -874,7 +906,7 @@
           <div style="grid-column: span 2;">
             <label>27. End time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="masimo_end_time" name="masimo_end_time">
+              <input type="time" id="masimo_end_time" name="masimo_end_time" step="1">
               <button type="button" class="time-now-btn" data-target="masimo_end_time">Now</button>
             </div>
           </div>
@@ -891,43 +923,53 @@
           <tbody>
             <tr>
               <td>Face: 0=Relaxed, 1=Occasional grimace/frown, 2=Frequent/constant quivering chin or clenched jaw</td>
-              <td><select name="masimo_flacc_face" class="flacc_masimo">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="masimo_flacc_face" class="flacc_masimo" value="0" checked>0</label>
+                  <label><input type="radio" name="masimo_flacc_face" class="flacc_masimo" value="1">1</label>
+                  <label><input type="radio" name="masimo_flacc_face" class="flacc_masimo" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Legs: 0=Normal/relaxed, 1=Uneasy/restless, 2=Kicking or drawn up</td>
-              <td><select name="masimo_flacc_legs" class="flacc_masimo">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="masimo_flacc_legs" class="flacc_masimo" value="0" checked>0</label>
+                  <label><input type="radio" name="masimo_flacc_legs" class="flacc_masimo" value="1">1</label>
+                  <label><input type="radio" name="masimo_flacc_legs" class="flacc_masimo" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Activity: 0=Quiet/lying still, 1=Squirming/shifting/tense, 2=Arched/rigid/jerking</td>
-              <td><select name="masimo_flacc_activity" class="flacc_masimo">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="masimo_flacc_activity" class="flacc_masimo" value="0" checked>0</label>
+                  <label><input type="radio" name="masimo_flacc_activity" class="flacc_masimo" value="1">1</label>
+                  <label><input type="radio" name="masimo_flacc_activity" class="flacc_masimo" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Cry: 0=No cry, 1=Moans/whimpers/occasional, 2=Steady crying/screaming/frequent complaints</td>
-              <td><select name="masimo_flacc_cry" class="flacc_masimo">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="masimo_flacc_cry" class="flacc_masimo" value="0" checked>0</label>
+                  <label><input type="radio" name="masimo_flacc_cry" class="flacc_masimo" value="1">1</label>
+                  <label><input type="radio" name="masimo_flacc_cry" class="flacc_masimo" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Consolability: 0=Content/relaxed, 1=Reassured by touching/talking, 2=Difficult to console/comfort</td>
-              <td><select name="masimo_flacc_consolability" class="flacc_masimo">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="masimo_flacc_consolability" class="flacc_masimo" value="0" checked>0</label>
+                  <label><input type="radio" name="masimo_flacc_consolability" class="flacc_masimo" value="1">1</label>
+                  <label><input type="radio" name="masimo_flacc_consolability" class="flacc_masimo" value="2">2</label>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -939,7 +981,7 @@
           <div>
             <label>29. Start time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="poc_start_time" name="poc_start_time">
+              <input type="time" id="poc_start_time" name="poc_start_time" step="1">
               <button type="button" class="time-now-btn" data-target="poc_start_time">Now</button>
             </div>
           </div>
@@ -961,7 +1003,7 @@
           <div>
             <label>32. End time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="poc_end_time" name="poc_end_time">
+              <input type="time" id="poc_end_time" name="poc_end_time" step="1">
               <button type="button" class="time-now-btn" data-target="poc_end_time">Now</button>
             </div>
           </div>
@@ -978,43 +1020,53 @@
           <tbody>
             <tr>
               <td>Face: 0=Relaxed, 1=Occasional grimace/frown, 2=Frequent/constant quivering chin or clenched jaw</td>
-              <td><select name="poc_flacc_face" class="flacc_poc">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="poc_flacc_face" class="flacc_poc" value="0" checked>0</label>
+                  <label><input type="radio" name="poc_flacc_face" class="flacc_poc" value="1">1</label>
+                  <label><input type="radio" name="poc_flacc_face" class="flacc_poc" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Legs: 0=Normal/relaxed, 1=Uneasy/restless, 2=Kicking or drawn up</td>
-              <td><select name="poc_flacc_legs" class="flacc_poc">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="poc_flacc_legs" class="flacc_poc" value="0" checked>0</label>
+                  <label><input type="radio" name="poc_flacc_legs" class="flacc_poc" value="1">1</label>
+                  <label><input type="radio" name="poc_flacc_legs" class="flacc_poc" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Activity: 0=Quiet/lying still, 1=Squirming/shifting/tense, 2=Arched/rigid/jerking</td>
-              <td><select name="poc_flacc_activity" class="flacc_poc">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="poc_flacc_activity" class="flacc_poc" value="0" checked>0</label>
+                  <label><input type="radio" name="poc_flacc_activity" class="flacc_poc" value="1">1</label>
+                  <label><input type="radio" name="poc_flacc_activity" class="flacc_poc" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Cry: 0=No cry, 1=Moans/whimpers/occasional, 2=Steady crying/screaming/frequent complaints</td>
-              <td><select name="poc_flacc_cry" class="flacc_poc">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="poc_flacc_cry" class="flacc_poc" value="0" checked>0</label>
+                  <label><input type="radio" name="poc_flacc_cry" class="flacc_poc" value="1">1</label>
+                  <label><input type="radio" name="poc_flacc_cry" class="flacc_poc" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Consolability: 0=Content/relaxed, 1=Reassured by touching/talking, 2=Difficult to console/comfort</td>
-              <td><select name="poc_flacc_consolability" class="flacc_poc">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="poc_flacc_consolability" class="flacc_poc" value="0" checked>0</label>
+                  <label><input type="radio" name="poc_flacc_consolability" class="flacc_poc" value="1">1</label>
+                  <label><input type="radio" name="poc_flacc_consolability" class="flacc_poc" value="2">2</label>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -1026,7 +1078,7 @@
           <div>
             <label>34. Start time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="lab_start_time" name="lab_start_time">
+              <input type="time" id="lab_start_time" name="lab_start_time" step="1">
               <button type="button" class="time-now-btn" data-target="lab_start_time">Now</button>
             </div>
           </div>
@@ -1048,7 +1100,7 @@
           <div>
             <label>37. End time:</label>
             <div style="display: grid; grid-template-columns: 1fr auto; gap: 8px; align-items: center;">
-              <input type="time" id="lab_end_time" name="lab_end_time">
+              <input type="time" id="lab_end_time" name="lab_end_time" step="1">
               <button type="button" class="time-now-btn" data-target="lab_end_time">Now</button>
             </div>
           </div>
@@ -1065,43 +1117,53 @@
           <tbody>
             <tr>
               <td>Face: 0=Relaxed, 1=Occasional grimace/frown, 2=Frequent/constant quivering chin or clenched jaw</td>
-              <td><select name="lab_flacc_face" class="flacc_lab">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="lab_flacc_face" class="flacc_lab" value="0" checked>0</label>
+                  <label><input type="radio" name="lab_flacc_face" class="flacc_lab" value="1">1</label>
+                  <label><input type="radio" name="lab_flacc_face" class="flacc_lab" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Legs: 0=Normal/relaxed, 1=Uneasy/restless, 2=Kicking or drawn up</td>
-              <td><select name="lab_flacc_legs" class="flacc_lab">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="lab_flacc_legs" class="flacc_lab" value="0" checked>0</label>
+                  <label><input type="radio" name="lab_flacc_legs" class="flacc_lab" value="1">1</label>
+                  <label><input type="radio" name="lab_flacc_legs" class="flacc_lab" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Activity: 0=Quiet/lying still, 1=Squirming/shifting/tense, 2=Arched/rigid/jerking</td>
-              <td><select name="lab_flacc_activity" class="flacc_lab">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="lab_flacc_activity" class="flacc_lab" value="0" checked>0</label>
+                  <label><input type="radio" name="lab_flacc_activity" class="flacc_lab" value="1">1</label>
+                  <label><input type="radio" name="lab_flacc_activity" class="flacc_lab" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Cry: 0=No cry, 1=Moans/whimpers/occasional, 2=Steady crying/screaming/frequent complaints</td>
-              <td><select name="lab_flacc_cry" class="flacc_lab">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="lab_flacc_cry" class="flacc_lab" value="0" checked>0</label>
+                  <label><input type="radio" name="lab_flacc_cry" class="flacc_lab" value="1">1</label>
+                  <label><input type="radio" name="lab_flacc_cry" class="flacc_lab" value="2">2</label>
+                </div>
+              </td>
             </tr>
             <tr>
               <td>Consolability: 0=Content/relaxed, 1=Reassured by touching/talking, 2=Difficult to console/comfort</td>
-              <td><select name="lab_flacc_consolability" class="flacc_lab">
-                  <option value="0">0</option>
-                  <option value="1">1</option>
-                  <option value="2">2</option>
-                </select></td>
+              <td>
+                <div class="flacc-options">
+                  <label><input type="radio" name="lab_flacc_consolability" class="flacc_lab" value="0" checked>0</label>
+                  <label><input type="radio" name="lab_flacc_consolability" class="flacc_lab" value="1">1</label>
+                  <label><input type="radio" name="lab_flacc_consolability" class="flacc_lab" value="2">2</label>
+                </div>
+              </td>
             </tr>
           </tbody>
         </table>
@@ -1173,14 +1235,14 @@
           </div>
           <div>
             <label>50. Referral destination (Multiple options):</label>
-            <select name="referral_destination">
-              <option>PHC</option>
-              <option>UHC</option>
-              <option>Govt. Hospital</option>
-              <option>Anganwadi</option>
-              <option>Private clinic</option>
-              <option>Other</option>
-            </select>
+            <div class="option-group">
+              <label><input type="checkbox" name="referral_destination" value="PHC"> PHC</label>
+              <label><input type="checkbox" name="referral_destination" value="UHC"> UHC</label>
+              <label><input type="checkbox" name="referral_destination" value="Govt. Hospital"> Govt. Hospital</label>
+              <label><input type="checkbox" name="referral_destination" value="Anganwadi"> Anganwadi</label>
+              <label><input type="checkbox" name="referral_destination" value="Private clinic"> Private clinic</label>
+              <label><input type="checkbox" name="referral_destination" value="Other"> Other</label>
+            </div>
           </div>
         </div>
 
@@ -1203,7 +1265,8 @@
 
       <!-- submit footer -->
       <div class="form-footer">
-        <button type="submit"><i class="fas fa-paper-plane"></i> Submit Questionnaire</button>
+        <button type="submit" name="submit_action" value="save_progress"><i class="fas fa-save"></i> Save Progress</button>
+        <button type="submit" name="submit_action" value="submit_questionnaire"><i class="fas fa-paper-plane"></i> Submit Questionnaire</button>
       </div>
     </form>
   </div>
@@ -1214,7 +1277,7 @@
     }
 
     function formatTime24(date) {
-      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}`;
+      return `${pad2(date.getHours())}:${pad2(date.getMinutes())}:${pad2(date.getSeconds())}`;
     }
 
     function formatIso8601WithOffset(date) {
@@ -1325,6 +1388,7 @@
     function calcFlaccGroup(groupClass, outputId) {
       let total = 0;
       document.querySelectorAll('.' + groupClass).forEach(el => {
+        if (el.type === "radio" && !el.checked) return;
         total += parseInt(el.value) || 0;
       });
       const output = document.getElementById(outputId);

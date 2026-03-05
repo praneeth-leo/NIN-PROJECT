@@ -708,7 +708,19 @@ def form():
         return redirect(url_for("investigator_login", next=url_for("form")))
 
     if request.method == "POST":
-        answers = request.form.to_dict()
+        raw_answers = request.form.to_dict(flat=False)
+        answers = {}
+        for key, values in raw_answers.items():
+            if not values:
+                answers[key] = ""
+            elif len(values) == 1:
+                answers[key] = values[0]
+            else:
+                answers[key] = "; ".join([str(v).strip() for v in values if str(v).strip()])
+
+        submit_action = (answers.pop("submit_action", "submit_questionnaire") or "").strip()
+        answers.pop("_csrf_token", None)
+
         if not (answers.get("investigator_username", "") or "").strip():
             answers["investigator_username"] = investigator_username
         if not (answers.get("investigator_name", "") or "").strip():
@@ -729,6 +741,9 @@ def form():
         write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, response_fields)
 
         update_excel_files()
+        if submit_action == "save_progress":
+            flash("Progress saved successfully.", "success")
+            return redirect(url_for("form"))
         return redirect(url_for("dashboard"))
 
     profiles = read_csv_as_dict_list(PROFILE_CSV)
