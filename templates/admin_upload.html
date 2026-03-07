@@ -480,7 +480,6 @@
 
       <!-- upload form -->
       <form method="POST" enctype="multipart/form-data" class="upload-form">
-        <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
         <div class="file-input-wrapper">
           <i class="fas fa-paperclip"></i>
           <input type="file" name="file" required accept=".csv,.xlsx">

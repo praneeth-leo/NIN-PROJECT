@@ -652,7 +652,6 @@
                   </a>
                   <form method="POST" action="/admin/delete-profile/{{ row['profile_id'] }}" 
                         onsubmit="return confirm('⚠️ Are you sure? This will permanently delete:\n\n• Profile\n• Barcode image\n• All associated responses\n\nThis action cannot be undone!');">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-delete" type="submit">
                       <i class="fas fa-trash-alt"></i> Delete Profile
                     </button>

@@ -418,7 +418,6 @@
 
     <!-- edit form -->
     <form method="POST">
-      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <div class="form-group">
         <label><i class="fas fa-user"></i> Full Name</label>
         <input type="text" name="name" value="{{ p.name }}" placeholder="Enter full name">

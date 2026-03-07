@@ -600,7 +600,6 @@
                   </a>
                   <form method="POST" action="/admin/delete-response/{{ row['response_id'] }}" 
                         onsubmit="return confirm('⚠️ Are you sure? This will permanently delete this response.\n\nResponse ID: {{ row['response_id'] }}\n\nThis action cannot be undone!');">
-                    <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
                     <button class="btn btn-delete" type="submit">
                       <i class="fas fa-trash-alt"></i> Delete
                     </button>

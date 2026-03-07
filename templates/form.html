@@ -527,15 +527,11 @@
             <label for="ifa_calc_weight">Weight (kg)</label>
             <input type="number" step="0.1" id="ifa_calc_weight" placeholder="Enter weight">
           </div>
-          <div>
-            <label for="ifa_calc_hb">Hb value (g/dL)</label>
-            <input type="number" step="0.1" id="ifa_calc_hb" placeholder="Enter Hb value">
-          </div>
         </div>
         <div class="form-footer" style="margin-top: 14px;">
           <button type="button" id="runIfaCalculator"><i class="fas fa-bolt"></i> Calculate</button>
         </div>
-        <div class="ifa-result" id="ifaCalcResult">Enter values and click Calculate.</div>
+        <div class="ifa-result" id="ifaCalcResult">Enter weight and click Calculate.</div>
       </div>
     </div>
 
@@ -546,7 +542,6 @@
     {% endwith %}
 
     <form method="POST" action="/form">
-      <input type="hidden" name="_csrf_token" value="{{ csrf_token() }}">
       <!-- ================= STUDY DETAILS ================= -->
       <div class="section">
         <h3><i class="fas fa-file-lines"></i> Field Questionnaire</h3>
@@ -1271,6 +1266,7 @@
     </form>
   </div>
 
+  <script id="savedAnswersData" type="application/json">{{ saved_answers | tojson }}</script>
   <script nonce="{{ csp_nonce() }}">
     function pad2(value) {
       return String(value).padStart(2, "0");
@@ -1295,9 +1291,10 @@
       return `${y}-${m}-${d}T${hh}:${mm}:${ss}${sign}${tzH}:${tzM}`;
     }
 
-    function updateStudyDateTimeIso() {
+    function updateStudyDateTimeIso(force = false) {
       const studyDateTimeInput = document.getElementById("study_datetime");
       if (!studyDateTimeInput) return;
+      if (!force && studyDateTimeInput.value) return;
       studyDateTimeInput.value = formatIso8601WithOffset(new Date());
     }
 
@@ -1309,7 +1306,7 @@
           if (!input) return;
           input.value = formatTime24(new Date());
           input.dispatchEvent(new Event("change", { bubbles: true }));
-          updateStudyDateTimeIso();
+          updateStudyDateTimeIso(true);
         });
       });
     }
@@ -1345,6 +1342,49 @@
           radio.dispatchEvent(new Event("change", { bubbles: true }));
         }
         delete radio.dataset.wasChecked;
+      });
+    }
+
+    function parseSavedAnswers() {
+      const node = document.getElementById("savedAnswersData");
+      if (!node) return {};
+      try {
+        return JSON.parse(node.textContent || "{}");
+      } catch (_err) {
+        return {};
+      }
+    }
+
+    function normalizeMultiValue(value) {
+      if (value === undefined || value === null) return [];
+      return String(value)
+        .split(";")
+        .map(v => v.trim())
+        .filter(Boolean);
+    }
+
+    function restoreSavedAnswers() {
+      const form = document.querySelector('form[action="/form"]') || document.querySelector("form");
+      if (!form) return;
+
+      const saved = parseSavedAnswers();
+      if (!saved || Object.keys(saved).length === 0) return;
+
+      const fields = form.querySelectorAll("input[name], select[name], textarea[name]");
+      fields.forEach(field => {
+        const key = field.name;
+        if (!(key in saved)) return;
+        const savedValue = saved[key];
+        if (savedValue === undefined || savedValue === null || String(savedValue).trim() === "") return;
+
+        const type = (field.type || "").toLowerCase();
+        if (type === "radio" || type === "checkbox") {
+          const selected = normalizeMultiValue(savedValue);
+          field.checked = selected.includes(field.value);
+          return;
+        }
+
+        field.value = String(savedValue);
       });
     }
 
@@ -1399,23 +1439,19 @@
         classificationInput.value = "";
       }
 
-      // Update IFA Dose
-      if (!Number.isNaN(hb) && !Number.isNaN(weight)) {
-        doseInput.value = calculateIfaDose(weight, hb);
+      // Update IFA Dose using: 3 * body weight / 4 per day
+      if (!Number.isNaN(weight)) {
+        doseInput.value = calculateIfaDose(weight);
       } else {
         doseInput.value = "";
       }
     }
 
-    function calculateIfaDose(weight, hb) {
-      if (hb >= 11) return "No therapeutic syrup dose";
-      if (hb < 5) return "5 to 7.5 ml/day (urgent referral)";
-      if (hb < 7) return "7.5 to 9 ml/day (urgent referral)";
-      if (hb < 8) return "8 to 9 ml/day";
-      if (hb < 9) return weight < 12 ? "8 to 9 ml/day" : "9 to 10 ml/day";
-      if (hb < 10) return "9 to 10 ml/day";
-      if (hb < 11) return weight >= 15.5 ? "5 to 7.5 ml/day" : "8 to 9 ml/day";
-      return "";
+    function calculateIfaDose(weight) {
+      if (Number.isNaN(weight) || weight <= 0) return "";
+      const dose = (3 * weight) / 4;
+      const rounded = Math.round(dose * 100) / 100;
+      return `${rounded} ml/day`;
     }
 
     /* FLACC SCALE CALCULATION */
@@ -1476,9 +1512,7 @@
       const modal = document.getElementById('ifaModal');
       const result = document.getElementById('ifaCalcResult');
       const weightCalcInput = document.getElementById('ifa_calc_weight');
-      const hbCalcInput = document.getElementById('ifa_calc_hb');
       const mainWeightInput = document.getElementById('weight_input');
-      const mainHbInput = document.getElementsByName('lab_hb_value')[0];
       const doseInput = document.getElementById('ifa_dose');
 
       if (!openBtn || !closeBtn || !runBtn || !modal || !result) return;
@@ -1497,18 +1531,16 @@
 
       runBtn.addEventListener('click', () => {
         const weight = parseFloat(weightCalcInput.value);
-        const hb = parseFloat(hbCalcInput.value);
-        if (Number.isNaN(weight) || Number.isNaN(hb)) {
-          result.textContent = "Enter both weight and Hb to calculate dose.";
+        if (Number.isNaN(weight) || weight <= 0) {
+          result.textContent = "Enter valid weight to calculate dose.";
           return;
         }
 
-        const dose = calculateIfaDose(weight, hb);
+        const dose = calculateIfaDose(weight);
         result.textContent = `Recommended IFA dose: ${dose}`;
         if (doseInput) doseInput.value = dose;
 
         if (mainWeightInput && !mainWeightInput.value) mainWeightInput.value = String(weight);
-        if (mainHbInput && !mainHbInput.value) mainHbInput.value = String(hb);
         updateClinicalCalculations();
       });
     }
@@ -1537,6 +1569,7 @@
           window.location.href = "/section-status";
         });
       }
+      restoreSavedAnswers();
       updateStudyDateTimeIso();
       setupTimeNowButtons();
       setupToggleableRadios();

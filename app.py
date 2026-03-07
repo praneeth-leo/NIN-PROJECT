@@ -1,11 +1,10 @@
 from flask import (
     Flask, render_template, request, redirect, url_for,
-    session, send_file, jsonify, flash, abort
+    session, send_file, jsonify, flash
 )
 import csv
 import os
 import re
-import secrets
 import pandas as pd
 from barcode import Code128
 from barcode.writer import ImageWriter
@@ -74,30 +73,6 @@ app.config.update(
     SESSION_COOKIE_SECURE=False,
     SESSION_COOKIE_PATH="/"
 )
-
-
-def generate_csrf_token():
-    token = session.get("_csrf_token")
-    if not token:
-        token = secrets.token_urlsafe(32)
-        session["_csrf_token"] = token
-    return token
-
-
-app.jinja_env.globals["csrf_token"] = generate_csrf_token
-
-
-@app.before_request
-def enforce_csrf():
-    if request.method != "POST":
-        return
-
-    # Allow standard form posts and JS clients that send the header.
-    provided = request.form.get("_csrf_token") or request.headers.get("X-CSRF-Token")
-    expected = session.get("_csrf_token")
-    if not expected or not provided or not secrets.compare_digest(expected, provided):
-        abort(400, "CSRF token missing or invalid.")
-
 
 @app.after_request
 def set_security_headers(response):
@@ -719,7 +694,6 @@ def form():
                 answers[key] = "; ".join([str(v).strip() for v in values if str(v).strip()])
 
         submit_action = (answers.pop("submit_action", "submit_questionnaire") or "").strip()
-        answers.pop("_csrf_token", None)
 
         if not (answers.get("investigator_username", "") or "").strip():
             answers["investigator_username"] = investigator_username
@@ -756,6 +730,16 @@ def form():
     if not profile:
         return redirect(url_for("login"))
 
+    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    saved_answers = {}
+    for row in responses:
+        row_profile_id = (row.get("profile_id", "") or "").strip().upper()
+        if row_profile_id == profile_id.strip().upper():
+            saved_answers = dict(row)
+
+    for key in ["response_id", "profile_id", "submitted_at", "submit_action"]:
+        saved_answers.pop(key, None)
+
     now = datetime.now()
     return render_template(
         "form.html",
@@ -764,6 +748,7 @@ def form():
         profile_id=profile_id,
         today_date=now.strftime("%Y-%m-%d"),
         current_datetime=now.strftime("%Y-%m-%d %H:%M:%S"),
+        saved_answers=saved_answers,
     )
 
 
