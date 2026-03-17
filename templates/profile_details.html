@@ -35,6 +35,8 @@
       --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.2), 0 0 0 1px rgba(255,255,255,0.8) inset;
       --radius-card: 40px;
       --radius-item: 24px;
+      --label-width-mm: 40mm;
+      --label-height-mm: 20mm;
     }
 
     body {
@@ -278,11 +280,13 @@
     }
 
     .barcode-img-wrapper img {
-      max-width: 360px;
-      width: 100%;
+      width: var(--label-width-mm);
+      height: var(--label-height-mm);
+      max-width: 100%;
+      object-fit: contain;
       background: white;
       border-radius: 16px;
-      padding: 10px;
+      padding: 2mm;
       box-shadow: 0 15px 30px -12px rgba(0,0,0,0.2);
       transition: transform 0.3s;
     }

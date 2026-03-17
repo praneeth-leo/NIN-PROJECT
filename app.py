@@ -122,6 +122,7 @@ def load_admin_credentials():
 ADMIN_CREDENTIALS = load_admin_credentials()
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FORM_TEMPLATE_PATH = os.path.join(BASE_DIR, "templates", "form.html")
 
 PROFILE_CSV = os.path.join(BASE_DIR, "profiles.csv")
 RESPONSE_CSV = os.path.join(BASE_DIR, "responses.csv")
@@ -133,6 +134,9 @@ AUDIT_LOG_CSV = os.path.join(BASE_DIR, "investigator_audit_log.csv")
 
 BARCODE_FOLDER = os.path.join(BASE_DIR, "static", "barcodes")
 EXPORT_FOLDER = os.path.join(BASE_DIR, "exports")
+BARCODE_LABEL_WIDTH_MM = 40
+BARCODE_LABEL_HEIGHT_MM = 20
+BARCODE_DPI = 300
 
 # ✅ UPDATED: dob + age_full added
 PROFILE_FIELDS = [
@@ -148,6 +152,48 @@ PROFILE_FIELDS = [
     "class",
     "section"
 ]
+
+RESPONSE_METADATA_FIELDS = ["response_id", "profile_id", "submitted_at"]
+FORM_LOOP_EXPANSIONS = {
+    "freq_{{ item }}": [
+        "freq_green_leafy",
+        "freq_jaggery",
+        "freq_dates",
+        "freq_eggs",
+        "freq_meat",
+        "freq_fruits",
+    ],
+    "parent_q_{{ no }}": [f"parent_q_{no}" for no in range(39, 47)],
+}
+
+
+def extract_response_question_fields():
+    if not os.path.exists(FORM_TEMPLATE_PATH):
+        return []
+
+    with open(FORM_TEMPLATE_PATH, "r", encoding="utf-8") as f:
+        template = f.read()
+
+    raw_names = re.findall(
+        r'<(?:input|select|textarea)\b[^>]*\bname="([^"]+)"',
+        template,
+        flags=re.IGNORECASE,
+    )
+
+    fields = []
+    seen = set()
+    for name in raw_names:
+        expanded_names = FORM_LOOP_EXPANSIONS.get(name, [name])
+        for expanded_name in expanded_names:
+            if expanded_name == "submit_action" or expanded_name in seen:
+                continue
+            seen.add(expanded_name)
+            fields.append(expanded_name)
+    return fields
+
+
+RESPONSE_FORM_FIELDS = extract_response_question_fields()
+RESPONSE_FIELDS = RESPONSE_METADATA_FIELDS + RESPONSE_FORM_FIELDS
 
 
 # --------------------------------------------------
@@ -201,7 +247,8 @@ def update_excel_files():
         if os.path.exists(PROFILE_CSV):
             pd.read_csv(PROFILE_CSV).to_excel(PROFILE_XLSX, index=False)
         if os.path.exists(RESPONSE_CSV):
-            pd.read_csv(RESPONSE_CSV).to_excel(RESPONSE_XLSX, index=False)
+            normalized_rows = normalize_response_storage(write_back=True)
+            pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).to_excel(RESPONSE_XLSX, index=False)
     except Exception as e:
         print("Excel error:", e)
 
@@ -238,6 +285,63 @@ def write_dict_list_to_csv(path, rows, fieldnames):
             writer.writerow(r)
 
 
+def sanitize_response_row(row):
+    clean_row = {key: row.get(key, "") for key in RESPONSE_FIELDS}
+    if not (clean_row.get("response_id", "") or "").strip():
+        clean_row["response_id"] = str(uuid.uuid4())
+    return clean_row
+
+
+def normalize_response_storage(rows=None, write_back=False):
+    response_rows = rows if rows is not None else read_csv_as_dict_list(RESPONSE_CSV)
+    normalized_rows = [sanitize_response_row(row) for row in response_rows]
+    if write_back:
+        write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
+    return normalized_rows
+
+
+def sort_response_rows_by_submitted_at(rows, newest_first=False):
+    def sort_key(row):
+        submitted_at = (row.get("submitted_at", "") or "").strip()
+        try:
+            parsed = datetime.strptime(submitted_at, "%Y-%m-%d %H:%M:%S")
+            return (0, parsed)
+        except ValueError:
+            return (1, submitted_at.casefold())
+
+    return sorted(rows, key=sort_key, reverse=newest_first)
+
+
+def deduplicate_response_rows(rows):
+    latest_by_profile = {}
+    blank_profile_rows = []
+
+    for row in sort_response_rows_by_submitted_at(normalize_response_storage(rows=rows)):
+        profile_id = (row.get("profile_id", "") or "").strip().upper()
+        if not profile_id:
+            blank_profile_rows.append(row)
+            continue
+        latest_by_profile[profile_id] = row
+
+    deduped_rows = list(latest_by_profile.values()) + blank_profile_rows
+    return sort_response_rows_by_submitted_at(deduped_rows)
+
+
+def write_response_rows(rows):
+    normalized_rows = deduplicate_response_rows(rows)
+    write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
+    return normalized_rows
+
+
+def read_uploaded_response_rows(path):
+    if path.lower().endswith(".xlsx"):
+        df = pd.read_excel(path, dtype=str).fillna("")
+        return df.to_dict(orient="records")
+
+    df = pd.read_csv(path, dtype=str, keep_default_na=False, encoding="utf-8-sig")
+    return df.to_dict(orient="records")
+
+
 def build_ordered_fieldnames(rows, preferred=None):
     preferred = preferred or []
     seen = set()
@@ -259,7 +363,7 @@ def build_ordered_fieldnames(rows, preferred=None):
 def build_linked_view_data():
     profiles = read_csv_as_dict_list(PROFILE_CSV)
     linked_rows = read_csv_as_dict_list(LINKED_CSV)
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage()
 
     profile_map = {}
     for p in profiles:
@@ -467,13 +571,13 @@ def generate_barcode(profile_id):
     barcode = Code128(profile_id, writer=ImageWriter())
     path = os.path.join(BARCODE_FOLDER, profile_id)
     barcode.save(path, options={
-        "module_width": 0.18,
-        "module_height": 7,
-        "quiet_zone": 1.0,
+        "module_width": 0.16,
+        "module_height": 8.0,
+        "quiet_zone": 0.8,
         "font_size": 0,
         "text_distance": 1,
         "write_text": False,
-        "dpi": 300,
+        "dpi": BARCODE_DPI,
     })
     return f"barcodes/{profile_id}.png"
 
@@ -492,21 +596,17 @@ def investigator_login():
     if next_url and not next_url.startswith("/"):
         next_url = ""
     default_next = url_for("form") if session.get("profile_id") else url_for("dashboard")
-    force_reauth_for_form = (next_url == url_for("form"))
 
-    if force_reauth_for_form and request.method == "GET":
-        session.pop("investigator_logged_in", None)
-        session.pop("investigator_username", None)
-
-    if investigator_required() and not force_reauth_for_form:
+    if investigator_required():
         return redirect(next_url or default_next)
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
+        username_norm = username.casefold()
         password = request.form.get("password", "").strip()
 
         valid = any(
-            username == inv_user and check_password_hash(inv_pass_hash, password)
+            username_norm == (inv_user or "").strip().casefold() and check_password_hash(inv_pass_hash, password)
             for inv_user, inv_pass_hash in INVESTIGATOR_CREDENTIALS
             if inv_user and inv_pass_hash
         )
@@ -695,24 +795,62 @@ def form():
 
         submit_action = (answers.pop("submit_action", "submit_questionnaire") or "").strip()
 
+        def normalize_single_text(value):
+            parts = [p.strip() for p in str(value or "").split(";") if p.strip()]
+            if not parts:
+                return ""
+            seen = set()
+            unique = []
+            for part in parts:
+                key = part.casefold()
+                if key in seen:
+                    continue
+                seen.add(key)
+                unique.append(part)
+            return unique[0]
+
         if not (answers.get("investigator_username", "") or "").strip():
             answers["investigator_username"] = investigator_username
         if not (answers.get("investigator_name", "") or "").strip():
             answers["investigator_name"] = investigator_username
+        answers["investigator_name"] = normalize_single_text(answers.get("investigator_name", ""))
+        answers["investigator_signature"] = normalize_single_text(answers.get("investigator_signature", ""))
 
-        # response unique id
-        answers["response_id"] = str(uuid.uuid4())
+        # Keep IFA dose consistent with questionnaire formula: 3 * body weight / 20 (ml/day)
+        weight_value = (answers.get("weight_kgs", "") or answers.get("weight_kg", "") or "").strip()
+        try:
+            weight = float(weight_value)
+            if weight > 0:
+                dose = round((3 * weight) / 20, 2)
+                answers["ifa_dose"] = f"{dose:g} ml/day"
+            else:
+                answers["ifa_dose"] = ""
+        except (TypeError, ValueError):
+            answers["ifa_dose"] = ""
+
         answers["profile_id"] = profile_id
         answers["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-        existing_rows = read_csv_as_dict_list(RESPONSE_CSV)
-        existing_rows.append(answers)
-        response_fields = build_ordered_fieldnames(
-            existing_rows,
-            preferred=["response_id", "profile_id", "submitted_at"]
-        )
-        normalized_rows = [{k: row.get(k, "") for k in response_fields} for row in existing_rows]
-        write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, response_fields)
+        existing_rows = normalize_response_storage()
+        existing_row = None
+        for row in existing_rows:
+            row_profile_id = (row.get("profile_id", "") or "").strip().upper()
+            if row_profile_id == profile_id.strip().upper():
+                existing_row = row
+
+        if existing_row:
+            answers["response_id"] = existing_row.get("response_id", "") or str(uuid.uuid4())
+            merged_row = dict(existing_row)
+            merged_row.update(answers)
+            for index, row in enumerate(existing_rows):
+                row_profile_id = (row.get("profile_id", "") or "").strip().upper()
+                if row_profile_id == profile_id.strip().upper():
+                    existing_rows[index] = sanitize_response_row(merged_row)
+        else:
+            answers["response_id"] = str(uuid.uuid4())
+            existing_rows.append(sanitize_response_row(answers))
+
+        write_response_rows(deduplicate_response_rows(existing_rows))
 
         update_excel_files()
         if submit_action == "save_progress":
@@ -730,7 +868,7 @@ def form():
     if not profile:
         return redirect(url_for("login"))
 
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage(write_back=True)
     saved_answers = {}
     for row in responses:
         row_profile_id = (row.get("profile_id", "") or "").strip().upper()
@@ -798,19 +936,19 @@ def section_status():
 
     section_keys = {
         "A": ["child_id_code", "dob", "age_completed", "sex", "birth_order", "siblings_count"],
-        "B": ["family_type", "family_members", "religion", "caste", "edu_head", "occ_head", "income", "kupp_total", "ses_class"],
-        "C": [],
-        "D": [],
-        "E": ["lbw", "chronic_illness", "worm_infestation", "deworming", "iron_supplement"],
-        "F": ["diet_type", "iron_rich_freq"],
-        "G": ["prev_tested"],
-        "H": ["sequence", "masimo_reading", "poc_hb_value", "lab_hb_value"],
-        "I": ["parent_q_73", "parent_total"],
+        "B": ["family_type", "family_members_total", "religion", "social_category", "edu_head_family", "occupation_head_family"],
+        "C": ["monthly_income"],
+        "D": ["kuppuswamy_total_score", "ses_class"],
+        "E": ["low_birth_weight", "chronic_illness", "worm_infestation", "deworming_tablet", "iron_supplementation"],
+        "F": ["diet_type", "freq_green_leafy", "freq_jaggery", "freq_dates", "freq_eggs", "freq_meat", "freq_fruits"],
+        "G": ["hb_previously_tested"],
+        "H": ["device_seq_1", "device_seq_2", "device_seq_3", "masimo_reading", "poc_hb_value", "lab_hb_value"],
+        "I": ["parent_q_39", "parent_q_40", "parent_q_41", "parent_q_42", "parent_q_43", "parent_q_44", "parent_q_45", "parent_q_46"],
         "J": ["child_classification", "ifa_dose", "referral_advised", "investigator_name", "referral_date"],
     }
 
     profiles = read_csv_as_dict_list(PROFILE_CSV)
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage()
 
     latest_response_by_profile = {}
     for row in responses:
@@ -872,10 +1010,11 @@ def logout():
 def admin_login():
     if request.method == "POST":
         username = request.form.get("username", "").strip()
+        username_norm = username.casefold()
         password = request.form.get("password", "").strip()
 
         valid = any(
-            username == admin_user and check_password_hash(admin_pass_hash, password)
+            username_norm == (admin_user or "").strip().casefold() and check_password_hash(admin_pass_hash, password)
             for admin_user, admin_pass_hash in ADMIN_CREDENTIALS
             if admin_user and admin_pass_hash
         )
@@ -894,11 +1033,11 @@ def admin_dashboard():
     if not admin_required():
         return redirect(url_for("admin_login"))
     profiles = read_csv_as_dict_list(PROFILE_CSV)
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True))
     linked = read_csv_as_dict_list(LINKED_CSV)
 
     profile_headers = list(profiles[0].keys()) if profiles else PROFILE_FIELDS
-    response_headers = list(responses[0].keys()) if responses else []
+    response_headers = RESPONSE_FIELDS if responses else RESPONSE_FIELDS
 
     return render_template(
         "admin_dashboard.html",
@@ -925,7 +1064,7 @@ def investigator_logout():
         append_investigator_audit("logout", "Investigator logged out")
     session.pop("investigator_logged_in", None)
     session.pop("investigator_username", None)
-    return redirect(url_for("investigator_login"))
+    return redirect(url_for("dashboard"))
 
 
 # --------------------------------------------------
@@ -953,25 +1092,11 @@ def admin_responses():
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    data = read_csv_as_dict_list(RESPONSE_CSV)
+    data = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True))
     if not data:
-        return render_template("admin_responses.html", data=[], q="", headers=[])
+        return render_template("admin_responses.html", data=[], q="", headers=RESPONSE_FIELDS)
 
-    # Backfill missing response IDs so rows are editable/deletable and stable.
-    updated = False
-    for row in data:
-        if not (row.get("response_id", "") or "").strip():
-            row["response_id"] = str(uuid.uuid4())
-            updated = True
-
-    response_headers = build_ordered_fieldnames(
-        data,
-        preferred=["response_id", "profile_id", "submitted_at"]
-    )
-    if updated:
-        normalized_rows = [{k: row.get(k, "") for k in response_headers} for row in data]
-        write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, response_headers)
-        data = normalized_rows
+    response_headers = RESPONSE_FIELDS
 
     q = request.args.get("q", "").strip().upper()
 
@@ -1020,11 +1145,10 @@ def admin_delete_profile(profile_id):
     write_dict_list_to_csv(PROFILE_CSV, profiles_new, PROFILE_FIELDS)
 
     # delete responses of that profile
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage()
     if responses:
-        response_fields = list(responses[0].keys())
         responses_new = [r for r in responses if r.get("profile_id", "").strip().upper() != profile_id]
-        write_dict_list_to_csv(RESPONSE_CSV, responses_new, response_fields)
+        write_dict_list_to_csv(RESPONSE_CSV, responses_new, RESPONSE_FIELDS)
 
     # delete barcode image
     barcode_path = os.path.join(BARCODE_FOLDER, f"{profile_id}.png")
@@ -1043,14 +1167,13 @@ def admin_delete_response(response_id):
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage()
     if not responses:
         return "No responses found"
 
-    response_fields = list(responses[0].keys())
     responses_new = [r for r in responses if r.get("response_id", "") != response_id]
 
-    write_dict_list_to_csv(RESPONSE_CSV, responses_new, response_fields)
+    write_dict_list_to_csv(RESPONSE_CSV, responses_new, RESPONSE_FIELDS)
     update_excel_files()
     return redirect(url_for("admin_responses"))
 
@@ -1100,7 +1223,7 @@ def admin_edit_response(response_id):
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage(write_back=True)
     if not responses:
         return "No responses found"
 
@@ -1119,8 +1242,7 @@ def admin_edit_response(response_id):
                 continue
             response_row[key] = request.form.get(key, response_row.get(key, "")).strip()
 
-        response_fields = list(responses[0].keys())
-        write_dict_list_to_csv(RESPONSE_CSV, responses, response_fields)
+        write_dict_list_to_csv(RESPONSE_CSV, responses, RESPONSE_FIELDS)
 
         update_excel_files()
         return redirect(url_for("admin_responses"))
@@ -1140,16 +1262,18 @@ def admin_export_filtered(profile_id):
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
 
     profiles = read_csv_as_dict_list(PROFILE_CSV)
-    responses = read_csv_as_dict_list(RESPONSE_CSV)
+    responses = normalize_response_storage()
 
     profiles_f = [p for p in profiles if p.get("profile_id", "").strip().upper() == profile_id]
-    responses_f = [r for r in responses if r.get("profile_id", "").strip().upper() == profile_id]
+    responses_f = sort_response_rows_by_submitted_at(
+        [r for r in responses if r.get("profile_id", "").strip().upper() == profile_id]
+    )
 
     export_path = os.path.join(EXPORT_FOLDER, f"filtered_{profile_id}.xlsx")
 
     with pd.ExcelWriter(export_path, engine="openpyxl") as writer:
         pd.DataFrame(profiles_f).to_excel(writer, sheet_name="Profile", index=False)
-        pd.DataFrame(responses_f).to_excel(writer, sheet_name="Responses", index=False)
+        pd.DataFrame(responses_f, columns=RESPONSE_FIELDS).to_excel(writer, sheet_name="Responses", index=False)
 
     return send_file(export_path, as_attachment=True)
 
@@ -1179,6 +1303,10 @@ def admin_download(filename):
     if not os.path.exists(path):
         return "File not found"
 
+    if filename in ["responses.csv", "responses.xlsx"]:
+        normalize_response_storage(write_back=True)
+        update_excel_files()
+
     return send_file(path, as_attachment=True)
 
 
@@ -1204,6 +1332,10 @@ def admin_upload():
 
         save_path = os.path.join(BASE_DIR, filename)
         file.save(save_path)
+
+        if filename in ["responses.csv", "responses.xlsx"]:
+            uploaded_rows = read_uploaded_response_rows(save_path)
+            write_response_rows(uploaded_rows)
 
         update_excel_files()
         if filename in ["linked_data.csv", "linked_data.xlsx"]:

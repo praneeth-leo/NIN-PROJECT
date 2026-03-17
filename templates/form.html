@@ -984,14 +984,36 @@
         <h3>Section H: Haemoglobin Measurement Results (To be filled after testing)</h3>
 
         <label>23. Device sequence used:</label>
-        <div class="option-group" style="display: flex; gap: 15px; flex-wrap: wrap;">
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" name="device_seq"
-              value="Masimo Rad-67" style="width: auto;"> Masimo Rad-67</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" name="device_seq"
-              value="Minimally invasive POC" style="width: auto;"> Minimally invasive POC</label>
-          <label style="display: flex; align-items: center; gap: 8px;"><input type="checkbox" name="device_seq"
-              value="ABX Micros ES 60" style="width: auto;"> ABX Micros ES 60</label>
-        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Option</th>
+              <th>Masimo</th>
+              <th>Hemocue</th>
+              <th>Horiba</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td><input type="radio" name="device_seq_1" value="Masimo"></td>
+              <td><input type="radio" name="device_seq_1" value="Hemocue"></td>
+              <td><input type="radio" name="device_seq_1" value="Horiba"></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td><input type="radio" name="device_seq_2" value="Masimo"></td>
+              <td><input type="radio" name="device_seq_2" value="Hemocue"></td>
+              <td><input type="radio" name="device_seq_2" value="Horiba"></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td><input type="radio" name="device_seq_3" value="Masimo"></td>
+              <td><input type="radio" name="device_seq_3" value="Hemocue"></td>
+              <td><input type="radio" name="device_seq_3" value="Horiba"></td>
+            </tr>
+          </tbody>
+        </table>
 
 
         <!-- Masimo Rad-67 -->
@@ -1316,9 +1338,9 @@
             <tr>
               <td>{{ no }}</td>
               <td>{{ text }}</td>
-              <td><input type="radio" name="parent_q_{{ no }}" value="Masimo"></td>
-              <td><input type="radio" name="parent_q_{{ no }}" value="Hemocue"></td>
-              <td><input type="radio" name="parent_q_{{ no }}" value="Horiba"></td>
+              <td><input type="checkbox" name="parent_q_{{ no }}" value="Masimo"></td>
+              <td><input type="checkbox" name="parent_q_{{ no }}" value="Hemocue"></td>
+              <td><input type="checkbox" name="parent_q_{{ no }}" value="Horiba"></td>
             </tr>
             {% endfor %}
           </tbody>
@@ -1339,8 +1361,8 @@
             </select>
           </div>
           <div>
-            <label>48. Dose of IFA (Formula = 3*body weight/4 per day):</label>
-            <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Calculated dose">
+            <label>48. Dose of IFA (Formula = 3*body weight/20 per day):</label>
+            <input type="text" id="ifa_dose" name="ifa_dose" placeholder="Calculated dose" readonly>
           </div>
           <div>
             <label>49. Referral advised?</label>
@@ -1370,7 +1392,7 @@
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;" class="mt-4">
           <div>
             <label>Investigator Signature:</label>
-            <input type="text" name="investigator_name" placeholder="Name/Signature">
+            <input type="text" name="investigator_signature" placeholder="Name/Signature">
           </div>
           <div>
             <label>Date:</label>
@@ -1494,6 +1516,8 @@
       const fields = form.querySelectorAll("input[name], select[name], textarea[name]");
       fields.forEach(field => {
         const key = field.name;
+        // Always compute from current weight; do not keep stale/manual saved dose.
+        if (key === "ifa_dose") return;
         if (!(key in saved)) return;
         const savedValue = saved[key];
         if (savedValue === undefined || savedValue === null || String(savedValue).trim() === "") return;
@@ -1505,8 +1529,22 @@
           return;
         }
 
-        field.value = String(savedValue);
+        let value = String(savedValue);
+        if (key === "investigator_name" || key === "investigator_signature") {
+          // Old records can contain merged values like "name1; name2".
+          value = value.split(";").map(v => v.trim()).filter(Boolean)[0] || "";
+        }
+        field.value = value;
       });
+
+      // Backward compatibility: older responses may store weight in "weight_kg".
+      const weightKgsField = form.querySelector('[name="weight_kgs"]');
+      if (weightKgsField && !String(weightKgsField.value || "").trim()) {
+        const legacyWeight = saved.weight_kg;
+        if (legacyWeight !== undefined && legacyWeight !== null && String(legacyWeight).trim() !== "") {
+          weightKgsField.value = String(legacyWeight);
+        }
+      }
     }
 
     /* KUPPUSWAMY CALCULATIONS */
@@ -1545,7 +1583,9 @@
     /* ANEMIA CLASSIFICATION & IFA DOSAGE */
     function updateClinicalCalculations() {
       const hbInput = document.getElementsByName('lab_hb_value')[0];
-      const weightInput = document.getElementById('weight_input');
+      const weightInput = document.getElementById('weight_input')
+        || document.querySelector('[name="weight_kgs"]')
+        || document.querySelector('[name="weight_kg"]');
       const classificationInput = document.getElementById('child_classification');
       const doseInput = document.getElementById('ifa_dose');
 
@@ -1553,24 +1593,28 @@
       const weight = weightInput ? parseFloat(weightInput.value) : NaN;
 
       // Update Classification
-      if (!Number.isNaN(hb)) {
-        if (hb >= 11) classificationInput.value = "Non-anaemic";
-        else classificationInput.value = "Anaemic";
-      } else {
-        classificationInput.value = "";
+      if (classificationInput) {
+        if (!Number.isNaN(hb)) {
+          if (hb >= 11) classificationInput.value = "Non-anaemic";
+          else classificationInput.value = "Anaemic";
+        } else {
+          classificationInput.value = "";
+        }
       }
 
-      // Update IFA Dose using: 3 * body weight / 4 per day
-      if (!Number.isNaN(weight)) {
-        doseInput.value = calculateIfaDose(weight);
-      } else {
-        doseInput.value = "";
+      // Update IFA Dose using: 3 * body weight / 20 per day
+      if (doseInput) {
+        if (!Number.isNaN(weight)) {
+          doseInput.value = calculateIfaDose(weight);
+        } else {
+          doseInput.value = "";
+        }
       }
     }
 
     function calculateIfaDose(weight) {
       if (Number.isNaN(weight) || weight <= 0) return "";
-      const dose = (3 * weight) / 4;
+      const dose = (3 * weight) / 20;
       const rounded = Math.round(dose * 100) / 100;
       return `${rounded} ml/day`;
     }
@@ -1639,6 +1683,9 @@
       if (!openBtn || !closeBtn || !runBtn || !modal || !result) return;
 
       openBtn.addEventListener('click', () => {
+        if (weightCalcInput && mainWeightInput && mainWeightInput.value) {
+          weightCalcInput.value = mainWeightInput.value;
+        }
         modal.classList.add('show');
       });
 
@@ -1659,9 +1706,8 @@
 
         const dose = calculateIfaDose(weight);
         result.textContent = `Recommended IFA dose: ${dose}`;
+        if (mainWeightInput) mainWeightInput.value = String(weight);
         if (doseInput) doseInput.value = dose;
-
-        if (mainWeightInput && !mainWeightInput.value) mainWeightInput.value = String(weight);
         updateClinicalCalculations();
       });
     }
@@ -1670,7 +1716,7 @@
     document.addEventListener("change", e => {
       if (['edu_head', 'occ_head', 'income'].includes(e.target.id)) calcKupp();
       if (e.target.classList.contains("parent_score")) calcParent();
-      if (e.target.name === "lab_hb_value" || e.target.id === "weight_input") updateClinicalCalculations();
+      if (e.target.name === "lab_hb_value" || e.target.id === "weight_input" || e.target.name === "weight_kgs" || e.target.name === "weight_kg") updateClinicalCalculations();
       if (e.target.id === "dob_input") updateAgeDetails();
 
       if (e.target.classList.contains("flacc_masimo")) calcFlaccGroup("flacc_masimo", "masimo_flacc_total");
@@ -1679,7 +1725,7 @@
     });
 
     document.addEventListener("input", e => {
-      if (e.target.name === "lab_hb_value" || e.target.id === "weight_input") updateClinicalCalculations();
+      if (e.target.name === "lab_hb_value" || e.target.id === "weight_input" || e.target.name === "weight_kgs" || e.target.name === "weight_kg") updateClinicalCalculations();
     });
 
     // Initialize on load

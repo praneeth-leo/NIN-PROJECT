@@ -300,6 +300,52 @@
       flex-wrap: wrap;
     }
 
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      appearance: none;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 10px);
+      right: 0;
+      min-width: 220px;
+      background: rgba(255, 255, 255, 0.96);
+      border: 2px solid rgba(6, 214, 160, 0.18);
+      border-radius: 24px;
+      box-shadow: 0 24px 40px -20px rgba(67, 97, 238, 0.24);
+      padding: 10px;
+      display: none;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+    }
+
+    .dropdown.open .dropdown-menu {
+      display: block;
+    }
+
+    .dropdown-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      text-decoration: none;
+      color: var(--text-primary);
+      font-weight: 700;
+      padding: 12px 14px;
+      border-radius: 16px;
+      transition: background 0.2s ease, transform 0.2s ease;
+    }
+
+    .dropdown-item:hover {
+      background: rgba(6, 214, 160, 0.1);
+      transform: translateX(2px);
+    }
+
     /* stats cards */
     .stats-grid {
       display: grid;
@@ -526,12 +572,32 @@
         </div>
 
         <div class="action-bar">
-          <a href="/admin/download/profiles.csv" class="btn btn-success">
-            <i class="fas fa-file-csv"></i> Profiles CSV
-          </a>
-          <a href="/admin/download/responses.csv" class="btn btn-success">
-            <i class="fas fa-file-csv"></i> Responses CSV
-          </a>
+          <div class="dropdown" data-dropdown>
+            <button type="button" class="btn btn-success dropdown-toggle" data-dropdown-toggle aria-expanded="false">
+              <i class="fas fa-download"></i> Profiles Export
+            </button>
+            <div class="dropdown-menu">
+              <a href="/admin/download/profiles.xlsx" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Download Excel
+              </a>
+              <a href="/admin/download/profiles.csv" class="dropdown-item">
+                <i class="fas fa-file-csv"></i> Download CSV
+              </a>
+            </div>
+          </div>
+          <div class="dropdown" data-dropdown>
+            <button type="button" class="btn btn-success dropdown-toggle" data-dropdown-toggle aria-expanded="false">
+              <i class="fas fa-download"></i> Responses Export
+            </button>
+            <div class="dropdown-menu">
+              <a href="/admin/download/responses.xlsx" class="dropdown-item">
+                <i class="fas fa-file-excel"></i> Download Excel
+              </a>
+              <a href="/admin/download/responses.csv" class="dropdown-item">
+                <i class="fas fa-file-csv"></i> Download CSV
+              </a>
+            </div>
+          </div>
           <a href="/admin/link-excel" class="btn btn-purple">
             <i class="fas fa-link"></i> Link Excel
           </a>
@@ -690,6 +756,33 @@
       if (timeEl) {
         timeEl.textContent = new Date().toLocaleString();
       }
+
+      document.querySelectorAll('[data-dropdown-toggle]').forEach(function (button) {
+        button.addEventListener('click', function (event) {
+          event.stopPropagation();
+          const dropdown = button.closest('[data-dropdown]');
+          const isOpen = dropdown.classList.contains('open');
+
+          document.querySelectorAll('[data-dropdown].open').forEach(function (item) {
+            item.classList.remove('open');
+            const toggle = item.querySelector('[data-dropdown-toggle]');
+            if (toggle) toggle.setAttribute('aria-expanded', 'false');
+          });
+
+          if (!isOpen) {
+            dropdown.classList.add('open');
+            button.setAttribute('aria-expanded', 'true');
+          }
+        });
+      });
+
+      document.addEventListener('click', function () {
+        document.querySelectorAll('[data-dropdown].open').forEach(function (item) {
+          item.classList.remove('open');
+          const toggle = item.querySelector('[data-dropdown-toggle]');
+          if (toggle) toggle.setAttribute('aria-expanded', 'false');
+        });
+      });
     });
   </script>
 

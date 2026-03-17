@@ -37,6 +37,8 @@
       --shadow-elevation: 0 30px 60px -20px rgba(67, 97, 238, 0.3), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
       --radius-card: 48px;
       --radius-barcode: 32px;
+      --label-width-mm: 40mm;
+      --label-height-mm: 20mm;
     }
 
     body {
@@ -295,11 +297,13 @@
     }
 
     #barcode-img {
-      width: 100%;
-      max-width: 380px;
+      width: var(--label-width-mm);
+      height: var(--label-height-mm);
+      max-width: 100%;
+      object-fit: contain;
       border-radius: 16px;
       background: white;
-      padding: 8px;
+      padding: 2mm;
       box-shadow: 0 15px 30px -12px rgba(0, 0, 0, 0.2);
       transition: all 0.4s cubic-bezier(0.2, 0.9, 0.4, 1.1);
     }
@@ -594,86 +598,58 @@
       const barcodeImg = document.getElementById('barcode-img');
       const barcodeId = document.getElementById('barcode-id')?.textContent || '{{ profile_id }}';
       const studentName = {{ (profile_name or '')|tojson }};
+      const labelWidthMm = 40;
+      const labelHeightMm = 20;
+      const dpi = 300;
+      const pxPerMm = dpi / 25.4;
+      const labelWidthPx = Math.round(labelWidthMm * pxPerMm);
+      const labelHeightPx = Math.round(labelHeightMm * pxPerMm);
       
       // Download functionality
       downloadBtn.addEventListener('click', function() {
-        // Create a temporary canvas to combine barcode and ID
         const canvas = document.createElement('canvas');
         const ctx = canvas.getContext('2d');
-        
-        // Set canvas size (A6 proportions for card)
-        canvas.width = 600;
-        canvas.height = 400;
-        
-        // Fill background with gradient
-        const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        gradient.addColorStop(0, '#f0f9ff');
-        gradient.addColorStop(0.5, '#ffffff');
-        gradient.addColorStop(1, '#e6f7f0');
-        ctx.fillStyle = gradient;
+        canvas.width = labelWidthPx;
+        canvas.height = labelHeightPx;
+        ctx.fillStyle = '#ffffff';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
         
-        // Draw decorative border
-        ctx.strokeStyle = '#06d6a0';
-        ctx.lineWidth = 4;
-        ctx.strokeRect(10, 10, canvas.width - 20, canvas.height - 20);
-        
-        // Add title with gradient
-        const titleGrad = ctx.createLinearGradient(0, 0, canvas.width, 0);
-        titleGrad.addColorStop(0, '#06d6a0');
-        titleGrad.addColorStop(1, '#b5179e');
-        ctx.fillStyle = titleGrad;
-        ctx.font = 'bold 28px Inter, Arial, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.fillText('✨ SurveyPro Barcode ✨', canvas.width / 2, 60);
-        
-        // Add barcode ID
-        ctx.fillStyle = '#1e293b';
-        ctx.font = 'bold 30px monospace';
-        ctx.fillText(barcodeId, canvas.width / 2, 120);
-        
-        // Load and draw the barcode image
         const img = new Image();
         img.crossOrigin = 'anonymous';
         img.src = barcodeImg.src;
         
         img.onload = function() {
-          // Draw barcode image
-          const imgWidth = 300;
-          const imgHeight = 150;
-          ctx.drawImage(img, (canvas.width - imgWidth) / 2, 140, imgWidth, imgHeight);
+          const paddingX = Math.round(labelWidthPx * 0.04);
+          const paddingTop = Math.round(labelHeightPx * 0.10);
+          const idHeight = Math.round(labelHeightPx * 0.22);
+          const barcodeHeight = labelHeightPx - paddingTop - idHeight - Math.round(labelHeightPx * 0.10);
 
-          ctx.fillStyle = '#b5179e';
-          ctx.font = 'bold 20px Inter, Arial, sans-serif';
-          ctx.fillText('👤 ' + (studentName || '-'), canvas.width / 2, 315);
-          
-          // Add footer
-          ctx.fillStyle = '#5f6caf';
-          ctx.font = '16px Inter, Arial, sans-serif';
-          ctx.fillText('🔖 Save for login · ' + new Date().toLocaleDateString(), canvas.width / 2, 350);
-          
-          // Add tiny sparkles
-          ctx.fillStyle = '#06d6a0';
-          ctx.font = '20px Arial';
-          ctx.fillText('✨', canvas.width - 60, 380);
-          ctx.fillText('✨', 40, 380);
-          
-          // Create download link
+          ctx.drawImage(
+            img,
+            paddingX,
+            paddingTop,
+            labelWidthPx - (paddingX * 2),
+            barcodeHeight
+          );
+
+          ctx.fillStyle = '#000000';
+          ctx.font = `bold ${Math.max(18, Math.round(labelHeightPx * 0.16))}px Arial`;
+          ctx.textAlign = 'center';
+          ctx.textBaseline = 'middle';
+          ctx.fillText(barcodeId, canvas.width / 2, labelHeightPx - Math.round(idHeight / 2));
+
           const link = document.createElement('a');
           link.download = `barcode-${barcodeId}.png`;
           link.href = canvas.toDataURL('image/png');
           link.click();
         };
         
-        // Fallback in case image fails to load
         img.onerror = function() {
-          // Draw placeholder
-          ctx.fillStyle = '#f0f0f0';
-          ctx.fillRect((canvas.width - 300) / 2, 140, 300, 150);
-          ctx.fillStyle = '#06d6a0';
-          ctx.font = 'bold 20px Inter, Arial, sans-serif';
-          ctx.fillText('Barcode: ' + barcodeId, canvas.width / 2, 220);
-          
+          ctx.fillStyle = '#000000';
+          ctx.font = 'bold 24px Arial';
+          ctx.textAlign = 'center';
+          ctx.fillText(barcodeId, canvas.width / 2, canvas.height / 2);
+
           const link = document.createElement('a');
           link.download = `barcode-${barcodeId}.png`;
           link.href = canvas.toDataURL('image/png');
@@ -691,59 +667,58 @@
           <head>
             <title>Barcode - ${barcodeId}</title>
             <style nonce="{{ csp_nonce() }}">
-              body {
-                text-align: center;
-                padding: 30px 20px;
-                background: linear-gradient(135deg, #f0f9ff, #ffffff);
+              @page {
+                size: 40mm 20mm;
                 margin: 0;
-                font-family: 'Inter', sans-serif;
               }
-              .barcode-card {
+              body {
+                width: 40mm;
+                height: 20mm;
+                margin: 0;
+                padding: 0;
                 background: white;
-                border-radius: 40px;
-                padding: 30px;
-                box-shadow: 0 20px 40px rgba(6,214,160,0.2);
-                max-width: 500px;
-                margin: 0 auto;
-                border: 2px solid #06d6a0;
+                margin: 0;
+                font-family: Arial, sans-serif;
+              }
+              .barcode-label {
+                background: white;
+                width: 40mm;
+                height: 20mm;
+                box-sizing: border-box;
+                padding: 1.5mm;
+                display: flex;
+                flex-direction: column;
+                justify-content: space-between;
+                overflow: hidden;
               }
               .barcode-img {
-                width: 420px;
-                max-width: 96vw;
-                height: auto;
+                width: 100%;
+                height: 12mm;
                 display: block;
-                margin: 20px auto;
-                border-radius: 20px;
+                object-fit: contain;
               }
-              .meta {
-                margin-top: 20px;
-                font-size: 18px;
-                color: #1e293b;
+              .barcode-id {
+                height: 4mm;
+                line-height: 4mm;
+                text-align: center;
+                font-size: 2.6mm;
                 font-weight: 700;
-              }
-              .meta strong {
-                color: #b5179e;
-                background: #f0f0ff;
-                padding: 4px 12px;
-                border-radius: 30px;
-              }
-              h2 {
-                color: #06d6a0;
+                color: #000;
+                letter-spacing: 0.2mm;
+                white-space: nowrap;
               }
               @media print {
-                @page { margin: 8mm; }
-                body { padding: 0; background: white; }
-                .barcode-card { box-shadow: none; border: 1px solid #ccc; }
+                body {
+                  width: 40mm;
+                  height: 20mm;
+                }
               }
             </style>
           </head>
           <body>
-            <div class="barcode-card">
-              <h2>✨ SurveyPro Barcode ✨</h2>
+            <div class="barcode-label">
               <img class="barcode-img" src="${barcodeImg.src}" alt="Barcode" />
-              <div class="meta">🎯 Profile ID: <strong>${barcodeId}</strong></div>
-              <div class="meta">👤 Student Name: <strong>${studentName || '-'}</strong></div>
-              <div class="meta">📅 ${new Date().toLocaleDateString()}</div>
+              <div class="barcode-id">${barcodeId}</div>
             </div>
             
             <script nonce="{{ csp_nonce() }}">
