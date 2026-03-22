@@ -401,6 +401,13 @@ def build_linked_view_data():
             seen.add(pid)
             base_rows.append({"profile_id": pid, "profile_found": "yes"})
 
+    # Include responses even when profiles/linked rows are missing.
+    for r in responses:
+        pid = (r.get("profile_id", "") or "").strip().upper()
+        if pid and pid not in seen:
+            seen.add(pid)
+            base_rows.append({"profile_id": pid, "profile_found": "no"})
+
     merged = []
     for base in base_rows:
         row = dict(base)
@@ -410,14 +417,14 @@ def build_linked_view_data():
         row["profile_id"] = pid
 
         p = profile_map.get(pid, {})
+        resp = response_map.get(pid, {})
         row.setdefault("profile_found", "yes" if p else "no")
-        row.setdefault("name", p.get("name", ""))
-        row.setdefault("school", p.get("school", ""))
+        row.setdefault("name", p.get("name") or resp.get("participant_name", ""))
+        row.setdefault("school", p.get("school") or resp.get("school_anganwadi_name", ""))
         row.setdefault("class", p.get("class", ""))
         row.setdefault("section", p.get("section", ""))
 
         # Bring latest response fields into linked view
-        resp = response_map.get(pid, {})
         for k, v in resp.items():
             if k is None:
                 continue
@@ -461,6 +468,56 @@ def save_linked_rows(rows):
     normalized_rows = [{k: row.get(k, "") for k in fields} for row in rows]
     write_dict_list_to_csv(LINKED_CSV, normalized_rows, fields)
     update_linked_excel_file()
+
+
+def delete_profile_related_data(profile_id):
+    profile_id = (profile_id or "").strip().upper()
+    if not profile_id:
+        return False
+
+    deleted_any = False
+
+    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    if profiles:
+        profiles_new = [p for p in profiles if p.get("profile_id", "").strip().upper() != profile_id]
+        if len(profiles_new) != len(profiles):
+            write_dict_list_to_csv(PROFILE_CSV, profiles_new, PROFILE_FIELDS)
+            deleted_any = True
+
+    responses = normalize_response_storage()
+    if responses:
+        responses_new = [r for r in responses if r.get("profile_id", "").strip().upper() != profile_id]
+        if len(responses_new) != len(responses):
+            write_dict_list_to_csv(RESPONSE_CSV, responses_new, RESPONSE_FIELDS)
+            deleted_any = True
+
+    linked_rows = read_csv_as_dict_list(LINKED_CSV)
+    if linked_rows:
+        linked_new = [r for r in linked_rows if r.get("profile_id", "").strip().upper() != profile_id]
+        if len(linked_new) != len(linked_rows):
+            linked_fields = build_ordered_fieldnames(
+                linked_new,
+                preferred=[
+                    "profile_id", "profile_found", "name", "school", "class", "section",
+                    "horiba", "submitted_at", "response_id",
+                ],
+            ) if linked_new else [
+                "profile_id", "profile_found", "name", "school", "class", "section",
+                "horiba", "submitted_at", "response_id",
+            ]
+            write_dict_list_to_csv(LINKED_CSV, linked_new, linked_fields)
+            deleted_any = True
+
+    barcode_path = os.path.join(BARCODE_FOLDER, f"{profile_id}.png")
+    if os.path.exists(barcode_path):
+        os.remove(barcode_path)
+        deleted_any = True
+
+    if deleted_any:
+        update_excel_files()
+        update_linked_excel_file()
+
+    return deleted_any
 
 
 def _normalized_df_columns(df):
@@ -1034,7 +1091,7 @@ def admin_dashboard():
         return redirect(url_for("admin_login"))
     profiles = read_csv_as_dict_list(PROFILE_CSV)
     responses = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True))
-    linked = read_csv_as_dict_list(LINKED_CSV)
+    linked, _ = build_linked_view_data()
 
     profile_headers = list(profiles[0].keys()) if profiles else PROFILE_FIELDS
     response_headers = RESPONSE_FIELDS if responses else RESPONSE_FIELDS
@@ -1135,28 +1192,21 @@ def admin_delete_profile(profile_id):
         return redirect(url_for("admin_login"))
 
     profile_id = profile_id.strip().upper()
+    if not delete_profile_related_data(profile_id):
+        return "Profile not found"
+    return redirect(url_for("admin_profiles"))
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
-    profiles_new = [p for p in profiles if p.get("profile_id", "").strip().upper() != profile_id]
 
-    if profiles and len(profiles_new) == len(profiles):
+@app.route("/admin/delete-linked-profile/<profile_id>", methods=["POST"])
+def admin_delete_linked_profile(profile_id):
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    profile_id = profile_id.strip().upper()
+    if not delete_profile_related_data(profile_id):
         return "Profile not found"
 
-    write_dict_list_to_csv(PROFILE_CSV, profiles_new, PROFILE_FIELDS)
-
-    # delete responses of that profile
-    responses = normalize_response_storage()
-    if responses:
-        responses_new = [r for r in responses if r.get("profile_id", "").strip().upper() != profile_id]
-        write_dict_list_to_csv(RESPONSE_CSV, responses_new, RESPONSE_FIELDS)
-
-    # delete barcode image
-    barcode_path = os.path.join(BARCODE_FOLDER, f"{profile_id}.png")
-    if os.path.exists(barcode_path):
-        os.remove(barcode_path)
-
-    update_excel_files()
-    return redirect(url_for("admin_profiles"))
+    return redirect(url_for("admin_link_excel"))
 
 
 # --------------------------------------------------
