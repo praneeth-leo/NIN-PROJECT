@@ -423,6 +423,7 @@ def build_linked_view_data():
         row.setdefault("school", p.get("school") or resp.get("school_anganwadi_name", ""))
         row.setdefault("class", p.get("class", ""))
         row.setdefault("section", p.get("section", ""))
+        row.setdefault("horiba", "")
 
         # Bring latest response fields into linked view
         for k, v in resp.items():
@@ -439,16 +440,16 @@ def build_linked_view_data():
         merged.append(row)
 
     # Ensure key machine columns are always visible
-    preferred_order = [
+    preferred_prefix = [
         "profile_id", "profile_found", "name", "school", "class", "section",
-        "horiba",
         "submitted_at", "response_id",
     ]
     all_keys = set()
     for r in merged:
         all_keys.update(r.keys())
-    extra_keys = [k for k in sorted(all_keys) if k not in preferred_order]
-    headers = [k for k in preferred_order if k in all_keys] + extra_keys
+    all_keys.add("horiba")
+    extra_keys = [k for k in sorted(all_keys) if k not in preferred_prefix and k != "horiba"]
+    headers = [k for k in preferred_prefix if k in all_keys] + extra_keys + ["horiba"]
 
     normalized = []
     for r in merged:
@@ -462,7 +463,7 @@ def save_linked_rows(rows):
         rows,
         preferred=[
             "profile_id", "profile_found", "name", "school", "class", "section",
-            "horiba", "submitted_at", "response_id",
+            "submitted_at", "response_id", "horiba",
         ],
     )
     normalized_rows = [{k: row.get(k, "") for k in fields} for row in rows]
@@ -499,11 +500,11 @@ def delete_profile_related_data(profile_id):
                 linked_new,
                 preferred=[
                     "profile_id", "profile_found", "name", "school", "class", "section",
-                    "horiba", "submitted_at", "response_id",
+                    "submitted_at", "response_id", "horiba",
                 ],
             ) if linked_new else [
                 "profile_id", "profile_found", "name", "school", "class", "section",
-                "horiba", "submitted_at", "response_id",
+                "submitted_at", "response_id", "horiba",
             ]
             write_dict_list_to_csv(LINKED_CSV, linked_new, linked_fields)
             deleted_any = True

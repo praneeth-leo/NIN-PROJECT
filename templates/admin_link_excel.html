@@ -688,7 +688,7 @@
 
         <!-- Export Dropdown -->
         <div class="dropdown">
-          <div class="action-btn btn-export" id="exportBtn" onclick="toggleDropdown()">
+          <div class="action-btn btn-export" id="exportBtn" role="button" tabindex="0" aria-expanded="false">
             <i class="fas fa-download"></i> Export Data <span class="caret" id="caret">▼</span>
           </div>
           <div class="dropdown-content" id="exportDropdown">
@@ -787,10 +787,31 @@
   <script nonce="{{ csp_nonce() }}">
     function toggleDropdown() {
       const dropdown = document.getElementById("exportDropdown");
+      const exportBtn = document.getElementById("exportBtn");
       const caret = document.getElementById("caret");
       dropdown.classList.toggle("show");
+      if (exportBtn) {
+        exportBtn.setAttribute("aria-expanded", dropdown.classList.contains("show") ? "true" : "false");
+      }
       caret.style.transform = dropdown.classList.contains("show") ? "rotate(180deg)" : "rotate(0deg)";
     }
+
+    document.addEventListener("DOMContentLoaded", function () {
+      const exportBtn = document.getElementById("exportBtn");
+      if (exportBtn) {
+        exportBtn.addEventListener("click", function (event) {
+          event.stopPropagation();
+          toggleDropdown();
+        });
+        exportBtn.addEventListener("keydown", function (event) {
+          if (event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            event.stopPropagation();
+            toggleDropdown();
+          }
+        });
+      }
+    });
 
     // Close dropdown when clicking outside
     window.onclick = function (event) {
@@ -801,7 +822,9 @@
           if (openDropdown.classList.contains('show')) {
             openDropdown.classList.remove('show');
             const caret = document.getElementById("caret");
+            const exportBtn = document.getElementById("exportBtn");
             if (caret) caret.style.transform = "rotate(0deg)";
+            if (exportBtn) exportBtn.setAttribute("aria-expanded", "false");
           }
         }
       }
