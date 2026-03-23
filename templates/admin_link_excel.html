@@ -675,6 +675,7 @@
         <b>barcode</b>
         <b>barcode_id</b>
         <b>student_barcode</b>
+        <b>sampleid</b>
         <b>horiba</b>
         <i class="fas fa-tag" style="margin-left: 4px;"></i>
       </div>
@@ -742,7 +743,7 @@
               <tr>
                 <th>Actions</th>
                 {% for key in headers %}
-                <th>{{ key.replace('_', ' ').title() }}</th>
+                <th>{{ key if key|upper == key else key.replace('_', ' ').title() }}</th>
                 {% endfor %}
               </tr>
             </thead>

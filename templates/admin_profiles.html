@@ -703,7 +703,7 @@
                 <!-- Barcode cell with image -->
                 <td class="barcode-cell">
                   <img class="barcode-img" 
-                       src="{{ url_for('static', filename='barcodes/' + row['profile_id'] + '.png') }}" 
+                       src="{{ url_for('static', filename=row.get('barcode_path') or ('barcodes/' + row['profile_id'] + '.png')) }}" 
                        alt="Barcode for {{ row['profile_id'] }}"
                        onerror="this.onerror=null; this.style.opacity='0.45'; this.style.filter='grayscale(1)';">
                   <div class="barcode-id">{{ row['profile_id'] }}</div>

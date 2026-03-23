@@ -194,6 +194,48 @@ def extract_response_question_fields():
 
 RESPONSE_FORM_FIELDS = extract_response_question_fields()
 RESPONSE_FIELDS = RESPONSE_METADATA_FIELDS + RESPONSE_FORM_FIELDS
+HORIBA_RESULT_FIELDS = [
+    "MPV",
+    "PDW",
+    "PLT",
+    "THT",
+    "HCT",
+    "HGB",
+    "MCH",
+    "MCHC",
+    "MCV",
+    "RBC",
+    "RDW",
+    "RDW_SD",
+    "GRA#",
+    "GRA%",
+    "LYM#",
+    "LYM%",
+    "MON#",
+    "MON%",
+    "WBC",
+]
+HORIBA_UPLOAD_FIELD_MAP = {
+    "mpv": "MPV",
+    "pdw": "PDW",
+    "plt": "PLT",
+    "tht": "THT",
+    "hct": "HCT",
+    "hgb": "HGB",
+    "mch": "MCH",
+    "mchc": "MCHC",
+    "mcv": "MCV",
+    "rbc": "RBC",
+    "rdw": "RDW",
+    "rdw_sd": "RDW_SD",
+    "gra_num": "GRA#",
+    "gra_pct": "GRA%",
+    "lym_num": "LYM#",
+    "lym_pct": "LYM%",
+    "mon_num": "MON#",
+    "mon_pct": "MON%",
+    "wbc": "WBC",
+}
 
 
 # --------------------------------------------------
@@ -285,8 +327,19 @@ def write_dict_list_to_csv(path, rows, fieldnames):
             writer.writerow(r)
 
 
+def sync_response_identifiers(row):
+    profile_id = (row.get("profile_id", "") or "").strip().upper()
+    if not profile_id:
+        return row
+    row["profile_id"] = profile_id
+    row["study_id"] = profile_id
+    row["child_id_code"] = profile_id
+    return row
+
+
 def sanitize_response_row(row):
     clean_row = {key: row.get(key, "") for key in RESPONSE_FIELDS}
+    clean_row = sync_response_identifiers(clean_row)
     if not (clean_row.get("response_id", "") or "").strip():
         clean_row["response_id"] = str(uuid.uuid4())
     return clean_row
@@ -415,6 +468,8 @@ def build_linked_view_data():
         if not pid:
             continue
         row["profile_id"] = pid
+        row["study_id"] = pid
+        row["child_id_code"] = pid
 
         p = profile_map.get(pid, {})
         resp = response_map.get(pid, {})
@@ -424,6 +479,8 @@ def build_linked_view_data():
         row.setdefault("class", p.get("class", ""))
         row.setdefault("section", p.get("section", ""))
         row.setdefault("horiba", "")
+        for field in HORIBA_RESULT_FIELDS:
+            row.setdefault(field, "")
 
         # Bring latest response fields into linked view
         for k, v in resp.items():
@@ -448,8 +505,11 @@ def build_linked_view_data():
     for r in merged:
         all_keys.update(r.keys())
     all_keys.add("horiba")
-    extra_keys = [k for k in sorted(all_keys) if k not in preferred_prefix and k != "horiba"]
-    headers = [k for k in preferred_prefix if k in all_keys] + extra_keys + ["horiba"]
+    for field in HORIBA_RESULT_FIELDS:
+        all_keys.add(field)
+    trailing_fields = ["horiba"] + HORIBA_RESULT_FIELDS
+    extra_keys = [k for k in sorted(all_keys) if k not in preferred_prefix and k not in trailing_fields]
+    headers = [k for k in preferred_prefix if k in all_keys] + extra_keys + [k for k in trailing_fields if k in all_keys]
 
     normalized = []
     for r in merged:
@@ -459,14 +519,21 @@ def build_linked_view_data():
 
 
 def save_linked_rows(rows):
-    fields = build_ordered_fieldnames(
-        rows,
-        preferred=[
-            "profile_id", "profile_found", "name", "school", "class", "section",
-            "submitted_at", "response_id", "horiba",
-        ],
-    )
-    normalized_rows = [{k: row.get(k, "") for k in fields} for row in rows]
+    preferred_prefix = [
+        "profile_id", "profile_found", "name", "school", "class", "section",
+        "submitted_at", "response_id",
+    ]
+    trailing_fields = ["horiba"] + HORIBA_RESULT_FIELDS
+    all_fields = build_ordered_fieldnames(rows)
+    extra_fields = [field for field in all_fields if field not in preferred_prefix and field not in trailing_fields]
+    fields = [field for field in preferred_prefix if field in all_fields] + extra_fields + [
+        field for field in trailing_fields if field in all_fields
+    ]
+    normalized_rows = []
+    for row in rows:
+        normalized_row = {k: row.get(k, "") for k in fields}
+        normalized_row = sync_response_identifiers(normalized_row)
+        normalized_rows.append(normalized_row)
     write_dict_list_to_csv(LINKED_CSV, normalized_rows, fields)
     update_linked_excel_file()
 
@@ -524,7 +591,21 @@ def delete_profile_related_data(profile_id):
 def _normalized_df_columns(df):
     normalized = []
     for col in df.columns:
-        key = str(col).strip().lower()
+        raw_col = str(col).strip()
+        raw_compact = re.sub(r"\s+", "", raw_col).upper()
+        special_map = {
+            "GRA#": "gra_num",
+            "GRA%": "gra_pct",
+            "LYM#": "lym_num",
+            "LYM%": "lym_pct",
+            "MON#": "mon_num",
+            "MON%": "mon_pct",
+        }
+        if raw_compact in special_map:
+            normalized.append(special_map[raw_compact])
+            continue
+
+        key = raw_col.lower()
         key = re.sub(r"\s+", "_", key)
         key = re.sub(r"[^a-z0-9_]", "", key)
         normalized.append(key)
@@ -533,7 +614,7 @@ def _normalized_df_columns(df):
 
 
 def _find_profile_id_column(df):
-    for candidate in ["profile_id", "barcode", "barcode_id", "participant_id", "id"]:
+    for candidate in ["profile_id", "barcode", "barcode_id", "participant_id", "sampleid", "sample_id", "id"]:
         if candidate in df.columns:
             return candidate
     return None
@@ -640,6 +721,21 @@ def generate_barcode(profile_id):
     return f"barcodes/{profile_id}.png"
 
 
+def ensure_barcode_image(profile_id):
+    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    if not pid:
+        return ""
+    barcode_file = f"{pid}.png"
+    barcode_fs_path = os.path.join(BARCODE_FOLDER, barcode_file)
+    if not os.path.exists(barcode_fs_path):
+        try:
+            os.makedirs(BARCODE_FOLDER, exist_ok=True)
+            generate_barcode(pid)
+        except Exception:
+            return ""
+    return f"barcodes/{barcode_file}" if os.path.exists(barcode_fs_path) else ""
+
+
 # --------------------------------------------------
 # USER SECTION
 # --------------------------------------------------
@@ -728,9 +824,7 @@ def profile_details():
     if not profile:
         return render_template("login.html", error="Profile not found for scanned barcode.")
 
-    barcode_file = f"{profile_id}.png"
-    barcode_fs_path = os.path.join(BARCODE_FOLDER, barcode_file)
-    barcode_path = f"barcodes/{barcode_file}" if os.path.exists(barcode_fs_path) else ""
+    barcode_path = ensure_barcode_image(profile_id)
 
     return render_template(
         "profile_details.html",
@@ -756,9 +850,7 @@ def profile_details_by_id(profile_id):
     if not profile:
         return render_template("login.html", error=f"Profile not found for Barcode ID: {pid}")
 
-    barcode_file = f"{pid}.png"
-    barcode_fs_path = os.path.join(BARCODE_FOLDER, barcode_file)
-    barcode_path = f"barcodes/{barcode_file}" if os.path.exists(barcode_fs_path) else ""
+    barcode_path = ensure_barcode_image(pid)
 
     return render_template(
         "profile_details.html",
@@ -989,7 +1081,8 @@ def resume_profile(profile_id):
 
 @app.route("/section-status")
 def section_status():
-    if not session.get("profile_id"):
+    current_profile_id = (session.get("profile_id", "") or "").strip().upper()
+    if not current_profile_id:
         return redirect(url_for("login"))
 
     section_keys = {
@@ -1015,7 +1108,12 @@ def section_status():
             latest_response_by_profile[pid] = row
 
     rows = []
-    for idx, p in enumerate(profiles, start=1):
+    selected_profiles = [
+        p for p in profiles
+        if (p.get("profile_id", "") or "").strip().upper() == current_profile_id
+    ]
+
+    for idx, p in enumerate(selected_profiles, start=1):
         pid = (p.get("profile_id", "") or "").strip().upper()
         response = latest_response_by_profile.get(pid, {})
         statuses = {letter: _section_status(response, keys) for letter, keys in section_keys.items()}
@@ -1028,7 +1126,7 @@ def section_status():
     return render_template(
         "section_status.html",
         rows=rows,
-        current_profile_id=session.get("profile_id", "").strip().upper(),
+        current_profile_id=current_profile_id,
         section_letters=["A", "B", "C", "D", "E", "F", "G", "H", "I", "J"],
         section_labels={
             "A": {
@@ -1058,6 +1156,7 @@ def section_status():
 @app.route("/logout")
 def logout():
     session.pop("profile_id", None)
+    session.pop("scanned_profile", None)
     return redirect(url_for("login"))
 
 
@@ -1138,6 +1237,9 @@ def admin_profiles():
 
     if q:
         data = [r for r in data if r.get("profile_id", "").strip().upper() == q]
+
+    for row in data:
+        row["barcode_path"] = ensure_barcode_image(row.get("profile_id", ""))
 
     return render_template("admin_profiles.html", data=data, q=q)
 
@@ -1292,6 +1394,7 @@ def admin_edit_response(response_id):
             if key == "response_id":
                 continue
             response_row[key] = request.form.get(key, response_row.get(key, "")).strip()
+        response_row = sync_response_identifiers(response_row)
 
         write_dict_list_to_csv(RESPONSE_CSV, responses, RESPONSE_FIELDS)
 
@@ -1447,9 +1550,14 @@ def horiba():
             df = _normalized_df_columns(df)
             profile_col = _find_profile_id_column(df)
             value_col = _find_machine_value_column(df, "horiba", profile_col) if profile_col else None
+            horiba_result_cols = {
+                source_col: target_col
+                for source_col, target_col in HORIBA_UPLOAD_FIELD_MAP.items()
+                if source_col in df.columns
+            }
 
-            if not profile_col or not value_col:
-                flash("Error: Required columns missing. Need profile_id/barcode and horiba value column")
+            if not profile_col or (not value_col and not horiba_result_cols):
+                flash("Error: Required columns missing. Need profile_id/barcode/sampleid and Horiba result columns")
                 return redirect(url_for("horiba"))
 
             linked_rows, _ = build_linked_view_data()
@@ -1461,13 +1569,29 @@ def horiba():
                 pid = str(raw.get(profile_col, "")).strip().upper()
                 if not pid or pid == "NAN":
                     continue
-                val = raw.get(value_col)
-                if pd.isna(val):
-                    continue
                 if pid in row_map:
-                    row_map[pid]["horiba"] = str(val).strip()
-                    updates += 1
-                    changed_ids.append(pid)
+                    changed = False
+
+                    if horiba_result_cols:
+                        for source_col, target_col in horiba_result_cols.items():
+                            val = raw.get(source_col)
+                            if pd.isna(val):
+                                continue
+                            row_map[pid][target_col] = str(val).strip()
+                            changed = True
+                        if "hgb" in horiba_result_cols:
+                            hgb_val = raw.get("hgb")
+                            if not pd.isna(hgb_val):
+                                row_map[pid]["horiba"] = str(hgb_val).strip()
+                    elif value_col:
+                        val = raw.get(value_col)
+                        if not pd.isna(val):
+                            row_map[pid]["horiba"] = str(val).strip()
+                            changed = True
+
+                    if changed:
+                        updates += 1
+                        changed_ids.append(pid)
 
             if updates > 0:
                 save_linked_rows(list(row_map.values()))
