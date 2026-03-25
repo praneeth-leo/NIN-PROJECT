@@ -141,6 +141,7 @@ BARCODE_DPI = 300
 # ✅ UPDATED: dob + age_full added
 PROFILE_FIELDS = [
     "profile_id",
+    "created_at",
     "name",
     "surname",
     "dob",
@@ -287,11 +288,18 @@ def append_investigator_audit(event, details):
 def update_excel_files():
     try:
         if os.path.exists(PROFILE_CSV):
-            profile_df = pd.read_csv(PROFILE_CSV, dtype=str, keep_default_na=False, encoding="utf-8-sig")
+            normalized_profiles = sort_profile_rows_by_created_at(
+                normalize_profile_storage(write_back=True),
+                newest_first=True,
+            )
+            profile_df = pd.DataFrame(normalized_profiles, columns=PROFILE_FIELDS).fillna("")
             with pd.ExcelWriter(PROFILE_XLSX, engine="openpyxl") as writer:
                 profile_df.to_excel(writer, sheet_name="Profiles", index=False)
         if os.path.exists(RESPONSE_CSV):
-            normalized_rows = normalize_response_storage(write_back=True)
+            normalized_rows = sort_response_rows_by_submitted_at(
+                normalize_response_storage(write_back=True),
+                newest_first=True,
+            )
             response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
             with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
                 response_df.to_excel(writer, sheet_name="Responses", index=False)
@@ -331,6 +339,36 @@ def write_dict_list_to_csv(path, rows, fieldnames):
             writer.writerow(r)
 
 
+def sanitize_profile_row(row, fallback_created_at=""):
+    clean_row = {key: row.get(key, "") for key in PROFILE_FIELDS}
+    created_at = (clean_row.get("created_at", "") or "").strip()
+    if not created_at:
+        clean_row["created_at"] = fallback_created_at
+    return clean_row
+
+
+def normalize_profile_storage(rows=None, write_back=False):
+    profile_rows = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
+    response_rows = sort_response_rows_by_submitted_at(normalize_response_storage())
+    earliest_response_by_profile = {}
+
+    for row in response_rows:
+        profile_id = (row.get("profile_id", "") or "").strip().upper()
+        submitted_at = (row.get("submitted_at", "") or "").strip()
+        if profile_id and submitted_at and profile_id not in earliest_response_by_profile:
+            earliest_response_by_profile[profile_id] = submitted_at
+
+    normalized_rows = []
+    for row in profile_rows:
+        profile_id = (row.get("profile_id", "") or "").strip().upper()
+        fallback_created_at = earliest_response_by_profile.get(profile_id, "")
+        normalized_rows.append(sanitize_profile_row(row, fallback_created_at=fallback_created_at))
+
+    if write_back:
+        write_dict_list_to_csv(PROFILE_CSV, normalized_rows, PROFILE_FIELDS)
+    return normalized_rows
+
+
 def find_profile_by_id(profile_id, rows=None):
     pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
     if not pid:
@@ -343,6 +381,24 @@ def find_profile_by_id(profile_id, rows=None):
     return None
 
 
+def profile_display_name(profile):
+    return f"{(profile.get('name', '') or '').strip()} {(profile.get('surname', '') or '').strip()}".strip()
+
+
+def bind_response_identity_from_profile(row, profile):
+    if not profile:
+        return row
+    row["profile_id"] = (profile.get("profile_id", "") or row.get("profile_id", "") or "").strip().upper()
+    row["study_id"] = row["profile_id"]
+    row["child_id_code"] = row["profile_id"]
+    row["participant_name"] = profile_display_name(profile)
+    row["dob"] = (profile.get("dob", "") or "").strip()
+    row["sex"] = (profile.get("gender", "") or "").strip()
+    row["school_anganwadi_name"] = (profile.get("school", "") or "").strip()
+    row["location_type"] = (profile.get("location", "") or "").strip()
+    return row
+
+
 def sync_response_identifiers(row):
     profile_id = (row.get("profile_id", "") or "").strip().upper()
     if not profile_id:
@@ -353,9 +409,14 @@ def sync_response_identifiers(row):
     return row
 
 
-def sanitize_response_row(row):
+def sanitize_response_row(row, profile_lookup=None):
     clean_row = {key: row.get(key, "") for key in RESPONSE_FIELDS}
     clean_row = sync_response_identifiers(clean_row)
+    profile_id = (clean_row.get("profile_id", "") or "").strip().upper()
+    if profile_id and profile_lookup:
+        profile = profile_lookup.get(profile_id)
+        if profile:
+            clean_row = bind_response_identity_from_profile(clean_row, profile)
     if not (clean_row.get("response_id", "") or "").strip():
         clean_row["response_id"] = str(uuid.uuid4())
     return clean_row
@@ -363,22 +424,59 @@ def sanitize_response_row(row):
 
 def normalize_response_storage(rows=None, write_back=False):
     response_rows = rows if rows is not None else read_csv_as_dict_list(RESPONSE_CSV)
-    normalized_rows = [sanitize_response_row(row) for row in response_rows]
+    profile_lookup = {}
+    for profile in read_csv_as_dict_list(PROFILE_CSV):
+        profile_id = re.sub(r"[^A-Za-z0-9]", "", (profile.get("profile_id", "") or "")).upper()
+        if profile_id:
+            profile_lookup[profile_id] = profile
+    normalized_rows = [sanitize_response_row(row, profile_lookup=profile_lookup) for row in response_rows]
     if write_back:
         write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
     return normalized_rows
 
 
 def sort_response_rows_by_submitted_at(rows, newest_first=False):
-    def sort_key(row):
+    dated_rows = []
+    undated_rows = []
+
+    for row in rows:
         submitted_at = (row.get("submitted_at", "") or "").strip()
         try:
             parsed = datetime.strptime(submitted_at, "%Y-%m-%d %H:%M:%S")
-            return (0, parsed)
+            dated_rows.append((parsed, row))
         except ValueError:
-            return (1, submitted_at.casefold())
+            undated_rows.append(row)
 
-    return sorted(rows, key=sort_key, reverse=newest_first)
+    dated_rows.sort(key=lambda item: item[0], reverse=newest_first)
+    undated_rows.sort(
+        key=lambda row: (
+            (row.get("submitted_at", "") or "").strip().casefold(),
+            (row.get("profile_id", "") or "").strip().casefold(),
+        )
+    )
+    return [row for _, row in dated_rows] + undated_rows
+
+
+def sort_profile_rows_by_created_at(rows, newest_first=False):
+    dated_rows = []
+    undated_rows = []
+
+    for row in rows:
+        created_at = (row.get("created_at", "") or "").strip()
+        try:
+            parsed = datetime.strptime(created_at, "%Y-%m-%d %H:%M:%S")
+            dated_rows.append((parsed, row))
+        except ValueError:
+            undated_rows.append(row)
+
+    dated_rows.sort(key=lambda item: item[0], reverse=newest_first)
+    undated_rows.sort(
+        key=lambda row: (
+            (row.get("created_at", "") or "").strip().casefold(),
+            (row.get("profile_id", "") or "").strip().casefold(),
+        )
+    )
+    return [row for _, row in dated_rows] + undated_rows
 
 
 def deduplicate_response_rows(rows):
@@ -430,7 +528,7 @@ def build_ordered_fieldnames(rows, preferred=None):
 
 
 def build_linked_view_data():
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles = normalize_profile_storage(write_back=True)
     linked_rows = read_csv_as_dict_list(LINKED_CSV)
     responses = normalize_response_storage()
 
@@ -561,7 +659,7 @@ def delete_profile_related_data(profile_id):
 
     deleted_any = False
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles = normalize_profile_storage(write_back=True)
     if profiles:
         profiles_new = [p for p in profiles if p.get("profile_id", "").strip().upper() != profile_id]
         if len(profiles_new) != len(profiles):
@@ -724,7 +822,7 @@ def generate_profile_id(name, surname, dob, gender, school, location):
 
 def generate_unique_profile_id(name, surname, dob, gender, school, location, existing_rows=None):
     base_id = generate_profile_id(name, surname, dob, gender, school, location)
-    rows = existing_rows if existing_rows is not None else read_csv_as_dict_list(PROFILE_CSV)
+    rows = existing_rows if existing_rows is not None else normalize_profile_storage(write_back=True)
     existing_ids = {
         re.sub(r"[^A-Za-z0-9]", "", (row.get("profile_id", "") or "")).upper()
         for row in rows
@@ -897,6 +995,7 @@ def profile():
 
         profile_row = {
             "profile_id": "",
+            "created_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
             "name": form.get("name", "").strip(),
             "surname": form.get("surname", "").strip(),
             "dob": form.get("dob", "").strip(),
@@ -918,7 +1017,7 @@ def profile():
         if profile_exists(profile_row):
             return "Profile already exists. Please use the existing participant barcode/profile."
 
-        existing_rows = read_csv_as_dict_list(PROFILE_CSV)
+        existing_rows = normalize_profile_storage(write_back=True)
 
         profile_id = generate_unique_profile_id(
             profile_row["name"],
@@ -954,6 +1053,11 @@ def form():
     profile_id = session.get("profile_id")
     investigator_username = (session.get("investigator_username") or "").strip()
     if not profile_id:
+        return redirect(url_for("login"))
+    profile = find_profile_by_id(profile_id)
+    if not profile:
+        session.pop("profile_id", None)
+        session.pop("scanned_profile", None)
         return redirect(url_for("login"))
     if not investigator_required():
         return redirect(url_for("investigator_login", next=url_for("form")))
@@ -1006,6 +1110,7 @@ def form():
 
         answers["profile_id"] = profile_id
         answers["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        answers = bind_response_identity_from_profile(answers, profile)
 
         existing_rows = normalize_response_storage()
         existing_row = None
@@ -1033,11 +1138,6 @@ def form():
             flash("Progress saved successfully.", "success")
             return redirect(url_for("form"))
         return redirect(url_for("dashboard"))
-
-    profile = find_profile_by_id(profile_id)
-
-    if not profile:
-        return redirect(url_for("login"))
 
     responses = normalize_response_storage(write_back=True)
     saved_answers = {}
@@ -1114,7 +1214,7 @@ def section_status():
         "J": ["child_classification", "ifa_dose", "referral_advised", "investigator_name", "referral_date"],
     }
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles = normalize_profile_storage(write_back=True)
     responses = normalize_response_storage()
 
     latest_response_by_profile = {}
@@ -1205,8 +1305,8 @@ def admin_login():
 def admin_dashboard():
     if not admin_required():
         return redirect(url_for("admin_login"))
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
-    responses = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True))
+    profiles = sort_profile_rows_by_created_at(normalize_profile_storage(write_back=True), newest_first=True)
+    responses = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True), newest_first=True)
     linked, _ = build_linked_view_data()
 
     profile_headers = list(profiles[0].keys()) if profiles else PROFILE_FIELDS
@@ -1249,7 +1349,7 @@ def admin_profiles():
         return redirect(url_for("admin_login"))
 
     q = request.args.get("q", "").strip().upper()
-    data = read_csv_as_dict_list(PROFILE_CSV)
+    data = sort_profile_rows_by_created_at(normalize_profile_storage(write_back=True), newest_first=True)
 
     if q:
         data = [r for r in data if r.get("profile_id", "").strip().upper() == q]
@@ -1268,7 +1368,7 @@ def admin_responses():
     if not admin_required():
         return redirect(url_for("admin_login"))
 
-    data = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True))
+    data = sort_response_rows_by_submitted_at(normalize_response_storage(write_back=True), newest_first=True)
     if not data:
         return render_template("admin_responses.html", data=[], q="", headers=RESPONSE_FIELDS)
 
@@ -1356,7 +1456,7 @@ def admin_edit_profile(profile_id):
         return redirect(url_for("admin_login"))
 
     profile_id = profile_id.strip().upper()
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles = normalize_profile_storage(write_back=True)
 
     profile_row = None
     for p in profiles:
@@ -1431,12 +1531,13 @@ def admin_export_filtered(profile_id):
     profile_id = profile_id.strip().upper()
     os.makedirs(EXPORT_FOLDER, exist_ok=True)
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
+    profiles = normalize_profile_storage(write_back=True)
     responses = normalize_response_storage()
 
     profiles_f = [p for p in profiles if p.get("profile_id", "").strip().upper() == profile_id]
     responses_f = sort_response_rows_by_submitted_at(
-        [r for r in responses if r.get("profile_id", "").strip().upper() == profile_id]
+        [r for r in responses if r.get("profile_id", "").strip().upper() == profile_id],
+        newest_first=True,
     )
 
     export_path = os.path.join(EXPORT_FOLDER, f"filtered_{profile_id}.xlsx")
@@ -1473,7 +1574,8 @@ def admin_download(filename):
     if not os.path.exists(path):
         return "File not found"
 
-    if filename in ["responses.csv", "responses.xlsx"]:
+    if filename in ["profiles.csv", "profiles.xlsx", "responses.csv", "responses.xlsx"]:
+        normalize_profile_storage(write_back=True)
         normalize_response_storage(write_back=True)
         update_excel_files()
 
