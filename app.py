@@ -296,10 +296,7 @@ def update_excel_files():
             with pd.ExcelWriter(PROFILE_XLSX, engine="openpyxl") as writer:
                 profile_df.to_excel(writer, sheet_name="Profiles", index=False)
         if os.path.exists(RESPONSE_CSV):
-            normalized_rows = sort_response_rows_by_submitted_at(
-                normalize_response_storage(write_back=True),
-                newest_first=True,
-            )
+            normalized_rows = rewrite_responses_in_submitted_order(newest_first=False)
             response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
             with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
                 response_df.to_excel(writer, sheet_name="Responses", index=False)
@@ -433,6 +430,15 @@ def normalize_response_storage(rows=None, write_back=False):
     if write_back:
         write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
     return normalized_rows
+
+
+def rewrite_responses_in_submitted_order(newest_first=False):
+    sorted_rows = sort_response_rows_by_submitted_at(
+        normalize_response_storage(),
+        newest_first=newest_first,
+    )
+    write_dict_list_to_csv(RESPONSE_CSV, sorted_rows, RESPONSE_FIELDS)
+    return sorted_rows
 
 
 def sort_response_rows_by_submitted_at(rows, newest_first=False):
