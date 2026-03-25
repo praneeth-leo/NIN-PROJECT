@@ -1,18 +1,18 @@
 profile_id,created_at,name,surname,dob,age,age_full,gender,school,location,class,section
-AK140920MATN,2026-03-13 10:28:06,Ankith,,2020-09-14,5,5 years 5 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
-MP100821FVVS,,MedhaSree,,2021-08-10,4,4 years 6 months 27 days,Female,Vedic Vidyalayam High School,Urban,,
-SS121120FVVS,,SHANMUKHA,,2020-11-12,5,5 years 3 months 25 days,Female,VEDIC VIDYALAYAM HUGH SCHOOL,Urban,,
-SM130122FVVS,,SATHWIKA,,2022-01-13,4,4 years 1 months 24 days,Female,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
-RM290322FVVS,,Rajasvi,,2022-03-29,3,3 years 11 months 8 days,Female,Vedic Vidyalayam High School,Urban,,
-JD310521MVVS,,JASHWANTH,,2021-05-31,4,4 years 9 months 6 days,Male,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
-PS060722FVVS,,Pujya Shree,,2022-07-06,3,3 years 8 months 3 days,Female,Vedic Vidyalayam High School,Urban,,
-AM230123FVVS,,ANJANA DEVI,,2023-01-23,3,3 years 1 months 14 days,Female,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
-GM160722MVVS,,Ganadeep,,2022-07-16,3,3 years 7 months 21 days,Male,Vedic Vidyalayam High School,Urban,,
-PJ290822MVVS,,Puneet,,2022-08-29,3,3 years 6 months 8 days,Male,Vedic Vidyalayam High School,Urban,,
+AK140920MATN,2026-03-13 09:58:33,Ankith,,2020-09-14,5,5 years 5 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+MP100821FVVS,2026-03-09 10:29:03,MedhaSree,,2021-08-10,4,4 years 6 months 27 days,Female,Vedic Vidyalayam High School,Urban,,
+SS121120FVVS,2026-03-09 10:36:10,SHANMUKHA,,2020-11-12,5,5 years 3 months 25 days,Female,VEDIC VIDYALAYAM HUGH SCHOOL,Urban,,
+SM130122FVVS,2026-03-09 10:40:20,SATHWIKA,,2022-01-13,4,4 years 1 months 24 days,Female,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
+RM290322FVVS,2026-03-09 10:46:37,Rajasvi,,2022-03-29,3,3 years 11 months 8 days,Female,Vedic Vidyalayam High School,Urban,,
+JD310521MVVS,2026-03-09 11:03:44,JASHWANTH,,2021-05-31,4,4 years 9 months 6 days,Male,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
+PS060722FVVS,2026-03-09 11:14:27,Pujya Shree,,2022-07-06,3,3 years 8 months 3 days,Female,Vedic Vidyalayam High School,Urban,,
+AM230123FVVS,2026-03-09 11:10:10,ANJANA DEVI,,2023-01-23,3,3 years 1 months 14 days,Female,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
+GM160722MVVS,2026-03-09 10:50:55,Ganadeep,,2022-07-16,3,3 years 7 months 21 days,Male,Vedic Vidyalayam High School,Urban,,
+PJ290822MVVS,2026-03-09 10:54:01,Puneet,,2022-08-29,3,3 years 6 months 8 days,Male,Vedic Vidyalayam High School,Urban,,
 RM220222FVVS,2026-03-09 11:29:40,Rohshikaa,,2022-02-22,4,4 years 0 months 15 days,Female,Vedic Vidyalayam High School,Urban,,
-SM210820MVVS,,SHIVANSH,,2020-08-21,5,5 years 6 months 16 days,Male,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
+SM210820MVVS,2026-03-09 10:57:27,SHIVANSH,,2020-08-21,5,5 years 6 months 16 days,Male,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
 VM170921MVVS,2026-03-09 11:23:26,VIRAAJ JAI NANDA,,2021-09-17,4,4 years 5 months 20 days,Male,VEDIC VIDYALAYAM HIGH SCHOOL,Urban,,
-AP050222MVVS,,Adwith Yadav,,2022-02-05,4,4 years 1 months 4 days,Male,Vedic Vidyalayam High School,Urban,,
+AP050222MVVS,2026-03-09 11:00:28,Adwith Yadav,,2022-02-05,4,4 years 1 months 4 days,Male,Vedic Vidyalayam High School,Urban,,
 HT040921MVVS,2026-03-09 11:32:08,Hanshith,,2021-09-04,4,4 years 6 months 5 days,Male,Vedic Vidyalayam High School,Urban,,
 RK181020MVVS,2026-03-09 11:22:04,Rohit,,2020-10-18,5,5 years 4 months 19 days,Male,Vedic Vidyalayam High School,Urban,,
 YM280122MVVS,2026-03-09 11:39:53,Yokshith Vagdev,,2022-01-28,4,4 years 1 months 9 days,Male,Vedic Vidyalayam High School,Urban,,
@@ -114,11 +114,15 @@ KS190123FSSN,2026-03-12 12:40:13,Kruthi,,2023-01-19,3,3 years 1 months 21 days,F
 NK290421MSSN,2026-03-12 12:42:53,Nihanth,,2021-04-29,4,4 years 10 months 11 days,Male,Sree Saraswathi school,Urban,,
 RK300620FSSN,2026-03-12 12:46:09,Rishika,,2020-06-30,5,5 years 8 months 10 days,Female,SHIRDI SAI BABA HIGH SCHOOL,Urban,,
 HK170820FSSN,2026-03-12 12:50:53,Hiranmai,,2020-08-17,5,5 years 6 months 23 days,Female,Shridi Sai Baba School,Urban,,
-SG071121FATN,2026-03-13 10:18:55,Sejal,,2021-11-07,4,4 years 4 months 6 days,Female,Amaravathi Talent School,Urban,,
-AK141221MATN,2026-03-13 11:04:39,Afan,,2021-12-14,4,4 years 2 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
-VJ031220MATN,2026-03-13 10:40:23,Vedh,,2020-12-03,5,5 years 3 months 10 days,Male,Amaravathi Talent School,Urban,,
+SG071121FATN,2026-03-13 10:05:38,Sejal,,2021-11-07,4,4 years 4 months 6 days,Female,Amaravathi Talent School,Urban,,
+SK300322MATN,2026-03-13 10:28:06,Ankith,,2020-09-14,5,5 years 5 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+AK141221MATN,2026-03-13 10:12:08,Afan,,2021-12-14,4,4 years 2 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+VJ031220MATN,2026-03-13 10:14:49,Vedh,,2020-12-03,5,5 years 3 months 10 days,,Amaravathi Talent School,Urban,,
 VR011220FATN,2026-03-13 10:22:55,Vilina,,2020-12-01,5,5 years 3 months 12 days,Female,AMARAVATHI TALENT SCHOOL,Urban,,
+AB160621MATN,2026-03-13 10:18:55,Sejal,,2021-11-07,4,4 years 4 months 6 days,Female,Amaravathi Talent School,Urban,,
+VG290621MATN,2026-03-13 10:40:23,Vedh,,2020-12-03,5,5 years 3 months 10 days,,Amaravathi Talent School,Urban,,
 YJ270920MATN,2026-03-13 10:53:33,,,2022-03-30,3,,Male,,,,
+AA060921FATN,2026-03-13 11:04:39,Afan,,2021-12-14,4,4 years 2 months 27 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
 HS110822MATN,2026-03-13 10:59:20,Hrudayansh,,2022-08-11,3,3 years 7 months 2 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
 AJ310721MATN,2026-03-13 11:19:05,Aarush,,2021-07-31,4,4 years 7 months 10 days,Male,Amaravathi Talent School,Urban,,
 DV250522FATN,2026-03-13 11:13:38,Darshana,,2022-05-25,3,3 years 9 months 16 days,Female,AMARAVATHI TALENT SCHOOL,Urban,,
@@ -130,9 +134,10 @@ AA010821FATN,2026-03-13 10:49:37,Ananya,,2021-08-01,4,4 years 7 months 12 days,F
 MG111121MATN,2026-03-13 11:59:43,Mustafa,,2021-11-11,4,4 years 4 months 2 days,Male,Amaravathi Talent School,Urban,,
 VS160922FATN,2026-03-13 11:46:10,Vrishrudha,,2022-09-16,3,3 years 5 months 25 days,Female,Amaravathi Talent School,Urban,,
 JD021020MATN,2026-03-13 11:41:19,Jagan Mohan,,2020-10-02,5,5 years 5 months 11 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+PP040520MATN,2026-03-13 11:30:31,Hemansh,,2022-08-11,3,3 years 7 months 2 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
 VV201121MATN,2026-03-13 12:02:28,Vedhansh,,2021-11-20,4,4 years 3 months 21 days,Male,Amaravathi Talent School,Urban,,
-HG110822MATN,2026-03-13 11:30:31,Hemansh,,2022-08-11,3,3 years 7 months 2 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
-MB300422MATN,2026-03-13 11:59:04,Manvith,,2022-04-30,3,3 years 10 months 11 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+HG110822MATN,2026-03-13 11:19:03,Hemansh,,2022-08-11,3,3 years 7 months 2 days,Male,AMARAVATHI TALENT SCHOOL,Urban,,
+MB300422MATN,2026-03-13 11:59:04,Manvith,,2022-04-30,3,3 years 10 months 11 days,,AMARAVATHI TALENT SCHOOL,Urban,,
 MM230421FAGM,2026-03-14 10:12:25,Madhupriya Sree,,2021-04-23,4,4 years 10 months 19 days,Female,Amaravathi Grammar High School,Urban,,
 LB110521FAGM,2026-03-14 10:17:57,Lishvitha,,2021-05-11,4,4 years 10 months 3 days,Female,Amaravathi Grammar High School,Urban,,
 NC060221FAGM,2026-03-14 10:23:28,Niharitha,,2021-02-06,5,5 years 1 months 8 days,Female,Amaravathi Grammar High School,Urban,,
@@ -151,6 +156,7 @@ LS270821FAGM,2026-03-14 11:18:51,Lavanya,,2021-08-27,4,4 years 6 months 15 days,
 LT181122FAGM,2026-03-14 11:21:41,Loukya Sri,,2022-11-18,3,3 years 3 months 24 days,Female,Amaravathi Grammar High School,Urban,,
 AG070722FAGM,2026-03-14 11:40:10,Ankitha,,2022-07-07,3,3 years 8 months 7 days,Female,Amaravathi Grammar High School,Urban,,
 VG240421FAGM,2026-03-14 11:35:24,Vedhika,,2021-04-24,4,4 years 10 months 18 days,Female,Amaravathi Grammar High School,Urban,,
+RR160322MWHT,2026-03-16 20:20:13,Ram,,2022-03-16,4,4 years 0 months 0 days,,Westside high,Urban,,
 RM031220FSST,2026-03-17 09:49:26,Ruchira,,2020-12-03,5,5 years 3 months 14 days,Female,Sri Sai Vidyarthi High School,Urban,,
 UM260622MSST,2026-03-17 10:18:38,Unith,,2022-06-26,3,3 years 8 months 19 days,Male,Sri Sai Vidyarthi High School,Urban,,
 SM090622MSST,2026-03-17 10:22:18,Srihansh,,2022-06-09,3,3 years 9 months 8 days,Male,Sri Sai Vidyarthi High School,Urban,,
@@ -168,38 +174,3 @@ NI171221MSST,2026-03-17 11:41:10,Nikhil Nayak,,2021-12-17,4,4 years 3 months 0 d
 BK120121MATN,,Baladithya,,2021-01-12,,,Male,Amaravathi Talent School,,,
 CC100122MSSA,,Charan,,2022-01-10,,,Male,SHIRDI SAI BABA HIGH SCHOOL,,,
 VG120920FSSN,,Vijaya,,2020-09-12,,,Female,SHIRDI SAI BABA HIGH SCHOOL,,,
-AS240720FSST,2026-03-24 10:19:20,Aahana,Shaik,2020-07-24,5,5y 8m 0d 10:10:52,Female,Sri Sai Vidyarthi High School,Thukaram Gate,LKG,B
-AC050821MSST,2026-03-24 10:33:10,Abhinash,Challa,2021-08-05,4,4y 7m 19d 10:07:36,Male,Sri Sai Vidyarthi High School,Tukaramgate,LKG,B
-RM080921MSST,2026-03-24 10:37:45,Rithwik Goud,Mudagod,2021-09-08,4,4y 6m 16d 10:19:59,Male,Sri Sai Vidyarthi High School,Thukaram Gate,LKG,B
-VG181221FSST,2026-03-24 10:40:26,Vaishnavi,Gannoju,2021-12-18,4,4y 3m 6d 10:14:20,Female,Sri Sai Vidyarthi High School,Tukaramgate,LKG,A
-SM270721FSST,2026-03-24 10:43:26,Shresta,Metri,2021-07-27,4,4y 7m 25d 10:26:08,Female,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,A
-NS191020FSST,2026-03-24 10:46:32,Nitya,Sunkari,2020-10-19,5,5y 5m 5d 10:21:09,Female,Sri Sai Vidyarthi High School,Tukaramgate,LKG,B
-SR281121FSST,2026-03-24 10:49:30,Sanvika,Royala,2021-11-28,4,4y 3m 24d 10:31:51,Female,Sri Sai Vidyarthi High School,Thukaram Gate,LKG,A
-SR040322MSST,2026-03-24 10:52:28,Sharvaansh,RV,2022-03-04,4,4y 0m 20d 10:26:34,Male,Sri Sai Vidyarthi High School,Tukaramgate,LKG,A
-VB070322MSST,2026-03-24 10:56:04,Vikram Tej,Bathula,2022-03-07,4,4y 0m 17d 10:38:37,Male,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,B
-AM090321MSST,2026-03-24 11:09:11,Aditya Kumar,Mukyara,2021-03-09,5,5y 0m 15d 10:34:37,Male,Sri Sai Vidyarthi High School,Tukaramgate,UKG,A
-DN081022MSST,2026-03-24 10:58:28,Danush,Nayak,2022-10-08,3,3y 5m 16d 10:44:47,Male,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,A
-NC100122MSST,2026-03-24 11:17:47,Nalla,Chakradhar,2022-01-10,4,4y 2m 14d 10:43:31,Male,Sri Sai Vidyarthi High School,Tukaramgate,Nursery,A
-VN211021MSST,2026-03-24 11:13:03,Vishal,Nalla,2021-10-21,4,4y 5m 3d 10:52:03,Male,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,A
-YN260223FSST,2026-03-24 11:20:06,Yesheswini,Nalla,2023-02-26,3,3y 0m 26d 10:49:20,Female,Sri Sai Vidyarthi High School,Tukaramgate,Nursery,A
-AB190122FSST,2026-03-24 11:30:13,Aadhya,Bodas,2022-01-19,4,4y 2m 5d 11:03:51,Female,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,A
-SK230221MSST,2026-03-24 11:23:23,Sriyansh,kashapaka,2021-02-23,5,5y 1m 1d 10:55:41,Male,Sri Sai Vidyarthi High School,Tukaramgate,LKG,B
-AB190122FSST,2026-03-24 11:30:13,Aadhya,Bodas,2022-01-19,4,4y 2m 5d 11:03:51,Female,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,A
-AB210122FSST,2026-03-24 11:27:02,Aadhya,Bodass,2022-01-21,4,4y 2m 3d 11:06:51,Female,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,A
-KT201120MSST,2026-03-24 11:33:58,Karthik,Talari,2020-11-20,5,5y 4m 4d 11:01:09,Male,Sri Sai Vidyarthi High School,Tukaramgate,UKG,B
-KG080721MSST,2026-03-24 11:38:20,Karthikeya Arjun,Gokarapu,2021-07-08,4,4y 8m 16d 11:13:04,Male,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,B
-AM230422MSST,2026-03-24 11:41:59,Aayan Ali,Mohammad,2022-04-23,3,3y 11m 1d 11:19:40,Male,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,B
-MA040420FSST,2026-03-24 11:49:41,Meenakshi,Ananta,2020-04-04,5,5y 11m 20d 11:18:37,Female,Sri Sai Vidyarthi High School,Tukaramgate,UKG,A
-RS090820MSST,2026-03-24 11:46:10,Rajesh Pal,Sorabh,2020-08-09,5,5y 7m 15d 11:27:31,Male,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,B
-HA231021MSST,2026-03-24 11:52:20,Harsha,Ananta,2021-10-23,4,4y 5m 1d 11:28:48,Male,Sri Sai Vidyarthi High School,Tukaramgate,LKG,B
-JV280921MSST,2026-03-24 11:58:39,Johnson,Valepu,2021-09-28,4,4y 5m 24d 11:36:04,Male,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,B
-TB240421FSST,2026-03-24 11:55:20,Trilokya,Billam,2021-04-24,4,4y 11m 0d 11:35:20,Female,Sri Sai Vidyarthi High School,Tukaramgate,UKG,B
-HR230321MSST,2026-03-24 12:03:12,Himansh,Ratnakollu,2021-03-23,5,5y 0m 1d 11:43:08,Male,Sri Sai Vidyarthi High School,Thukaram Gate,L.K.G,B
-LG031121FSST,2026-03-24 12:07:24,Laxmi Devi,Gujja,2021-11-03,4,4y 4m 21d 11:41:13,Female,Sri Sai Vidyarthi High School,Tukaramgate,Nursery,A
-TG140821FSST,2026-03-24 12:11:25,Tanmya Shiva Gayatri,Gundu,2021-08-14,4,4y 7m 10d 11:50:39,Female,Sri Sai Vidyarthi High School,Thukaram Gate,U.K.G,A
-PV130522MSST,2026-03-24 12:22:55,Pranay Kumar,Vemula,2022-05-13,3,3y 10m 11d 11:48:57,Male,Sri Sai Vidyarthi High School,Tukaramgate,LKG,B
-SX011022FSST,,Sidra Tul Muntana,-,2022-10-01,3,3y 5m 23d 11:59:53,Female,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,A
-VV170720FSST,2026-03-24 12:20:04,Vasavi,Vemula,2020-07-17,5,5y 8m 7d 11:58:35,Female,Sri Sai Vidyarthi High School,Tukaramgate,LKG,A
-DT030920FSST,2026-03-24 12:26:07,Diyanshi,Tallam,2020-09-03,5,5y 6m 21d 12:06:41,Female,Sri Sai Vidyarthi High School,Thukaram Gate,U.K.G,A
-DA140221FSST,2026-03-24 12:30:44,Deekshitha,Aragudla,2021-02-14,5,5y 1m 10d 12:05:43,Female,Sri Sai Vidyarthi High School,Tukaramgate,UKG,A
-ST260522FSST,2026-03-24 12:35:03,Sathvika,Thupadigattu,2022-05-26,3,3y 9m 26d 12:14:26,Female,Sri Sai Vidyarthi High School,Thukaram Gate,NURSERY,A

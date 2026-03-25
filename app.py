@@ -137,6 +137,13 @@ EXPORT_FOLDER = os.path.join(BASE_DIR, "exports")
 BARCODE_LABEL_WIDTH_MM = 40
 BARCODE_LABEL_HEIGHT_MM = 20
 BARCODE_DPI = 300
+LEGACY_PROFILE_ID_ALIASES = {
+    "SK300322MATN": "AK140920MATN",
+    "AB160621MATN": "SG071121FATN",
+    "AA060921FATN": "AK141221MATN",
+    "VG290621MATN": "VJ031220MATN",
+    "PP040520MATN": "HG110822MATN",
+}
 
 # ✅ UPDATED: dob + age_full added
 PROFILE_FIELDS = [
@@ -336,12 +343,46 @@ def write_dict_list_to_csv(path, rows, fieldnames):
             writer.writerow(r)
 
 
+def _normalized_profile_value(value):
+    return " ".join(str(value or "").strip().casefold().split())
+
+
+def build_profile_identity_key(profile):
+    return (
+        _normalized_profile_value(profile.get("name", "")),
+        _normalized_profile_value(profile.get("surname", "")),
+        (profile.get("dob", "") or "").strip(),
+        _normalized_profile_value(profile.get("gender", "")),
+        _normalized_profile_value(profile.get("school", "")),
+        _normalized_profile_value(profile.get("location", "")),
+    )
+
+
+def validate_profile_row(profile_row):
+    required_labels = {
+        "name": "Name",
+        "dob": "DOB",
+        "gender": "Gender",
+        "school": "School",
+        "location": "Location",
+    }
+    missing = [label for key, label in required_labels.items() if not str(profile_row.get(key, "")).strip()]
+    if missing:
+        return f"Please fill all required profile fields: {', '.join(missing)}."
+    return None
+
+
 def sanitize_profile_row(row, fallback_created_at=""):
     clean_row = {key: row.get(key, "") for key in PROFILE_FIELDS}
     created_at = (clean_row.get("created_at", "") or "").strip()
     if not created_at:
         clean_row["created_at"] = fallback_created_at
     return clean_row
+
+
+def resolve_profile_id_alias(profile_id):
+    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    return LEGACY_PROFILE_ID_ALIASES.get(pid, pid)
 
 
 def normalize_profile_storage(rows=None, write_back=False):
@@ -367,7 +408,7 @@ def normalize_profile_storage(rows=None, write_back=False):
 
 
 def find_profile_by_id(profile_id, rows=None):
-    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    pid = resolve_profile_id_alias(profile_id)
     if not pid:
         return None
     profiles = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
@@ -756,17 +797,11 @@ def profile_exists(profile):
     if not os.path.exists(PROFILE_CSV):
         return False
 
+    target_key = build_profile_identity_key(profile)
     with open(PROFILE_CSV, "r", newline="", encoding="utf-8") as f:
         reader = csv.DictReader(f)
         for row in reader:
-            if (
-                row.get("name", "").strip().lower() == profile["name"].strip().lower()
-                and row.get("surname", "").strip().lower() == profile["surname"].strip().lower()
-                and row.get("school", "").strip().lower() == profile["school"].strip().lower()
-                and row.get("location", "").strip().lower() == profile["location"].strip().lower()
-                and row.get("class", "").strip().lower() == profile["class"].strip().lower()
-                and row.get("section", "").strip().lower() == profile["section"].strip().lower()
-            ):
+            if build_profile_identity_key(row) == target_key:
                 return True
     return False
 
@@ -918,7 +953,7 @@ def investigator_login():
 def login():
     if request.method == "POST":
         raw_id = request.form.get("profile_id", "")
-        entered_id = re.sub(r"[^A-Za-z0-9]", "", (raw_id or "")).upper()
+        entered_id = resolve_profile_id_alias(raw_id)
 
         if entered_id == "":
             return render_template("login.html", error="Please enter Barcode ID")
@@ -930,7 +965,7 @@ def login():
         if not matched_profile:
             return render_template("login.html", error=f"Invalid Barcode ID: {entered_id}")
 
-        session["profile_id"] = entered_id
+        session["profile_id"] = (matched_profile.get("profile_id", "") or entered_id).strip().upper()
         session["scanned_profile"] = matched_profile or {}
         return redirect(url_for("profile_details"))
 
@@ -968,7 +1003,7 @@ def profile_details():
 
 @app.route("/profile-details/<profile_id>")
 def profile_details_by_id(profile_id):
-    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    pid = resolve_profile_id_alias(profile_id)
     if not pid:
         return render_template("login.html", error="Invalid Barcode ID.")
 
@@ -1013,6 +1048,10 @@ def profile():
             "class": form.get("class", "").strip(),
             "section": form.get("section", "").strip(),
         }
+
+        validation_error = validate_profile_row(profile_row)
+        if validation_error:
+            return validation_error
 
         age_years = _calculate_age_years(profile_row["dob"])
         if age_years is None:
@@ -1184,7 +1223,7 @@ def _section_status(response, keys):
 
 @app.route("/resume-profile/<profile_id>")
 def resume_profile(profile_id):
-    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    pid = resolve_profile_id_alias(profile_id)
     if not pid:
         return redirect(url_for("section_status"))
 
@@ -1193,7 +1232,7 @@ def resume_profile(profile_id):
     if not selected_profile:
         return redirect(url_for("section_status"))
 
-    session["profile_id"] = pid
+    session["profile_id"] = (selected_profile.get("profile_id", "") or pid).strip().upper()
     session["scanned_profile"] = selected_profile
 
     if not investigator_required():
@@ -1480,8 +1519,13 @@ def admin_edit_profile(profile_id):
         profile_row["age_full"] = request.form.get("age_full", "").strip()
         profile_row["gender"] = request.form.get("gender", "").strip()
         profile_row["school"] = request.form.get("school", "").strip()
+        profile_row["location"] = request.form.get("location", "").strip()
         profile_row["class"] = request.form.get("class", "").strip()
         profile_row["section"] = request.form.get("section", "").strip()
+
+        validation_error = validate_profile_row(profile_row)
+        if validation_error:
+            return validation_error
 
         write_dict_list_to_csv(PROFILE_CSV, profiles, PROFILE_FIELDS)
         update_excel_files()
