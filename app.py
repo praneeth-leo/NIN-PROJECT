@@ -287,10 +287,14 @@ def append_investigator_audit(event, details):
 def update_excel_files():
     try:
         if os.path.exists(PROFILE_CSV):
-            pd.read_csv(PROFILE_CSV).to_excel(PROFILE_XLSX, index=False)
+            profile_df = pd.read_csv(PROFILE_CSV, dtype=str, keep_default_na=False, encoding="utf-8-sig")
+            with pd.ExcelWriter(PROFILE_XLSX, engine="openpyxl") as writer:
+                profile_df.to_excel(writer, sheet_name="Profiles", index=False)
         if os.path.exists(RESPONSE_CSV):
             normalized_rows = normalize_response_storage(write_back=True)
-            pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).to_excel(RESPONSE_XLSX, index=False)
+            response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
+            with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
+                response_df.to_excel(writer, sheet_name="Responses", index=False)
     except Exception as e:
         print("Excel error:", e)
 
@@ -325,6 +329,18 @@ def write_dict_list_to_csv(path, rows, fieldnames):
         writer.writeheader()
         for r in rows:
             writer.writerow(r)
+
+
+def find_profile_by_id(profile_id, rows=None):
+    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    if not pid:
+        return None
+    profiles = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
+    for row in profiles:
+        row_pid = re.sub(r"[^A-Za-z0-9]", "", (row.get("profile_id", "") or "")).upper()
+        if row_pid == pid:
+            return row
+    return None
 
 
 def sync_response_identifiers(row):
@@ -706,6 +722,26 @@ def generate_profile_id(name, surname, dob, gender, school, location):
     )
 
 
+def generate_unique_profile_id(name, surname, dob, gender, school, location, existing_rows=None):
+    base_id = generate_profile_id(name, surname, dob, gender, school, location)
+    rows = existing_rows if existing_rows is not None else read_csv_as_dict_list(PROFILE_CSV)
+    existing_ids = {
+        re.sub(r"[^A-Za-z0-9]", "", (row.get("profile_id", "") or "")).upper()
+        for row in rows
+        if (row.get("profile_id", "") or "").strip()
+    }
+
+    if base_id not in existing_ids:
+        return base_id
+
+    for suffix in range(1, 1000):
+        candidate = f"{base_id}{suffix:02d}"
+        if candidate not in existing_ids:
+            return candidate
+
+    raise ValueError("Unable to generate a unique profile ID.")
+
+
 def generate_barcode(profile_id):
     barcode = Code128(profile_id, writer=ImageWriter())
     path = os.path.join(BARCODE_FOLDER, profile_id)
@@ -786,18 +822,8 @@ def login():
         if not os.path.exists(PROFILE_CSV):
             return render_template("login.html", error="No profiles found. Please create a profile first.")
 
-        found = False
-        matched_profile = None
-        with open(PROFILE_CSV, "r", newline="", encoding="utf-8") as f:
-            reader = csv.DictReader(f)
-            for row in reader:
-                csv_id = str(row.get("profile_id", "")).strip().upper()
-                if csv_id == entered_id:
-                    found = True
-                    matched_profile = row
-                    break
-
-        if not found:
+        matched_profile = find_profile_by_id(entered_id)
+        if not matched_profile:
             return render_template("login.html", error=f"Invalid Barcode ID: {entered_id}")
 
         session["profile_id"] = entered_id
@@ -814,12 +840,14 @@ def profile_details():
         return redirect(url_for("login"))
 
     profile = session.get("scanned_profile") or {}
+    cached_profile_id = re.sub(r"[^A-Za-z0-9]", "", (profile.get("profile_id", "") or "")).upper()
+    if cached_profile_id != profile_id:
+        profile = {}
+
     if not profile:
-        profiles = read_csv_as_dict_list(PROFILE_CSV)
-        for row in profiles:
-            if (row.get("profile_id", "") or "").strip().upper() == profile_id:
-                profile = row
-                break
+        profile = find_profile_by_id(profile_id)
+        if profile:
+            session["scanned_profile"] = profile
 
     if not profile:
         return render_template("login.html", error="Profile not found for scanned barcode.")
@@ -840,12 +868,7 @@ def profile_details_by_id(profile_id):
     if not pid:
         return render_template("login.html", error="Invalid Barcode ID.")
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
-    profile = None
-    for row in profiles:
-        if (row.get("profile_id", "") or "").strip().upper() == pid:
-            profile = row
-            break
+    profile = find_profile_by_id(pid)
 
     if not profile:
         return render_template("login.html", error=f"Profile not found for Barcode ID: {pid}")
@@ -895,23 +918,26 @@ def profile():
         if profile_exists(profile_row):
             return "Profile already exists. Please use the existing participant barcode/profile."
 
-        profile_id = generate_profile_id(
+        existing_rows = read_csv_as_dict_list(PROFILE_CSV)
+
+        profile_id = generate_unique_profile_id(
             profile_row["name"],
             profile_row["surname"],
             profile_row["dob"],
             profile_row["gender"],
             profile_row["school"],
-            profile_row["location"]
+            profile_row["location"],
+            existing_rows=existing_rows,
         )
         profile_row["profile_id"] = profile_id
 
-        existing_rows = read_csv_as_dict_list(PROFILE_CSV)
         existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
         write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
 
         update_excel_files()
         barcode_path = generate_barcode(profile_id)
         session["profile_id"] = profile_id
+        session["scanned_profile"] = dict(profile_row)
 
         return render_template(
             "profile_view.html",
@@ -1008,12 +1034,7 @@ def form():
             return redirect(url_for("form"))
         return redirect(url_for("dashboard"))
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
-    profile = None
-    for p in profiles:
-        if (p.get("profile_id", "") or "").strip().upper() == profile_id.strip().upper():
-            profile = p
-            break
+    profile = find_profile_by_id(profile_id)
 
     if not profile:
         return redirect(url_for("login"))
@@ -1061,12 +1082,7 @@ def resume_profile(profile_id):
     if not pid:
         return redirect(url_for("section_status"))
 
-    profiles = read_csv_as_dict_list(PROFILE_CSV)
-    selected_profile = None
-    for row in profiles:
-        if (row.get("profile_id", "") or "").strip().upper() == pid:
-            selected_profile = row
-            break
+    selected_profile = find_profile_by_id(pid)
 
     if not selected_profile:
         return redirect(url_for("section_status"))
