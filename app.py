@@ -90,6 +90,16 @@ def set_security_headers(response):
     return response
 
 # ---------------- INVESTIGATOR SETTINGS ----------------
+INVESTIGATOR_USERNAME_ALIASES = {
+    "kriti": "krithi",
+}
+
+
+def normalize_login_username(username):
+    normalized = (username or "").strip().casefold()
+    return INVESTIGATOR_USERNAME_ALIASES.get(normalized, normalized)
+
+
 def load_investigator_credentials():
     creds = []
     for idx in range(1, 51):
@@ -542,7 +552,9 @@ def deduplicate_response_rows(rows):
 
 
 def write_response_rows(rows):
-    normalized_rows = deduplicate_response_rows(rows)
+    normalized_rows = sort_response_rows_by_submitted_at(
+        normalize_response_storage(rows=rows)
+    )
     write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
     return normalized_rows
 
@@ -931,11 +943,11 @@ def investigator_login():
 
     if request.method == "POST":
         username = request.form.get("username", "").strip()
-        username_norm = username.casefold()
+        username_norm = normalize_login_username(username)
         password = request.form.get("password", "").strip()
 
         valid = any(
-            username_norm == (inv_user or "").strip().casefold() and check_password_hash(inv_pass_hash, password)
+            username_norm == normalize_login_username(inv_user) and check_password_hash(inv_pass_hash, password)
             for inv_user, inv_pass_hash in INVESTIGATOR_CREDENTIALS
             if inv_user and inv_pass_hash
         )
@@ -1176,7 +1188,7 @@ def form():
             answers["response_id"] = str(uuid.uuid4())
             existing_rows.append(sanitize_response_row(answers))
 
-        write_response_rows(deduplicate_response_rows(existing_rows))
+        write_response_rows(existing_rows)
 
         update_excel_files()
         if submit_action == "save_progress":
