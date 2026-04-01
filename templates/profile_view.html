@@ -564,6 +564,12 @@
         <div>🔖 Profile ID: <strong>{{ profile_id }}</strong></div>
         <div>👤 Student: <strong>{{ profile_name or '-' }}</strong></div>
       </div>
+      {% if profile_notice %}
+      <div class="note" style="margin-top: 14px;">
+        <i class="fas fa-circle-info"></i>
+        <span>{{ profile_notice }}</span>
+      </div>
+      {% endif %}
 
       <!-- action buttons: Download and Print -->
       <div class="action-buttons">

@@ -6,13 +6,20 @@ import csv
 import os
 import re
 import pandas as pd
+import tempfile
 from barcode import Code128
 from barcode.writer import ImageWriter
+from contextlib import contextmanager
 from datetime import datetime
 from flask_talisman import Talisman
 from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
 import uuid
+
+if os.name == "nt":
+    import msvcrt
+else:
+    import fcntl
 
 load_dotenv()
 
@@ -141,6 +148,7 @@ RESPONSE_XLSX = os.path.join(BASE_DIR, "responses.xlsx")
 LINKED_CSV = os.path.join(BASE_DIR, "linked_data.csv")
 LINKED_XLSX = os.path.join(BASE_DIR, "linked_data.xlsx")
 AUDIT_LOG_CSV = os.path.join(BASE_DIR, "investigator_audit_log.csv")
+RESPONSE_SAVE_AUDIT_CSV = os.path.join(BASE_DIR, "response_save_audit.csv")
 
 BARCODE_FOLDER = os.path.join(BASE_DIR, "static", "barcodes")
 EXPORT_FOLDER = os.path.join(BASE_DIR, "exports")
@@ -255,6 +263,17 @@ HORIBA_UPLOAD_FIELD_MAP = {
     "wbc": "WBC",
 }
 
+LOCK_TIMEOUT_SECONDS = 20
+RESPONSE_SAVE_AUDIT_FIELDS = [
+    "profile_id",
+    "response_id",
+    "participant_name",
+    "investigator_username",
+    "investigator_name",
+    "saved_at",
+    "submitted_at",
+]
+
 
 # --------------------------------------------------
 # HELPERS
@@ -317,6 +336,16 @@ def update_excel_files():
             response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
             with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
                 response_df.to_excel(writer, sheet_name="Responses", index=False)
+        if os.path.exists(RESPONSE_SAVE_AUDIT_CSV):
+            audit_xlsx = os.path.join(BASE_DIR, "response_save_audit.xlsx")
+            audit_rows = sort_rows_by_timestamp(
+                read_csv_as_dict_list(RESPONSE_SAVE_AUDIT_CSV),
+                timestamp_key="saved_at",
+                newest_first=True,
+            )
+            audit_df = pd.DataFrame(audit_rows, columns=RESPONSE_SAVE_AUDIT_FIELDS).fillna("")
+            with pd.ExcelWriter(audit_xlsx, engine="openpyxl") as writer:
+                audit_df.to_excel(writer, sheet_name="SaveProgressAudit", index=False)
     except Exception as e:
         print("Excel error:", e)
 
@@ -327,6 +356,45 @@ def update_linked_excel_file():
             pd.read_csv(LINKED_CSV).to_excel(LINKED_XLSX, index=False)
     except Exception as e:
         print("Linked excel error:", e)
+
+
+def _lock_path_for(target_path):
+    base_name = os.path.basename(target_path)
+    return os.path.join(BASE_DIR, f".{base_name}.lock")
+
+
+@contextmanager
+def locked_file_access(target_path, mode="r", timeout_seconds=LOCK_TIMEOUT_SECONDS):
+    lock_path = _lock_path_for(target_path)
+    os.makedirs(os.path.dirname(lock_path), exist_ok=True)
+    with open(lock_path, "a+b") as lock_file:
+        start_time = datetime.now()
+        while True:
+            try:
+                if os.name == "nt":
+                    lock_file.seek(0)
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_NBLCK, 1)
+                else:
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_EX | fcntl.LOCK_NB)
+                break
+            except OSError:
+                if (datetime.now() - start_time).total_seconds() >= timeout_seconds:
+                    raise TimeoutError(f"Timed out waiting for file lock on {target_path}")
+        try:
+            if "r" in mode and not os.path.exists(target_path):
+                yield None
+            else:
+                with open(target_path, mode, newline="", encoding="utf-8") as data_file:
+                    yield data_file
+        finally:
+            try:
+                if os.name == "nt":
+                    lock_file.seek(0)
+                    msvcrt.locking(lock_file.fileno(), msvcrt.LK_UNLCK, 1)
+                else:
+                    fcntl.flock(lock_file.fileno(), fcntl.LOCK_UN)
+            except OSError:
+                pass
 
 
 def read_csv_as_dict_list(path):
@@ -346,11 +414,69 @@ def read_csv_as_dict_list(path):
 
 
 def write_dict_list_to_csv(path, rows, fieldnames):
-    with open(path, "w", newline="", encoding="utf-8") as f:
+    target_dir = os.path.dirname(path) or "."
+    fd, temp_path = tempfile.mkstemp(prefix="tmp_", suffix=".csv", dir=target_dir)
+    with os.fdopen(fd, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=fieldnames)
         writer.writeheader()
         for r in rows:
             writer.writerow(r)
+    os.replace(temp_path, path)
+
+
+def sort_rows_by_timestamp(rows, timestamp_key, newest_first=False):
+    dated_rows = []
+    undated_rows = []
+
+    for row in rows:
+        timestamp_value = (row.get(timestamp_key, "") or "").strip()
+        try:
+            parsed = datetime.strptime(timestamp_value, "%Y-%m-%d %H:%M:%S")
+            dated_rows.append((parsed, row))
+        except ValueError:
+            undated_rows.append(row)
+
+    dated_rows.sort(key=lambda item: item[0], reverse=newest_first)
+    undated_rows.sort(
+        key=lambda row: (
+            (row.get(timestamp_key, "") or "").strip().casefold(),
+            (row.get("profile_id", "") or "").strip().casefold(),
+        )
+    )
+    return [row for _, row in dated_rows] + undated_rows
+
+
+def upsert_response_save_audit(row):
+    profile_id = normalize_profile_id_value(row.get("profile_id", ""))
+    if not profile_id:
+        return
+
+    audit_row = {
+        "profile_id": profile_id,
+        "response_id": (row.get("response_id", "") or "").strip(),
+        "participant_name": (row.get("participant_name", "") or "").strip(),
+        "investigator_username": (row.get("investigator_username", "") or "").strip(),
+        "investigator_name": (row.get("investigator_name", "") or "").strip(),
+        "saved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        "submitted_at": (row.get("submitted_at", "") or "").strip(),
+    }
+
+    with locked_file_access(RESPONSE_SAVE_AUDIT_CSV, mode="a+"):
+        existing_rows = read_csv_as_dict_list(RESPONSE_SAVE_AUDIT_CSV)
+        updated_rows = []
+        replaced = False
+        for existing in existing_rows:
+            existing_profile_id = normalize_profile_id_value(existing.get("profile_id", ""))
+            if existing_profile_id == profile_id:
+                updated_rows.append(audit_row)
+                replaced = True
+            else:
+                updated_rows.append({field: existing.get(field, "") for field in RESPONSE_SAVE_AUDIT_FIELDS})
+        if not replaced:
+            updated_rows.append(audit_row)
+
+        ordered_rows = sort_rows_by_timestamp(updated_rows, timestamp_key="saved_at", newest_first=True)
+        write_dict_list_to_csv(RESPONSE_SAVE_AUDIT_CSV, ordered_rows, RESPONSE_SAVE_AUDIT_FIELDS)
 
 
 def _normalized_profile_value(value):
@@ -366,6 +492,10 @@ def build_profile_identity_key(profile):
         _normalized_profile_value(profile.get("school", "")),
         _normalized_profile_value(profile.get("location", "")),
     )
+
+
+def normalize_profile_id_value(profile_id):
+    return re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
 
 
 def validate_profile_row(profile_row):
@@ -384,6 +514,7 @@ def validate_profile_row(profile_row):
 
 def sanitize_profile_row(row, fallback_created_at=""):
     clean_row = {key: row.get(key, "") for key in PROFILE_FIELDS}
+    clean_row["profile_id"] = normalize_profile_id_value(clean_row.get("profile_id", ""))
     created_at = (clean_row.get("created_at", "") or "").strip()
     if not created_at:
         clean_row["created_at"] = fallback_created_at
@@ -391,7 +522,7 @@ def sanitize_profile_row(row, fallback_created_at=""):
 
 
 def resolve_profile_id_alias(profile_id):
-    pid = re.sub(r"[^A-Za-z0-9]", "", (profile_id or "")).upper()
+    pid = normalize_profile_id_value(profile_id)
     return LEGACY_PROFILE_ID_ALIASES.get(pid, pid)
 
 
@@ -407,10 +538,16 @@ def normalize_profile_storage(rows=None, write_back=False):
             earliest_response_by_profile[profile_id] = submitted_at
 
     normalized_rows = []
+    seen_exact_rows = set()
     for row in profile_rows:
-        profile_id = (row.get("profile_id", "") or "").strip().upper()
+        profile_id = normalize_profile_id_value(row.get("profile_id", ""))
         fallback_created_at = earliest_response_by_profile.get(profile_id, "")
-        normalized_rows.append(sanitize_profile_row(row, fallback_created_at=fallback_created_at))
+        clean_row = sanitize_profile_row(row, fallback_created_at=fallback_created_at)
+        row_signature = tuple((key, clean_row.get(key, "")) for key in PROFILE_FIELDS)
+        if row_signature in seen_exact_rows:
+            continue
+        seen_exact_rows.add(row_signature)
+        normalized_rows.append(clean_row)
 
     if write_back:
         write_dict_list_to_csv(PROFILE_CSV, normalized_rows, PROFILE_FIELDS)
@@ -423,10 +560,14 @@ def find_profile_by_id(profile_id, rows=None):
         return None
     profiles = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
     for row in profiles:
-        row_pid = re.sub(r"[^A-Za-z0-9]", "", (row.get("profile_id", "") or "")).upper()
+        row_pid = normalize_profile_id_value(row.get("profile_id", ""))
         if row_pid == pid:
             return row
     return None
+
+
+def profile_id_exists(profile_id, rows=None):
+    return find_profile_by_id(profile_id, rows=rows) is not None
 
 
 def profile_display_name(profile):
@@ -818,6 +959,15 @@ def profile_exists(profile):
     return False
 
 
+def find_profile_by_identity(profile, rows=None):
+    target_key = build_profile_identity_key(profile)
+    profiles = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
+    for row in profiles:
+        if build_profile_identity_key(row) == target_key:
+            return row
+    return None
+
+
 def _first_alpha(text, default="X"):
     for ch in (text or "").strip().upper():
         if ch.isalpha():
@@ -877,7 +1027,7 @@ def generate_unique_profile_id(name, surname, dob, gender, school, location, exi
     base_id = generate_profile_id(name, surname, dob, gender, school, location)
     rows = existing_rows if existing_rows is not None else normalize_profile_storage(write_back=True)
     existing_ids = {
-        re.sub(r"[^A-Za-z0-9]", "", (row.get("profile_id", "") or "")).upper()
+        normalize_profile_id_value(row.get("profile_id", ""))
         for row in rows
         if (row.get("profile_id", "") or "").strip()
     }
@@ -1043,8 +1193,10 @@ def dashboard():
 
 @app.route("/profile", methods=["GET", "POST"])
 def profile():
+    form_data = {}
     if request.method == "POST":
         form = request.form.to_dict()
+        form_data = dict(form)
 
         profile_row = {
             "profile_id": "",
@@ -1063,32 +1215,48 @@ def profile():
 
         validation_error = validate_profile_row(profile_row)
         if validation_error:
-            return validation_error
+            return render_template("profile.html", error_message=validation_error, form_data=form_data)
 
         age_years = _calculate_age_years(profile_row["dob"])
         if age_years is None:
-            return "Invalid DOB. Please enter a valid date of birth."
+            return render_template("profile.html", error_message="Invalid DOB. Please enter a valid date of birth.", form_data=form_data)
         if age_years not in [3, 4, 5]:
-            return "Only ages 3, 4, and 5 are allowed."
+            return render_template("profile.html", error_message="Only ages 3, 4, and 5 are allowed.", form_data=form_data)
 
-        if profile_exists(profile_row):
-            return "Profile already exists. Please use the existing participant barcode/profile."
+        with locked_file_access(PROFILE_CSV, mode="a+"):
+            existing_rows = normalize_profile_storage(write_back=True)
 
-        existing_rows = normalize_profile_storage(write_back=True)
+            existing_profile = find_profile_by_identity(profile_row, rows=existing_rows)
+            if existing_profile:
+                return render_template(
+                    "profile.html",
+                    error_message="Profile already exists. Use the exact existing profile ID shown below instead of creating a new one.",
+                    existing_profile=existing_profile,
+                    existing_barcode_path=ensure_barcode_image(existing_profile.get("profile_id", "")),
+                    form_data=form_data,
+                )
 
-        profile_id = generate_unique_profile_id(
-            profile_row["name"],
-            profile_row["surname"],
-            profile_row["dob"],
-            profile_row["gender"],
-            profile_row["school"],
-            profile_row["location"],
-            existing_rows=existing_rows,
-        )
-        profile_row["profile_id"] = profile_id
+            profile_id = generate_unique_profile_id(
+                profile_row["name"],
+                profile_row["surname"],
+                profile_row["dob"],
+                profile_row["gender"],
+                profile_row["school"],
+                profile_row["location"],
+                existing_rows=existing_rows,
+            )
+            if profile_id_exists(profile_id, rows=existing_rows):
+                return render_template(
+                    "profile.html",
+                    error_message="Profile ID already exists. Please use the existing participant barcode/profile.",
+                    existing_profile=find_profile_by_id(profile_id, rows=existing_rows),
+                    existing_barcode_path=ensure_barcode_image(profile_id),
+                    form_data=form_data,
+                )
+            profile_row["profile_id"] = profile_id
 
-        existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
-        write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
+            existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
+            write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
 
         update_excel_files()
         barcode_path = generate_barcode(profile_id)
@@ -1099,10 +1267,11 @@ def profile():
             "profile_view.html",
             profile_id=profile_id,
             barcode_path=barcode_path,
-            profile_name=f"{profile_row.get('name', '').strip()} {profile_row.get('surname', '').strip()}".strip()
+            profile_name=f"{profile_row.get('name', '').strip()} {profile_row.get('surname', '').strip()}".strip(),
+            profile_notice="Use this exact Profile ID every time. Similar children may have IDs ending in 01, 02, etc.",
         )
 
-    return render_template("profile.html")
+    return render_template("profile.html", error_message="", form_data=form_data, existing_profile=None, existing_barcode_path="")
 
 
 @app.route("/form", methods=["GET", "POST"])
@@ -1169,30 +1338,19 @@ def form():
         answers["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         answers = bind_response_identity_from_profile(answers, profile)
 
-        existing_rows = normalize_response_storage()
-        existing_row = None
-        for row in existing_rows:
-            row_profile_id = (row.get("profile_id", "") or "").strip().upper()
-            if row_profile_id == profile_id.strip().upper():
-                existing_row = row
-
-        if existing_row:
-            answers["response_id"] = existing_row.get("response_id", "") or str(uuid.uuid4())
-            merged_row = dict(existing_row)
-            merged_row.update(answers)
-            for index, row in enumerate(existing_rows):
-                row_profile_id = (row.get("profile_id", "") or "").strip().upper()
-                if row_profile_id == profile_id.strip().upper():
-                    existing_rows[index] = sanitize_response_row(merged_row)
-        else:
+        with locked_file_access(RESPONSE_CSV, mode="a+"):
+            existing_rows = normalize_response_storage()
             answers["response_id"] = str(uuid.uuid4())
             existing_rows.append(sanitize_response_row(answers))
+            write_response_rows(existing_rows)
 
-        write_response_rows(existing_rows)
+        if submit_action == "save_progress":
+            upsert_response_save_audit(answers)
 
         update_excel_files()
         if submit_action == "save_progress":
-            flash("Progress saved successfully.", "success")
+            saved_time = datetime.now().strftime("%I:%M:%S %p")
+            flash(f"Progress saved successfully at {saved_time}.", "success")
             return redirect(url_for("form"))
         return redirect(url_for("dashboard"))
 
@@ -1459,6 +1617,26 @@ def admin_investigator_audit():
     )
 
 
+@app.route("/admin/response-save-audit")
+def admin_response_save_audit():
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    headers = RESPONSE_SAVE_AUDIT_FIELDS
+    data = sort_rows_by_timestamp(
+        read_csv_as_dict_list(RESPONSE_SAVE_AUDIT_CSV),
+        timestamp_key="saved_at",
+        newest_first=True,
+    )
+    normalized = [{h: row.get(h, "") for h in headers} for row in data]
+
+    return render_template(
+        "admin_response_save_audit.html",
+        data=normalized,
+        headers=headers,
+    )
+
+
 # --------------------------------------------------
 # ADMIN: DELETE PROFILE
 # --------------------------------------------------
@@ -1627,6 +1805,8 @@ def admin_download(filename):
         "linked_data.csv": LINKED_CSV,
         "linked_data.xlsx": LINKED_XLSX,
         "investigator_audit_log.csv": AUDIT_LOG_CSV,
+        "response_save_audit.csv": RESPONSE_SAVE_AUDIT_CSV,
+        "response_save_audit.xlsx": os.path.join(BASE_DIR, "response_save_audit.xlsx"),
     }
 
     if filename not in allowed_files:
@@ -1636,7 +1816,7 @@ def admin_download(filename):
     if not os.path.exists(path):
         return "File not found"
 
-    if filename in ["profiles.csv", "profiles.xlsx", "responses.csv", "responses.xlsx"]:
+    if filename in ["profiles.csv", "profiles.xlsx", "responses.csv", "responses.xlsx", "response_save_audit.csv", "response_save_audit.xlsx"]:
         normalize_profile_storage(write_back=True)
         normalize_response_storage(write_back=True)
         update_excel_files()

@@ -370,6 +370,75 @@
       font-size: 1rem;
     }
 
+    .alert-error {
+      margin-bottom: 24px;
+      padding: 16px 20px;
+      border-radius: 22px;
+      border: 1px solid rgba(220, 38, 38, 0.18);
+      background: rgba(254, 242, 242, 0.96);
+      color: #991b1b;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      box-shadow: 0 16px 35px -24px rgba(153, 27, 27, 0.55);
+    }
+
+    .alert-error i {
+      color: #dc2626;
+      font-size: 1.05rem;
+    }
+
+    .existing-profile-card {
+      margin-bottom: 24px;
+      padding: 18px 20px;
+      border-radius: 24px;
+      border: 1px solid rgba(67, 97, 238, 0.18);
+      background: rgba(239, 246, 255, 0.96);
+      color: #1d4ed8;
+      box-shadow: 0 16px 35px -24px rgba(29, 78, 216, 0.45);
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .existing-profile-card img {
+      width: 220px;
+      max-width: 100%;
+      background: white;
+      border-radius: 16px;
+      padding: 10px 14px;
+      border: 1px solid rgba(67, 97, 238, 0.14);
+    }
+
+    .existing-profile-meta {
+      flex: 1;
+      min-width: 240px;
+    }
+
+    .existing-profile-meta strong {
+      color: #1e293b;
+    }
+
+    .existing-profile-id {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: 0.04em;
+      color: #1e40af;
+      margin: 6px 0 10px;
+    }
+
+    .existing-profile-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+      text-decoration: none;
+      font-weight: 700;
+      color: #1d4ed8;
+    }
+
     /* live age display with extra flair */
     .age-display-group {
       background: rgba(255, 255, 255, 0.7);
@@ -550,31 +619,55 @@
   <div class="card">
     <!-- IMPORTANT: method and action unchanged -->
     <form method="POST" action="/profile">
+      {% if error_message %}
+      <div class="alert-error">
+        <i class="fas fa-circle-exclamation"></i>
+        <span>{{ error_message }}</span>
+      </div>
+      {% endif %}
+      {% if existing_profile %}
+      <div class="existing-profile-card">
+        {% if existing_barcode_path %}
+        <img src="{{ url_for('static', filename=existing_barcode_path) }}" alt="Existing barcode for {{ existing_profile.profile_id }}" />
+        {% endif %}
+        <div class="existing-profile-meta">
+          <div><strong>Existing child:</strong> {{ existing_profile.get('name', '') }} {{ existing_profile.get('surname', '') }}</div>
+          <div class="existing-profile-id">{{ existing_profile.get('profile_id', '') }}</div>
+          <div><strong>DOB:</strong> {{ existing_profile.get('dob', '') }}</div>
+          <div><strong>School:</strong> {{ existing_profile.get('school', '') }}</div>
+          <div><strong>Location:</strong> {{ existing_profile.get('location', '') }}</div>
+          <a class="existing-profile-link" href="/profile-details/{{ existing_profile.get('profile_id', '') }}">
+            <i class="fas fa-id-card"></i>
+            <span>Open this exact profile</span>
+          </a>
+        </div>
+      </div>
+      {% endif %}
 
       <div class="grid">
 
         <!-- name -->
         <div>
           <label><i class="fas fa-user"></i> Name</label>
-          <input type="text" name="name" placeholder="e.g. John" required />
+          <input type="text" name="name" placeholder="e.g. John" value="{{ form_data.get('name', '') }}" required />
         </div>
 
         <!-- surname -->
         <div>
           <label><i class="fas fa-user"></i> Surname</label>
-          <input type="text" name="surname" placeholder="e.g. Smith" required />
+          <input type="text" name="surname" placeholder="e.g. Smith" value="{{ form_data.get('surname', '') }}" required />
         </div>
 
         <!-- dob -->
         <div>
           <label><i class="fas fa-calendar"></i> Date of birth</label>
-          <input type="date" name="dob" id="dob" required />
+          <input type="date" name="dob" id="dob" value="{{ form_data.get('dob', '') }}" required />
         </div>
 
         <!-- age years (readonly) -->
         <div>
           <label><i class="fas fa-cake-candles"></i> Age (years)</label>
-          <input type="number" name="age" id="age_years" readonly required />
+          <input type="number" name="age" id="age_years" value="{{ form_data.get('age', '') }}" readonly required />
         </div>
 
         <!-- age full live display (enhanced) -->
@@ -591,41 +684,41 @@
         </div>
 
         <!-- hidden field for full age -->
-        <input type="hidden" name="age_full" id="age_full" />
+        <input type="hidden" name="age_full" id="age_full" value="{{ form_data.get('age_full', '') }}" />
 
         <!-- gender -->
         <div>
           <label><i class="fas fa-venus-mars"></i> Gender</label>
           <select name="gender" required>
-            <option value="" disabled selected>✨ select one ✨</option>
-            <option>Male</option>
-            <option>Female</option>
-            <option>Other</option>
+            <option value="" disabled {% if not form_data.get('gender', '') %}selected{% endif %}>✨ select one ✨</option>
+            <option {% if form_data.get('gender', '') == 'Male' %}selected{% endif %}>Male</option>
+            <option {% if form_data.get('gender', '') == 'Female' %}selected{% endif %}>Female</option>
+            <option {% if form_data.get('gender', '') == 'Other' %}selected{% endif %}>Other</option>
           </select>
         </div>
 
         <!-- school -->
         <div>
           <label><i class="fas fa-school"></i> School</label>
-          <input type="text" name="school" placeholder="e.g. Westside High" required />
+          <input type="text" name="school" placeholder="e.g. Westside High" value="{{ form_data.get('school', '') }}" required />
         </div>
 
         <!-- location -->
         <div>
           <label><i class="fas fa-location-dot"></i> Location</label>
-          <input type="text" name="location" placeholder="e.g. Abids" required />
+          <input type="text" name="location" placeholder="e.g. Abids" value="{{ form_data.get('location', '') }}" required />
         </div>
 
         <!-- class -->
         <div>
           <label><i class="fas fa-graduation-cap"></i> Class</label>
-          <input type="text" name="class" placeholder="e.g. 10th grade" required />
+          <input type="text" name="class" placeholder="e.g. 10th grade" value="{{ form_data.get('class', '') }}" required />
         </div>
 
         <!-- section -->
         <div>
           <label><i class="fas fa-layer-group"></i> Section</label>
-          <input type="text" name="section" placeholder="e.g. A" required />
+          <input type="text" name="section" placeholder="e.g. A" value="{{ form_data.get('section', '') }}" required />
         </div>
 
       </div>

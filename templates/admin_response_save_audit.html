@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Save Progress Audit</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
+  <style nonce="{{ csp_nonce() }}">
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      color: #1f2937;
+      padding: 24px;
+    }
+    .container {
+      max-width: 1280px;
+      margin: 0 auto;
+    }
+    .panel {
+      background: #fff;
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08);
+    }
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    .title h1 {
+      margin: 0 0 6px;
+      font-size: 1.8rem;
+    }
+    .title p {
+      margin: 0;
+      color: #64748b;
+    }
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 700;
+      border: 1px solid #dbe4f0;
+      color: #1d4ed8;
+      background: #eff6ff;
+    }
+    .meta {
+      margin-bottom: 16px;
+      color: #475569;
+      font-weight: 600;
+    }
+    .empty {
+      padding: 36px 20px;
+      text-align: center;
+      border: 1px dashed #cbd5e1;
+      border-radius: 18px;
+      color: #64748b;
+    }
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 900px;
+    }
+    th, td {
+      padding: 12px 14px;
+      border-bottom: 1px solid #e2e8f0;
+      text-align: left;
+      vertical-align: top;
+    }
+    th {
+      background: #f8fafc;
+      position: sticky;
+      top: 0;
+      z-index: 1;
+    }
+    tr:last-child td {
+      border-bottom: none;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="panel">
+      <div class="header">
+        <div class="title">
+          <h1><i class="fas fa-floppy-disk"></i> Save Progress Audit</h1>
+          <p>One latest audit row per profile ID. Updated only when users click Save Progress.</p>
+        </div>
+        <div class="actions">
+          <a href="/admin/download/response_save_audit.xlsx" class="btn"><i class="fas fa-file-excel"></i> Download Excel</a>
+          <a href="/admin/download/response_save_audit.csv" class="btn"><i class="fas fa-file-csv"></i> Download CSV</a>
+          <a href="/admin-dashboard" class="btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        </div>
+      </div>
+
+      <div class="meta">
+        Total audited profiles: <strong>{{ data|length }}</strong>
+      </div>
+
+      {% if data|length == 0 %}
+      <div class="empty">
+        <div>No save-progress audit records found.</div>
+      </div>
+      {% else %}
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              {% for h in headers %}
+              <th>{{ h.replace('_', ' ').title() }}</th>
+              {% endfor %}
+            </tr>
+          </thead>
+          <tbody>
+            {% for row in data %}
+            <tr>
+              {% for h in headers %}
+              <td>{{ row.get(h, '') if row.get(h, '') else '-' }}</td>
+              {% endfor %}
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>
