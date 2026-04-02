@@ -264,15 +264,7 @@ HORIBA_UPLOAD_FIELD_MAP = {
 }
 
 LOCK_TIMEOUT_SECONDS = 20
-RESPONSE_SAVE_AUDIT_FIELDS = [
-    "profile_id",
-    "response_id",
-    "participant_name",
-    "investigator_username",
-    "investigator_name",
-    "saved_at",
-    "submitted_at",
-]
+RESPONSE_SAVE_AUDIT_FIELDS = ["saved_at"] + RESPONSE_FIELDS
 
 
 # --------------------------------------------------
@@ -461,15 +453,9 @@ def upsert_response_save_audit(row):
     if not profile_id:
         return
 
-    audit_row = {
-        "profile_id": profile_id,
-        "response_id": (row.get("response_id", "") or "").strip(),
-        "participant_name": (row.get("participant_name", "") or "").strip(),
-        "investigator_username": (row.get("investigator_username", "") or "").strip(),
-        "investigator_name": (row.get("investigator_name", "") or "").strip(),
-        "saved_at": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "submitted_at": (row.get("submitted_at", "") or "").strip(),
-    }
+    audit_row = {field: row.get(field, "") for field in RESPONSE_FIELDS}
+    audit_row["profile_id"] = profile_id
+    audit_row["saved_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
     with locked_file_access(RESPONSE_SAVE_AUDIT_CSV, mode="a+"):
         existing_rows = read_csv_as_dict_list(RESPONSE_SAVE_AUDIT_CSV)
@@ -1378,11 +1364,12 @@ def form():
         with locked_file_access(RESPONSE_CSV, mode="a+"):
             existing_rows = normalize_response_storage()
             answers["response_id"] = str(uuid.uuid4())
-            existing_rows.append(sanitize_response_row(answers))
+            response_row = sanitize_response_row(answers)
+            existing_rows.append(response_row)
             write_response_rows(existing_rows)
 
         if submit_action == "save_progress":
-            upsert_response_save_audit(answers)
+            upsert_response_save_audit(response_row)
 
         update_excel_files()
         if submit_action == "save_progress":
