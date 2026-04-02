@@ -381,11 +381,9 @@ def locked_file_access(target_path, mode="r", timeout_seconds=LOCK_TIMEOUT_SECON
                 if (datetime.now() - start_time).total_seconds() >= timeout_seconds:
                     raise TimeoutError(f"Timed out waiting for file lock on {target_path}")
         try:
-            if "r" in mode and not os.path.exists(target_path):
-                yield None
-            else:
-                with open(target_path, mode, newline="", encoding="utf-8") as data_file:
-                    yield data_file
+            # Only the sidecar lock file stays open here. On Windows, keeping the
+            # target CSV open blocks os.replace() when we atomically rewrite it.
+            yield target_path
         finally:
             try:
                 if os.name == "nt":
@@ -416,12 +414,24 @@ def read_csv_as_dict_list(path):
 def write_dict_list_to_csv(path, rows, fieldnames):
     target_dir = os.path.dirname(path) or "."
     fd, temp_path = tempfile.mkstemp(prefix="tmp_", suffix=".csv", dir=target_dir)
-    with os.fdopen(fd, "w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        writer.writeheader()
-        for r in rows:
-            writer.writerow(r)
-    os.replace(temp_path, path)
+    try:
+        with os.fdopen(fd, "w", newline="", encoding="utf-8") as f:
+            writer = csv.DictWriter(f, fieldnames=fieldnames)
+            writer.writeheader()
+            for r in rows:
+                writer.writerow(r)
+        try:
+            os.replace(temp_path, path)
+        except PermissionError:
+            # OneDrive/Windows can briefly deny atomic replacement even when we
+            # hold our own sidecar lock. Fall back to rewriting in place.
+            with open(temp_path, "r", newline="", encoding="utf-8") as src:
+                contents = src.read()
+            with open(path, "w", newline="", encoding="utf-8") as dst:
+                dst.write(contents)
+    finally:
+        if os.path.exists(temp_path):
+            os.remove(temp_path)
 
 
 def sort_rows_by_timestamp(rows, timestamp_key, newest_first=False):
@@ -1223,43 +1233,70 @@ def profile():
         if age_years not in [3, 4, 5]:
             return render_template("profile.html", error_message="Only ages 3, 4, and 5 are allowed.", form_data=form_data)
 
-        with locked_file_access(PROFILE_CSV, mode="a+"):
-            existing_rows = normalize_profile_storage(write_back=True)
+        try:
+            with locked_file_access(PROFILE_CSV, mode="a+"):
+                existing_rows = normalize_profile_storage(write_back=True)
 
-            existing_profile = find_profile_by_identity(profile_row, rows=existing_rows)
-            if existing_profile:
-                return render_template(
-                    "profile.html",
-                    error_message="Profile already exists. Use the exact existing profile ID shown below instead of creating a new one.",
-                    existing_profile=existing_profile,
-                    existing_barcode_path=ensure_barcode_image(existing_profile.get("profile_id", "")),
-                    form_data=form_data,
+                existing_profile = find_profile_by_identity(profile_row, rows=existing_rows)
+                if existing_profile:
+                    return render_template(
+                        "profile.html",
+                        error_message="Profile already exists. Use the exact existing profile ID shown below instead of creating a new one.",
+                        existing_profile=existing_profile,
+                        existing_barcode_path=ensure_barcode_image(existing_profile.get("profile_id", "")),
+                        form_data=form_data,
+                    )
+
+                profile_id = generate_unique_profile_id(
+                    profile_row["name"],
+                    profile_row["surname"],
+                    profile_row["dob"],
+                    profile_row["gender"],
+                    profile_row["school"],
+                    profile_row["location"],
+                    existing_rows=existing_rows,
                 )
+                if profile_id_exists(profile_id, rows=existing_rows):
+                    return render_template(
+                        "profile.html",
+                        error_message="Profile ID already exists. Please use the existing participant barcode/profile.",
+                        existing_profile=find_profile_by_id(profile_id, rows=existing_rows),
+                        existing_barcode_path=ensure_barcode_image(profile_id),
+                        form_data=form_data,
+                    )
+                profile_row["profile_id"] = profile_id
 
-            profile_id = generate_unique_profile_id(
-                profile_row["name"],
-                profile_row["surname"],
-                profile_row["dob"],
-                profile_row["gender"],
-                profile_row["school"],
-                profile_row["location"],
-                existing_rows=existing_rows,
+                existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
+                write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
+        except TimeoutError:
+            return render_template(
+                "profile.html",
+                error_message="Profile data is busy right now. Please try again in a few seconds.",
+                form_data=form_data,
+                existing_profile=None,
+                existing_barcode_path="",
             )
-            if profile_id_exists(profile_id, rows=existing_rows):
-                return render_template(
-                    "profile.html",
-                    error_message="Profile ID already exists. Please use the existing participant barcode/profile.",
-                    existing_profile=find_profile_by_id(profile_id, rows=existing_rows),
-                    existing_barcode_path=ensure_barcode_image(profile_id),
-                    form_data=form_data,
-                )
-            profile_row["profile_id"] = profile_id
+        except Exception:
+            app.logger.exception("Profile creation failed while saving profile data")
+            return render_template(
+                "profile.html",
+                error_message="Unable to create profile right now. Please try again.",
+                form_data=form_data,
+                existing_profile=None,
+                existing_barcode_path="",
+            )
 
-            existing_rows.append({k: profile_row.get(k, "") for k in PROFILE_FIELDS})
-            write_dict_list_to_csv(PROFILE_CSV, existing_rows, PROFILE_FIELDS)
+        try:
+            update_excel_files()
+        except Exception:
+            app.logger.exception("Profile created but Excel export refresh failed")
 
-        update_excel_files()
-        barcode_path = generate_barcode(profile_id)
+        barcode_path = ""
+        try:
+            barcode_path = generate_barcode(profile_id)
+        except Exception:
+            app.logger.exception("Profile created but barcode generation failed for %s", profile_id)
+
         session["profile_id"] = profile_id
         session["scanned_profile"] = dict(profile_row)
 

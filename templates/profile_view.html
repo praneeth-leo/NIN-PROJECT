@@ -558,7 +558,11 @@
 
       <!-- barcode image -->
       <div class="barcode-wrapper">
+        {% if barcode_path %}
         <img id="barcode-img" src="{{ url_for('static', filename=barcode_path) }}" alt="Barcode" />
+        {% else %}
+        <div class="barcode-meta">Barcode image could not be generated right now. The profile ID below is still saved and can be used.</div>
+        {% endif %}
       </div>
       <div class="barcode-meta">
         <div>🔖 Profile ID: <strong>{{ profile_id }}</strong></div>
