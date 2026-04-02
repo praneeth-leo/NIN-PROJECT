@@ -690,10 +690,36 @@ def deduplicate_response_rows(rows):
 
 def write_response_rows(rows):
     normalized_rows = sort_response_rows_by_submitted_at(
-        normalize_response_storage(rows=rows)
+        deduplicate_response_rows(normalize_response_storage(rows=rows))
     )
     write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
     return normalized_rows
+
+
+def upsert_response_row(rows, row):
+    row_profile_id = (row.get("profile_id", "") or "").strip().upper()
+    if not row_profile_id:
+        rows.append(row)
+        return rows
+
+    replacement_index = None
+    existing_response_id = ""
+    for index, existing in enumerate(rows):
+        existing_profile_id = (existing.get("profile_id", "") or "").strip().upper()
+        if existing_profile_id == row_profile_id:
+            replacement_index = index
+            existing_response_id = (existing.get("response_id", "") or "").strip()
+            break
+
+    if existing_response_id and not (row.get("response_id", "") or "").strip():
+        row["response_id"] = existing_response_id
+
+    if replacement_index is None:
+        rows.append(row)
+    else:
+        rows[replacement_index] = row
+
+    return rows
 
 
 def read_uploaded_response_rows(path):
@@ -1363,9 +1389,8 @@ def form():
 
         with locked_file_access(RESPONSE_CSV, mode="a+"):
             existing_rows = normalize_response_storage()
-            answers["response_id"] = str(uuid.uuid4())
             response_row = sanitize_response_row(answers)
-            existing_rows.append(response_row)
+            upsert_response_row(existing_rows, response_row)
             write_response_rows(existing_rows)
 
         if submit_action == "save_progress":
@@ -1842,7 +1867,7 @@ def admin_download(filename):
 
     if filename in ["profiles.csv", "profiles.xlsx", "responses.csv", "responses.xlsx", "response_save_audit.csv", "response_save_audit.xlsx"]:
         normalize_profile_storage(write_back=True)
-        normalize_response_storage(write_back=True)
+        write_response_rows(normalize_response_storage())
         update_excel_files()
 
     return send_file(path, as_attachment=True)
