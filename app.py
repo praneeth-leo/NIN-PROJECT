@@ -324,7 +324,7 @@ def update_excel_files():
             with pd.ExcelWriter(PROFILE_XLSX, engine="openpyxl") as writer:
                 profile_df.to_excel(writer, sheet_name="Profiles", index=False)
         if os.path.exists(RESPONSE_CSV):
-            normalized_rows = rewrite_responses_in_submitted_order(newest_first=False)
+            normalized_rows = write_response_rows(normalize_response_storage())
             response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
             with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
                 response_df.to_excel(writer, sheet_name="Responses", index=False)
@@ -524,29 +524,25 @@ def resolve_profile_id_alias(profile_id):
 
 def normalize_profile_storage(rows=None, write_back=False):
     profile_rows = rows if rows is not None else read_csv_as_dict_list(PROFILE_CSV)
-    response_rows = sort_response_rows_by_submitted_at(normalize_response_storage())
-    earliest_response_by_profile = {}
 
-    for row in response_rows:
-        profile_id = (row.get("profile_id", "") or "").strip().upper()
-        submitted_at = (row.get("submitted_at", "") or "").strip()
-        if profile_id and submitted_at and profile_id not in earliest_response_by_profile:
-            earliest_response_by_profile[profile_id] = submitted_at
+    unique_profiles = {}
 
-    normalized_rows = []
-    seen_exact_rows = set()
     for row in profile_rows:
-        profile_id = normalize_profile_id_value(row.get("profile_id", ""))
-        fallback_created_at = earliest_response_by_profile.get(profile_id, "")
-        clean_row = sanitize_profile_row(row, fallback_created_at=fallback_created_at)
-        row_signature = tuple((key, clean_row.get(key, "")) for key in PROFILE_FIELDS)
-        if row_signature in seen_exact_rows:
+        pid = normalize_profile_id_value(row.get("profile_id", ""))
+
+        if not pid:
             continue
-        seen_exact_rows.add(row_signature)
-        normalized_rows.append(clean_row)
+
+        clean_row = sanitize_profile_row(row)
+
+        # ✅ Keep latest occurrence (last wins)
+        unique_profiles[pid] = clean_row
+
+    normalized_rows = list(unique_profiles.values())
 
     if write_back:
         write_dict_list_to_csv(PROFILE_CSV, normalized_rows, PROFILE_FIELDS)
+
     return normalized_rows
 
 
@@ -689,35 +685,51 @@ def deduplicate_response_rows(rows):
 
 
 def write_response_rows(rows):
-    normalized_rows = sort_response_rows_by_submitted_at(
-        deduplicate_response_rows(normalize_response_storage(rows=rows))
-    )
+    print("Rows before save:", len(rows))
+
+    unique_rows = {}
+
+    for row in rows:
+        pid = normalize_profile_id_value(row.get("profile_id", ""))
+
+        if not pid:
+            continue
+
+        # ✅ Only ONE response per profile_id
+        unique_rows[pid] = row
+
+    normalized_rows = list(unique_rows.values())
+    normalized_rows = sort_response_rows_by_submitted_at(normalized_rows)
+
+    print("Rows after save:", len(normalized_rows))
+
     write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
+
     return normalized_rows
 
 
 def upsert_response_row(rows, row):
-    row_profile_id = (row.get("profile_id", "") or "").strip().upper()
+    row_profile_id = normalize_profile_id_value(row.get("profile_id", ""))
+
     if not row_profile_id:
         rows.append(row)
         return rows
 
-    replacement_index = None
-    existing_response_id = ""
-    for index, existing in enumerate(rows):
-        existing_profile_id = (existing.get("profile_id", "") or "").strip().upper()
-        if existing_profile_id == row_profile_id:
-            replacement_index = index
-            existing_response_id = (existing.get("response_id", "") or "").strip()
+    updated = False
+
+    for i, existing in enumerate(rows):
+        existing_id = normalize_profile_id_value(existing.get("profile_id", ""))
+
+        if existing_id == row_profile_id:
+            row["response_id"] = existing.get("response_id") or row.get("response_id")
+            row["profile_id"] = row_profile_id
+            rows[i] = row
+            updated = True
             break
 
-    if existing_response_id and not (row.get("response_id", "") or "").strip():
-        row["response_id"] = existing_response_id
-
-    if replacement_index is None:
+    if not updated:
+        row["profile_id"] = row_profile_id
         rows.append(row)
-    else:
-        rows[replacement_index] = row
 
     return rows
 
