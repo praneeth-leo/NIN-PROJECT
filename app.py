@@ -143,6 +143,7 @@ FORM_TEMPLATE_PATH = os.path.join(BASE_DIR, "templates", "form.html")
 
 PROFILE_CSV = os.path.join(BASE_DIR, "profiles.csv")
 RESPONSE_CSV = os.path.join(BASE_DIR, "responses.csv")
+RESPONSE_HISTORY_CSV = os.path.join(BASE_DIR, "responses_history.csv")
 PROFILE_XLSX = os.path.join(BASE_DIR, "profiles.xlsx")
 RESPONSE_XLSX = os.path.join(BASE_DIR, "responses.xlsx")
 LINKED_CSV = os.path.join(BASE_DIR, "linked_data.csv")
@@ -324,7 +325,7 @@ def update_excel_files():
             with pd.ExcelWriter(PROFILE_XLSX, engine="openpyxl") as writer:
                 profile_df.to_excel(writer, sheet_name="Profiles", index=False)
         if os.path.exists(RESPONSE_CSV):
-            normalized_rows = write_response_rows(normalize_response_storage())
+            normalized_rows = normalize_response_storage(write_back=True)
             response_df = pd.DataFrame(normalized_rows, columns=RESPONSE_FIELDS).fillna("")
             with pd.ExcelWriter(RESPONSE_XLSX, engine="openpyxl") as writer:
                 response_df.to_excel(writer, sheet_name="Responses", index=False)
@@ -683,29 +684,6 @@ def deduplicate_response_rows(rows):
     deduped_rows = list(latest_by_profile.values()) + blank_profile_rows
     return sort_response_rows_by_submitted_at(deduped_rows)
 
-
-def write_response_rows(rows):
-    print("Rows before save:", len(rows))
-
-    unique_rows = {}
-
-    for row in rows:
-        pid = normalize_profile_id_value(row.get("profile_id", ""))
-
-        if not pid:
-            continue
-
-        # ✅ Only ONE response per profile_id
-        unique_rows[pid] = row
-
-    normalized_rows = list(unique_rows.values())
-    normalized_rows = sort_response_rows_by_submitted_at(normalized_rows)
-
-    print("Rows after save:", len(normalized_rows))
-
-    write_dict_list_to_csv(RESPONSE_CSV, normalized_rows, RESPONSE_FIELDS)
-
-    return normalized_rows
 
 
 def upsert_response_row(rows, row):
@@ -1398,13 +1376,22 @@ def form():
         answers["profile_id"] = profile_id
         answers["submitted_at"] = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         answers = bind_response_identity_from_profile(answers, profile)
+        response_row = sanitize_response_row(answers)
 
+# 🟡 STEP 1: SAVE FULL HISTORY
+        if not os.path.exists(RESPONSE_HISTORY_CSV):
+            write_dict_list_to_csv(RESPONSE_HISTORY_CSV, [], RESPONSE_FIELDS)
+
+        with locked_file_access(RESPONSE_HISTORY_CSV, mode="a+"):
+            history_rows = read_csv_as_dict_list(RESPONSE_HISTORY_CSV)
+            history_rows.append(response_row)
+            write_dict_list_to_csv(RESPONSE_HISTORY_CSV, history_rows, RESPONSE_FIELDS)
+
+# 🟢 STEP 2: SAVE ONLY LATEST
         with locked_file_access(RESPONSE_CSV, mode="a+"):
-            existing_rows = normalize_response_storage()
-            response_row = sanitize_response_row(answers)
-            upsert_response_row(existing_rows, response_row)
-            write_response_rows(existing_rows)
-
+            existing_rows = read_csv_as_dict_list(RESPONSE_CSV)
+            existing_rows = upsert_response_row(existing_rows, response_row)
+            write_dict_list_to_csv(RESPONSE_CSV, existing_rows, RESPONSE_FIELDS)
         if submit_action == "save_progress":
             upsert_response_save_audit(response_row)
 
@@ -1879,10 +1866,20 @@ def admin_download(filename):
 
     if filename in ["profiles.csv", "profiles.xlsx", "responses.csv", "responses.xlsx", "response_save_audit.csv", "response_save_audit.xlsx"]:
         normalize_profile_storage(write_back=True)
-        write_response_rows(normalize_response_storage())
+        normalize_response_storage(write_back=True)
         update_excel_files()
 
     return send_file(path, as_attachment=True)
+
+@app.route("/admin/download-history")
+def download_history():
+    if not admin_required():
+        return redirect(url_for("admin_login"))
+
+    if not os.path.exists(RESPONSE_HISTORY_CSV):
+        return "No history data found"
+
+    return send_file(RESPONSE_HISTORY_CSV, as_attachment=True)
 
 
 # --------------------------------------------------
@@ -1901,16 +1898,40 @@ def admin_upload():
 
         filename = file.filename.strip().lower()
 
-        allowed = ["profiles.csv", "responses.csv", "profiles.xlsx", "responses.xlsx"]
+        allowed = [
+            "profiles.csv",
+            "responses.csv",
+            "profiles.xlsx",
+            "responses.xlsx",
+            "linked_data.csv",
+            "linked_data.xlsx",
+        ]
         if filename not in allowed:
-            return "Only profiles.csv, responses.csv, profiles.xlsx, responses.xlsx allowed"
+            return "Only profiles.csv, responses.csv, profiles.xlsx, responses.xlsx, linked_data.csv, linked_data.xlsx allowed"
 
         save_path = os.path.join(BASE_DIR, filename)
         file.save(save_path)
 
         if filename in ["responses.csv", "responses.xlsx"]:
             uploaded_rows = read_uploaded_response_rows(save_path)
-            write_response_rows(uploaded_rows)
+
+            # Save to history (ALL)
+            if not os.path.exists(RESPONSE_HISTORY_CSV):
+                write_dict_list_to_csv(RESPONSE_HISTORY_CSV, [], RESPONSE_FIELDS)
+
+            history_rows = read_csv_as_dict_list(RESPONSE_HISTORY_CSV)
+            history_rows.extend(uploaded_rows)
+            write_dict_list_to_csv(RESPONSE_HISTORY_CSV, history_rows, RESPONSE_FIELDS)
+
+            # Save latest only
+            latest_map = {}
+            for row in uploaded_rows:
+                pid = (row.get("profile_id", "") or "").strip().upper()
+                if pid:
+                    clean_row = sanitize_response_row(row)
+                    latest_map[pid] = clean_row
+
+            write_dict_list_to_csv(RESPONSE_CSV, list(latest_map.values()), RESPONSE_FIELDS)
 
         update_excel_files()
         if filename in ["linked_data.csv", "linked_data.xlsx"]:
