@@ -1,0 +1,23 @@
+CSV cleanup summary
+
+Merged response rows: 428
+Rows kept from responses (1).csv: 317
+Rows added from response_save_audit.csv only: 111
+Blank response fields backfilled from audit: 277
+
+Profile fields backfilled:
+created_at: 0
+name: 0
+surname: 0
+dob: 0
+age: 7
+age_full: 1
+gender: 4
+school: 0
+location: 0
+
+Profiles without any response row after merge: 29
+BK120121MATN, CC100122MSSA, VG120920FSSN, SX011022FSST, GT220221MGGC, DV240321MGGC, AK061021FGGC, SG170821MGGC, CS220321MNPM, SK120421FNPM, HG130920FNPM, JK060720MNPM, CM230122MNPM, ST300322FNPM, BV090123FNPW, AA180323FNPW, JS290521MNPW, AG011021FNPW, SM301120MNPW, AA180323FNPW01, BV221022FSJW, ZZ211120MSJW, KA051120MSVW, 34WEEK, MASIMOHEMOCUEHORIBA, PM181122FDOH, SE040221FVPP, CD011221FVPP, RY220721MACM
+
+Suspicious profile rows that still need manual review: 2
+34WEEK, MASIMOHEMOCUEHORIBA
