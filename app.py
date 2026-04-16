@@ -1555,11 +1555,12 @@ def admin_login():
         username_norm = username.casefold()
         password = request.form.get("password", "").strip()
 
+        admin_creds = load_admin_credentials()
+
         valid = any(
             username_norm == (admin_user or "").strip().casefold() and check_password_hash(admin_pass_hash, password)
-            for admin_user, admin_pass_hash in ADMIN_CREDENTIALS
-            if admin_user and admin_pass_hash
-        )
+            for admin_user, admin_pass_hash in admin_creds
+)
         if valid:
             session["admin_logged_in"] = True
             session["admin_username"] = username
