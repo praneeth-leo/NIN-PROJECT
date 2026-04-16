@@ -82,7 +82,7 @@ _env_secret = (os.getenv("FLASK_SECRET_KEY") or "").strip()
 app.secret_key = _env_secret or "change-this-in-production"
 app.config.update(
     SESSION_COOKIE_HTTPONLY=True,
-    SESSION_COOKIE_SAMESITE="Lax",
+    SESSION_COOKIE_SAMESITE="None",
     SESSION_COOKIE_SECURE=False,
     SESSION_COOKIE_PATH="/"
 )
