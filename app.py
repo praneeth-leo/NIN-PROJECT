@@ -14,6 +14,7 @@ from datetime import datetime
 from flask_talisman import Talisman
 from dotenv import load_dotenv
 from werkzeug.security import check_password_hash
+from werkzeug.middleware.proxy_fix import ProxyFix
 import uuid
 
 if os.name == "nt":
@@ -21,12 +22,17 @@ if os.name == "nt":
 else:
     import fcntl
 
-load_dotenv()
 
+
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(__file__), ".env"))
+import logging
+logging.warning("ADMIN USER: %s", os.getenv("ADMIN_USERNAME"))
+logging.warning("ADMIN HASH: %s", os.getenv("ADMIN_PASSWORD_HASH"))
 # --------------------------------------------------
 # App setup
 # --------------------------------------------------
 app = Flask(__name__)
+app.wsgi_app = ProxyFix(app.wsgi_app, x_for=1, x_proto=1, x_host=1, x_port=1)
 # ----------------------------
 # ADD CSP CONFIG HERE
 # ----------------------------
